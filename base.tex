@@ -61,8 +61,8 @@
 % PACKAGES FOR REFERENCES & BIBLIOGRAPHY
 \usepackage[colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,filecolor=black,menucolor=black,runcolor=black,urlcolor=black]{hyperref} % Adds clickable links at references
 \usepackage{cleveref}
-\usepackage[square, numbers, sort&compress]{natbib} % Square brackets, citing references with numbers, citations sorted by appearance in the text and compressed
-\bibliographystyle{abbrvnat} % You may use a different style adapted to your field
+%\usepackage[square, numbers, sort&compress]{natbib} % Square brackets, citing references with numbers, citations sorted by appearance in the text and compressed
+%\bibliographystyle{abbrvnat} % You may use a different style adapted to your field
 
 % OTHER PACKAGES
 \usepackage{pdfpages} % To include a pdf file
@@ -83,6 +83,10 @@
 %----------------------------------------------------------------------------
 
 \usepackage{enumitem}
+
+\usepackage[style=numeric, sorting=anyt]{biblatex}
+
+\addbibresource{chapters/biblio.bib}
 
 %----------------------------------------------------------------------------
 %	ADD YOUR DEFINITIONS AND COMMANDS (be careful of existing commands)
@@ -114,15 +118,31 @@
 \begin{document}
 
 \fancypagestyle{plain}{%
-	\fancyhf{} % Clear all header and footer fields
-	\fancyhead[RO,RE]{\thepage} %RO=right odd, RE=right even
-	\renewcommand{\headrulewidth}{0pt}
-	\renewcommand{\footrulewidth}{0pt}}
+\fancyhf{} % Clear all header and footer fields
+\fancyhead[RO,RE]{\thepage} %RO=right odd, RE=right even
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
 
+
+
+
+\startpreamble
 \setcounter{page}{1} % Set page counter to 1
+\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+\mainmatter % Begin numeric (1,2,3...) page numbering
 
-\input{chapters/state_of_the_art.tex}
+\input{chapters/02_literature.tex}
 
-\bibliography{chapters/biblio}
+
+\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+
+%bibtex bibliography
+%\bibliography{chapters/biblio}
+
+%biblatex bibliography
+\setlength\bibitemsep{0.5\baselineskip}
+\printbibliography
+
+
 
 \end{document}
