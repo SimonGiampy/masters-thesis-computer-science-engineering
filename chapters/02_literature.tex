@@ -542,8 +542,8 @@ in the robot body-hand coordination, which is a very challenging task for most o
 methods. The movements look very smooth and natural, and the robot is able to perform
 simple task in dynamic environment. The April marker tracking mode shows also the effectiveness of
 the use of a stereo camera for tracking the objective, meaning that promising results can be
-achieved in other tasks. This research used Isaac Gym as a simulation environment, which
-proved to be very powerful for training and overcoming the simulation-to-reality gap.
+achieved in other tasks. This research used Nvidia Isaac Gym \cite{isaacgym} as a simulation environment
+\cite{isaacsim}, which proved to be very powerful for training and overcoming the simulation-to-reality gap.
 
 \textbf{\textit{Learning Mobile Manipulation through Deep
 		Reinforcement Learning}} \quad
@@ -675,9 +675,122 @@ the model doesn't show very high success rate in the tasks shown, it shows promi
 and a direction of research that can be further explored.
 
 
+\subsection{Mobile manipulation with imitation learning}
+
+Imitation learning from human-provided demonstrations is a promising tool for developing generalist
+robots \cite{tony2024mobile}, as it allows people to teach arbitrary skills to robots. 
+Indeed, direct behavior cloning can enable robots to learn a variety of primitive robot skills
+ranging from lane-following in mobile robots, to simple pick-and-place manipulation skills
+to more delicate manipulation skills like spreading pizza sauce or slotting in a battery.
+However, many tasks in realistic, everyday environments require whole-body coordination of both mobility
+and dexterous manipulation, rather than just individual mobility or manipulation behaviors.
+Two main factors hinder the wide adoption of imitation learning for mobile manipulation. 
+
+\begin{itemize}
+	\item We lack accessible, plug-and-play hardware for whole-body teleoperation. Teleoperation
+	for whole-body control requires a human to provide demonstrations of the task to the robot, 
+	using a specific and often expensive hardware setup. Also mobile manipulatore,
+	especially bimanual mobile manipulators, can be costly if purchased off-the-shelf.
+	\item Prior robot learning works have not demonstrated high-performance bimanual mobile manipulation
+	for complex tasks. Same goes for single manipulator in complex tasks in dynamic, 
+	cluttered or unknown environments.
+\end{itemize}
+
+\textbf{\textit{Mobile ALOHA: Learning Bimanual Mobile Manipulation with
+Low-Cost Whole-Body Teleoperation}} \quad
+On the hardware front, the researchers from Stanford University in their new paper \cite{tony2024mobile}
+present a low-cost and whole-body teleoperation system for collecting bimanual mobile manipulation
+data. Mobile ALOHA extends the capabilities of the original ALOHA \cite{tony2023bimanual},
+the low-cost and dexterous bimanual puppeteering setup \cite{tony2023bimanual},
+by mounting it on a wheeled base.
+
+%add image from the paper
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{img18.png}
+	\captionsetup{width=1\linewidth}
+	\caption{Low-cost mobile manipulation system that is bimanual and supports whole-body teleoperation. 
+	The system costs 32k USD including onboard power and compute. Left: A user teleoperates to 
+	obtain food from the fridge. Right: Mobile ALOHA can perform complex long-horizon tasks
+	with imitation learning. \cite{tony2024mobile}}
+	\label{fig:img18}
+\end{figure}
+
+The main contribution of the research paper \cite{tony2024mobile} is the hardware setup of
+a low-cost bimanual mobile manipulation system supporting whole-body teleoperation.
+Using data collected with Mobile ALOHA, performing supervised behavior cloning results in a more 
+accurate behavior mimicking. Also co-training with existing static ALOHA datasets \cite{tony2023bimanual}
+boosts performance on mobile manipulation tasks. 
+The robot can not yet improve itself autonomously or explore to acquire new knowledge.
+In addition, the Mobile ALOHA demonstrations are collected by two expert operators.
+
+\textbf{Shortcomings of imitation learning approaches} \quad
+The main shortcomings of imitation learning approaches are the lack of generalization and
+the difficulty in perception of the environment. Imitation learning is feasible in a general 
+context and environment given:
+
+\begin{itemize}
+	\item A large dataset of demonstrations collected with human teleoperation
+	\item Human-made demonstrations available offline for training and evaluation
+	\item A hardware component with a similar kinematic structure to the human demonstrator.
+		The hardware mimicking structure must also not occupy too much space, since it would
+		affect the real robot physical constraints.
+	\item Mobile arms controlled by each degree of freedom, since it would not be possible
+		to give a proper demonstration by inputting only the end-effector pose and getting
+		the joints positions by inverse kinematics.
+	\item Appropriate depth perception and semantic object understanding would be ideal
+		for the robot to understand the task deeply and perform better.
+\end{itemize}
+
+The software architecture upon which the robot system in figure \ref{fig:img18} relies upon
+is the one presented in \cite{tony2023bimanual}, which is a modular architecture
+that allows for easy integration of functionalities. The architecture is described below.
+
+\textbf{\textit{Learning Fine-Grained Bimanual Manipulation with
+Low-Cost Hardware}} \quad
+Fine manipulation tasks, such as threading cable ties or slotting a battery, are notoriously difficult
+for robots because they require precision, careful coordination of contact forces, and closed-loop 
+visual feedback. Performing these tasks typically requires high-end robots, accurate sensors, 
+or careful calibration, which can be expensive and difficult to set up. 
+The researchers in \cite{tony2023bimanual} present a low-cost system that performs
+end-to-end imitation learning directly from real demonstrations, collected with a custom
+teleoperation interface. Imitation learning, however, presents its own challenges, 
+particularly in high-precision domains: errors in the policy can compound over time,
+and human demonstrations can be non-stationary. To address these challenges, they developed a simple yet 
+novel algorithm, Action Chunking with Transformers (ACT), which learns a generative
+model over action sequences. ACT allows the robot to learn multiple difficult tasks in the real world.
+
+%add img17 from the paper
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{img17.png}
+	\captionsetup{width=1\linewidth}
+	\caption{Detail architecture of Action Chunking with Transformers (ACT).
+	First they train ACT as a Conditional VAE (CVAE), which has an encoder and a decoder. 
+	The encoder of the CVAE compresses action sequence and joint observation into $z$, the style variable.
+	The encoder is discarded at test time. The decoder or policy of ACT synthesizes images from 
+	multiple viewpoints, joint positions, and z with a transformer encoder, and 
+	predicts a sequence of actions with a transformer decoder. $z$ is simply set to the mean of the prior
+	(i.e. zero) at test time \cite{tony2023bimanual}.}
+	\label{fig:img17}
+\end{figure}
+
+The proposed method is evaluated on a wide variety of complicated tasks, and the robot is able to
+perform well in most of them. Although their method has some limitations, mostly due to the 
+difficulty in perception of the environment and the lack of training data. However, the architecture
+proposed shows very promising results from few training examples.
+
+In some extremely complex tasks (the ones in which even humans find some difficulty),
+the robots fails consistently, as reported in \cite{tony2023bimanual}. The failures can then be
+attributed to the difficulty in perception and lack of data, since the input video sequences were
+created from standard rgb cameras, therefore no depth information was available. Furthermore,
+object semantic understanding would have been very useful for the robot to understand the task
+deeply and perform better. The lack of data is also a big issue, since the robot was trained
+by teleoperation. They believe that pretraining, more data, and better perception are promising
+directions to tackle these extremely difficult tasks.
+
 
 \subsection{Comparison of Model-Based and Data-Driven approaches}
-
 
 \singlespacing
 \begin{table}[H]
@@ -770,6 +883,39 @@ and a direction of research that can be further explored.
 
 
 \section{Addressing the Simulation-to-Reality Gap}
+
+The simulation-to-reality gap is a well-known problem in robotics, which is the difference
+between the performance of a robot in simulation and in the real world. The simulation-to-reality
+gap is a major challenge in robotics, as it is difficult to accurately model the real world
+in simulation. This is especially true for mobile manipulation, where the robot must interact
+with the environment in order to perform its task. 
+
+Many works addressed this problem explicitly in the past, such as \cite{liu2021deep} and 
+\cite{zhang2021simtoreal}, proposing methods to make simulations more realistic and
+to improve the generalization of the learned policies.
+
+Nvidia has developed some tools, such as Nvidia Isaac Gym \cite{isaacgym} and Nvidia Isaac Sim
+\cite{isaacsim}, which are very powerful tools for simulating robots and environments.
+Isaac Sim is the simulation engine for Isaac Gym, which is a framework for training and
+testing robots in simulated environments with DRL and other tensor-based ML techniques. 
+Isaac Gym is built on top of Nvidia Omniverse, which is a platform for real-time
+simulation and collaboration. Nvidia Omniverse allows also bridging the simulation with ROS
+thanks to the Isaac ROS bridge \cite{isaacros}. Overall, these tools enable reducing the
+simulation-to-reality gap, since they support many different robots, environments and perception
+sensors, so they are very powerful for training and testing DRL policies, if properly set up.
+
+%add img19
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{img19.png}
+	\captionsetup{width=1\linewidth}
+	\caption{Simulated environment with Nvidia Isaac Gym \cite{isaacros}.
+	The screenshot depicts a simulated environment with many legged mobile manipulators trained in
+	parallel using DRL, as in \cite{mittal2022articulated}. 
+	The environment is simulated using Nvidia Isaac Sim \cite{isaacsim}}.
+	\label{fig:img19}
+\end{figure}
+
 
 \textbf{\textit{A Sim-to-Real Pipeline for Deep Reinforcement
 		Learning for Autonomous Robot Navigation in
