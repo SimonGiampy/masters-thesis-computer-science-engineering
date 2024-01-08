@@ -1,4 +1,4 @@
-## Mobile Manipulation for exploration and inspections in industrial environments
+## Mobile Manipulation for exploration and inspections in industrial environments - Ongoing Development
 
 ### Master's Thesis in Computer Science Engineering - Artificial Intelligence and Robotics Laboratory
 

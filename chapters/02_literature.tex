@@ -5,11 +5,9 @@ This chapter will present the state of the art and literature review of the topi
 The topics are: Robotic Manipulator Control, Deep Reinforcement Learning in Robotic Manipulation and Mobile
 Manipulation, Autonomous navigation, Object Detection and Grasping.
 
-Particular focus is on the part regarding the Mobile Manipulation, since it is the main topic of this thesis
-project. In particular, the potential challenges as well as possible benefits and disadvantages of using each
-method will be discussed.
-
-\section{Autonomous Navigation}
+Particular focus is on the part regarding the Mobile Manipulation, since it is the main topic of 
+this thesis project. In particular, the potential challenges as well as possible
+benefits and disadvantages of using each method will be discussed.
 
 \section{Robotic Manipulator Control}
 
@@ -29,7 +27,7 @@ auxiliary computers or embedded microprocessors are needed to perform interface 
 these associated sensors and the required computational functions. These two traditional
 control scenarios are both heavily dependent on hardware-based solutions \cite{liu2021deep}.
 
-Other control strategies may include \textbf{robotic embodiement} and \textbf{teleoperation}. 
+Other control strategies may include \textbf{robotic embodiement} and \textbf{teleoperation}.
 The former is a control strategy that is based on the idea that the
 robotic system emulates the human body movement, for learning a task quickly, instead of
 relying on specific ad-hoc training and programming, as suggested in \cite{ji2021manufacturing}.
@@ -37,7 +35,7 @@ This article presents an approach to the autoprogramming of robotic assembly
 tasks with minimal human assistance. The approach integrates
 "robotic learning of assembly tasks from observation" and
 "robotic embodiment of learned assembly tasks in the form of
-skills". These skills aim to enable robots to execute difficult tasks that involve inherent 
+skills". These skills aim to enable robots to execute difficult tasks that involve inherent
 uncertainties and variations, and are most useful in smart manifacturing in industrial
 scenarios. The robotic embodiement is associated with a dramatic reduction in
 the human effort required for automating robotic assembly, as well for task training.
@@ -149,11 +147,11 @@ of modelling all the uncertainty of dynamic industrial environments when those a
 
 
 \textbf{\textit{Mobile Manipulator for Autonomous Localization,
-Grasping and Precise Placement of Construction
-Material in a Semi-Structured Environment}} \quad
+		Grasping and Precise Placement of Construction
+		Material in a Semi-Structured Environment}} \quad
 A starting point for mobile manipulation is the work \cite{loianno2021construction},
 presenting the winning mobile manipulation system for the \textit{Mohamed
-Bin Zayed International Robotics Challenge (MBZIRC)} held in 2020. The proposed system
+	Bin Zayed International Robotics Challenge (MBZIRC)} held in 2020. The proposed system
 is comprised of a mobile wheeled base performing localization and navigation in a
 semi-structured environment, and a 5-DoF manipulator for grasping and precise placement
 of bricks in a carrier. This work was among the first to demonstrate the potentialities
@@ -165,7 +163,7 @@ in mobile manipulation in a practical scenario.
 	\includegraphics[width=1\textwidth]{img13.png}
 	\captionsetup{width=1\linewidth}
 	\caption{The described system loading and placing building material
-	during the MBZIRC 2020 contest.	\cite{loianno2021construction}}
+		during the MBZIRC 2020 contest.	\cite{loianno2021construction}}
 	\label{fig:img13}
 \end{figure}
 
@@ -177,6 +175,41 @@ is straightforward to compute. Furthermore, the robot is not able to autonomousl
 where to place the brick, but it is only able to place it in the predefined position.
 Also the arm controller is quite primitive, since it doesn't handle the self collisions
 appropriately, and the arm is not able to avoid obstacles in its workspace.
+
+\textbf{\textit{Go Fetch: Mobile Manipulation in Unstructured Environments}} \quad
+This work \cite{blomqvist2020gofetch} presents a mobile manipulation system
+that combines perception, localization, navigation,
+motion planning and grasping skills into one common workflow
+for fetch and carry applications in unstructured indoor environments. 
+The integration across the various modules is experimentally demonstrated 
+in the video \cite{youtube2020gofetch} on the task of finding a commonly available 
+object in an office environment, grasping it, 
+and delivering it to a desired drop-off location. 
+
+%add img16 from the paper
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{img16.png}
+	\captionsetup{width=0.8\linewidth}
+	\caption{A picture of RoyalYumi in action. It features a two-arm ABB Yumi, a Clearpath 
+	Ridgeback mobile base, two Hokuyo 2D LiDARs, an	Intel RealSense D435 and a Skybotix VI-Sensor.
+	\cite{blomqvist2020gofetch}}
+	\label{fig:img16}
+\end{figure}
+
+The research \cite{blomqvist2020gofetch} is an example of a mobile manipulation system
+for pick and place task in an indoor environment that adopted many simplifications in order
+to achieve the desired results. The system uses a series of heuristics to perform the
+approaching to the object and the grasping phase, as it can be seen from the demonstration video
+\cite{youtube2020gofetch}. The navigation uses a feature-based map and localization
+modules, while the arm controller is handled by MoveIt! \cite{moveit2} solver coupled with
+the ROS framework \cite{ros2}. This system is not very
+well integrated as each phase of the task is carried out by a different module, and shows
+how slow and inefficient the robot is in picking the banana. The grasping phase uses multiple
+views of the object in order to compute a better grasp pose, which works well
+but seems to be overly complex given the predefined task. Overall, the system 
+can be regarded as a starting point for mobile manipulation and one of the first
+works in dual-arm manipulability.
 
 \subsection{Deep Reinforcement Learning - Data Driven Approach}
 
@@ -210,8 +243,9 @@ DRL has been successfully applied in a wide variety of areas such as robotics, c
 Taking into account the difficulty of modelling complex decision-making robotic skills, DRL offers
 a promising way to take advantage of the experience gathered interacting with the environment to
 autonomously learn complex robotic behaviours. In particular, the field of DRL applied to robotics has
-recently gained popularity due to the remarkable performance obtained in applications with high decision-making
-and control complexity. Applications range from manipulation, to autonomous navigation and locomotion.
+recently gained popularity due to the remarkable performance obtained in applications 
+with high decision-making and control complexity. 
+Applications range from manipulation, to autonomous navigation and locomotion.
 \cite{iriondo2023learning}
 
 \begin{figure}[H]
@@ -223,8 +257,22 @@ and control complexity. Applications range from manipulation, to autonomous navi
 	\label{fig:img03}
 \end{figure}
 
+\textbf{\textit{Pick and Place Operations in Logistics Using
+a Mobile Manipulator Controlled with Deep
+Reinforcement Learning}} \quad
+The work \cite{iriondo2019pickandplace} presents one of the first and pioneering approaches
+to DRL-based methods for pick and place tasks. Their work focused on the positioning
+problem, consisting in a local navigation problem where the robot must move to a desired
+position moving by small distances in a confined environment to reach the target object.
+They relied on DRL for controlling the mobile wheeled base robot, while the arm controller
+was handled by MoveIt! framework \cite{moveit2}. This can be regarded as a first step towards
+more complex tasks, as it shows the foundations of DRL-based methods for mobile manipulation.
+The method had some flaws, like the imprecise navigation due to errors in localization and
+odometry, which the network was not able to overcome, since it was not fed video data stream.
+However, it paved the wasy for a lot of other works, many of which mentioned in this chapter.
+
 \textbf{\textit{Fully Autonomous Real-World Reinforcement
-Learning with Applications to Mobile Manipulation}} \quad
+		Learning with Applications to Mobile Manipulation}} \quad
 A work from Berkeley AI research \cite{sun2022relmm} show \textit{ReLMM}, a model that
 can learn continuously on a real-world platform without any environment instrumentation,
 without human intervention, and without access to privileged information, such as maps,
@@ -244,7 +292,7 @@ at scale and improve its performance over time, with the auto-reset functionalit
 	\includegraphics[width=1\textwidth]{img11.png}
 	\captionsetup{width=1\linewidth}
 	\caption{ReLMM partitions the mobile manipulator into a navigation policy
-	and grasping policy. Both policies are rewarded when an object is grasped
+		and grasping policy. Both policies are rewarded when an object is grasped
 		\cite{sun2022relmm}}
 	\label{fig:img11}
 \end{figure}
@@ -293,33 +341,34 @@ surgery or household robots taking care of the elder or the disabled. There are 
 challenges including but not limited to the algorithm explainability, the learning speed,
 high-performance computational equipment requirements. \cite{liu2021deep}
 
+\textbf{\textit{Learning positioning policies for mobile manipulation operations
+		with deep reinforcement learning}}
+\quad
+The work proposed in \cite{iriondo2023learning} is a practical example of a DRL-based approach
+facing these challenges and the enormous limitations to overcome (as well as the potentialities).
+The mobile platform in figure \ref{fig:img01} is used in an industrial environment for an
+approaching task. The robot learns to navigate itself to the desk where the target object is located,
+then uses the MoveIt! planner to check whether the trajectory to pick the object is feasible.
+The robot locates itself using AMCL and the learned policy serves as a controller for
+local navigation task. Their work show many shortcomings of this approach, such as the
+difficult integration between the DRL policy and localization package, with noise in the
+real environment affecting negatively the performance of the robot. As a result,
+the video presented shows an inefficient an jiggly movement
+because of the non-smooth control policy. In fact, they mention the necessity of mounting
+a stereo camera for navigation, in order to reduce the errors in the localization and
+improve the navigation of the robot.
+
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.5\textwidth]{img01.png}
 	\captionsetup{width=0.6\linewidth}
 	\caption{KUKA robot mounted on a mobile platform for pick and place tasks
-		in industrial environments \cite{liu2021deep}}
+		in industrial environments \cite{iriondo2023learning}}
 	\label{fig:img01}
 \end{figure}
 
 
-\textbf{\textit{Learning positioning policies for mobile manipulation operations
-with deep reinforcement learning}}
-\quad
-The work proposed in \cite{liu2021deep} is a practical example of a DRL-based approach
-facing these challenges and the enormous limitations to overcome (as well as the potentialities).
-The mobile platform in figure \ref{fig:img01} is used in an industrial environment for an
-approaching task. The robot learns to navigate itself to the desk where the target object is located,
-then uses the MoveIt! planner to check whether the trajectory to pick the object is feasible.
-The robot locates itself using AMCL and the learned policy serves as a controller for 
-local navigation task. Their work show many shortcomings of this approach, such as the
-difficult integration between the DRL policy and localization package, with noise in the
-real environment affecting negatively the performance of the robot. As a result,
-the video presented shows an inefficient an jiggly movement
-because of the non-smooth control policy. In fact, they mention the necessity of mounting
-a stereo camera for navigation, in order to reduce the errors in the localization and 
-improve the navigation of the robot.
 
 \textbf{\textit{Deep Reinforcement Learning Based Mobile Robot Navigation Using Sensor Fusion}} \quad
 The problem of unstable and imprecise navigation with learned policies is overcome in the
@@ -355,7 +404,7 @@ simultaneously without affecting much the performance of the end-effector manipu
 \subsection{MPC+IK for articulated object manipulation}
 
 \textbf{\textit{Articulated Object Interaction in Unknown Scenes
-with Whole-Body Mobile Manipulation}} \quad
+		with Whole-Body Mobile Manipulation}} \quad
 In a work conducted in universities in Zurich and Toronto \cite{mittal2022articulated},
 the researchers demonstrated a successful application of whole-body control for a mobile
 manipulator. The proposed system introduces a two-stage architecture for autonomous interaction
@@ -424,7 +473,7 @@ since it boils down to an optimal control problem.
 \subsection{Deep Reinforcement Learning for high DoF control}
 
 \textbf{\textit{Deep Whole-Body Control: Learning a Unified Policy
-for Manipulation and Locomotion}} \quad
+		for Manipulation and Locomotion}} \quad
 The research paper \cite{fu2022deeplegged} addresses the challenges in controlling legged
 manipulators with attached arms, proposing a novel approach to learn a unified policy for
 whole-body control using deep reinforcement learning. The standard hierarchical control pipeline
@@ -475,7 +524,7 @@ in general-purpose object interaction \cite{fu2022deeplegged}.
 	\includegraphics[width=1\textwidth]{img07.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Whole-body control framework. During training, a unified policy is learned by conditioned on
-		environment extrinsics. During deployment, the adaptation module is reused without 
+		environment extrinsics. During deployment, the adaptation module is reused without
 		any real-world fine-tuning.
 		The robot can be commanded in various modes including teleoperation, vision and demonstration replay.
 		\cite{fu2022deeplegged}}
@@ -493,11 +542,71 @@ in the robot body-hand coordination, which is a very challenging task for most o
 methods. The movements look very smooth and natural, and the robot is able to perform
 simple task in dynamic environment. The April marker tracking mode shows also the effectiveness of
 the use of a stereo camera for tracking the objective, meaning that promising results can be
-achieved in other tasks. This research used Isaac Gym as a simulation environment, which 
+achieved in other tasks. This research used Isaac Gym as a simulation environment, which
 proved to be very powerful for training and overcoming the simulation-to-reality gap.
 
-\textbf{\textit{Multi-Task Reinforcement Learning based Mobile Manipulation Control for Dynamic Object Tracking and Grasping}} \quad
-This research paper \cite{wang2022multitask} addresses the challenges associated with
+\textbf{\textit{Learning Mobile Manipulation through Deep
+		Reinforcement Learning}} \quad
+\cite{wang2020drlmanipulation}
+This paper presents a pioneering mobile manipulation system that leverages deep
+reinforcement learning for unstructured environments. It uniquely integrates state-of-the-art
+algorithms with visual perception, adopting an efficient framework that separates
+visual processing from control. This design enables seamless generalization from simulation
+training to real-world scenarios, utilizing only on-board sensors.
+Notably, the transferability of policies from simulation to real robots is a key strength,
+demonstrating the system's autonomy in grasping diverse objects across varied scenarios.
+The evaluation centers around a challenging mobile picking task, encompassing object recognition,
+collision-free robot-arm control, and object picking based on the learned policy.
+
+
+%add img14 from the paper
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{img14.png}
+	\captionsetup{width=1\linewidth}
+	\caption{Learning-based mobile manipulation control framework. There are mainly two parts,
+		deep reinforcement learning module and vision module. First, the vision module estimates
+		the object 6-degrees of freedom pose $p$ from images captured by an on-board RGB stereo camera.
+		Then, based on the object pose $p$ and current robot state st, deep reinforcement learning
+		module predicts an action at for the robot to act. A new state $s_{t+1}$ and a reward
+		$r_{t+1}$ are received after action.\cite{wang2020drlmanipulation}}
+	\label{fig:img14}
+\end{figure}
+
+Comparative assessments with state-of-the-art reinforcement learning algorithms highlight
+the stability and efficacy of the Proximal Policy Optimization (PPO) based system.
+Real-world experiments further confirm the system's ability to autonomously execute mobile grasping,
+overcoming challenges posed by the intricate nature of mobile base, arm, gripper, and vision subsystems.
+Acknowledging differences between simulation and real-world dynamics, the paper addresses
+the need for closer coupling between mobile base and arm motions in future work. Overall,
+this work represents a significant contribution to the field, showcasing the potential of
+deep reinforcement learning for autonomous mobile manipulation in complex, unstructured environments.
+
+%add img15 from the paper
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{img15.png}
+	\captionsetup{width=1\linewidth}
+	\caption{Real mobile grasping process for a soup can.
+	(a) is starting, (b,c,d) is approaching, (e) is grasping, (f) is picking up.
+	\cite{wang2020drlmanipulation}}
+	\label{fig:img15}
+\end{figure}
+
+The method proposed in \cite{wang2020drlmanipulation} is very promising, since it is able to
+achieve very good results in the robot body-hand coordination, which is a very challenging task
+especially in dynamic environments. The movements look very smooth and natural, and the robot is
+able to perform simple task in dynamic environment. This approach is one of the first able
+to achieve such complex control using vision-based perception together with deep reinforcement
+learning. However, it is far from being an optimal solution, since it achieves simple
+tasks in a very controlled environment. The research paper mentioned below is from the same
+research group, demonstrating the new advancements in their research.
+
+\textbf{\textit{Multi-Task Reinforcement Learning based Mobile Manipulation 
+	Control for Dynamic Object Tracking and Grasping}} \quad
+This research paper \cite{wang2022multitask} is a continuation of work demonstrated in the
+their previous research paper \cite{wang2020drlmanipulation} mentioned above.
+\cite{wang2022multitask} addresses the challenges associated with
 agile control of mobile manipulators in unstructured environments, particularly focusing
 on dynamic object tracking and grasping. The authors propose a multi-task reinforcement
 learning-based control framework that aims to achieve general dynamic object tracking and
@@ -516,13 +625,13 @@ addressing the challenges of mobile manipulation with dynamic objects.
 	\includegraphics[width=1\textwidth]{img08.png}
 	\captionsetup{width=1\linewidth}
 	\caption{(a) Dynamic trajectory tracking task with a mobile manipulator. (b)
-	Dynamic object grasping task with a mobile manipulator. (c) Several basic
-	trajectories as multi-task RL training set. (d) Random trajectories as multi-task
-	RL testing set.\cite{wang2022multitask}}
+		Dynamic object grasping task with a mobile manipulator. (c) Several basic
+		trajectories as multi-task RL training set. (d) Random trajectories as multi-task
+		RL testing set.\cite{wang2022multitask}}
 	\label{fig:img08}
 \end{figure}
 
-In \cite{wang2022multitask} they use the proximal policy optimization (PPO) algorithm to train 
+In \cite{wang2022multitask} they use the proximal policy optimization (PPO) algorithm to train
 and learn a policy, but the method is general and can be applied to most on/off-policy RL algorithms.
 PPO is one of the state-of-the-art RL algorithms that is easy to implement and tune, and performs
 relatively well. The policy is learned through a deep neural network.
@@ -533,9 +642,9 @@ relatively well. The policy is learned through a deep neural network.
 	\includegraphics[width=1\textwidth]{img09.png}
 	\captionsetup{width=1\linewidth}
 	\caption{(a) In the multi-task RL training, six basic trajectories are used as the task
-	training set to train a general policy. To improve the robustness, gaussian noise is added
-	to the action and observation space in each training episode. (b) The RL testing includes
-	simulation and real world for policy evaluation.\cite{wang2022multitask}}
+		training set to train a general policy. To improve the robustness, gaussian noise is added
+		to the action and observation space in each training episode. (b) The RL testing includes
+		simulation and real world for policy evaluation.\cite{wang2022multitask}}
 	\label{fig:img09}
 \end{figure}
 
@@ -552,9 +661,9 @@ to generalize better to unseen trajectories and environments.
 	\includegraphics[width=1\textwidth]{img10.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Snapshots of the real robot experiments. The upper row shows a mobile
-	tracking process in which the end-effector try to track the target trajectory.
-	The lower row shows a mobile grasping process in which the object moves
-	randomly. \cite{wang2022multitask}}
+		tracking process in which the end-effector try to track the target trajectory.
+		The lower row shows a mobile grasping process in which the object moves
+		randomly. \cite{wang2022multitask}}
 	\label{fig:img10}
 \end{figure}
 
@@ -660,6 +769,31 @@ and a direction of research that can be further explored.
 \onehalfspacing
 
 
+\section{Addressing the Simulation-to-Reality Gap}
+
+\textbf{\textit{A Sim-to-Real Pipeline for Deep Reinforcement
+		Learning for Autonomous Robot Navigation in
+		Cluttered Rough Terrain}} \quad
+A work from Toronto \cite{zhang2021simtoreal} proposes a sim-to-real pipeline for
+deep reinforcement learning for autonomous robot navigation in cluttered rough terrain.
+Sim-to-real strategies have been developed for robot navigation tasks. For example,
+domain randomization can be applied to visual parameters such as texture,
+lighting, and object placement in synthetic environments to improve the generalizability.
+The paper \cite{zhang2021simtoreal} addresses the "sim-to-real Gap" in training robots for
+3D terrain navigation by incorporating three sim-to-real strategies. Firstly, to account
+for depth camera measurement errors in 3D mapping that affect terrain steepness accuracy,
+the authors vary terrain steepness during training using a uniform distribution.
+Secondly, the paper tackles disturbances in robot motion during interactions with rough
+terrain, such as slippage and insufficient traction. Both 3D terrain interactions and
+latency from visual odometry measurements contribute to disturbances in robot travel distance
+and yaw rotation angle. The third strategy focuses on addressing robot pose estimation errors
+arising from image and feature association errors. These errors, caused by lens distortion
+and ambiguous features, impact the accuracy of the robot's estimated 6 DOF pose.
+The paper integrates these errors into the inputs of the DRL network to improve the
+model's performance in the face of localization inaccuracies.
+
+
+
 \section{Object Detection and Grasping}
 
 Grasp planning for mobile manipulators is a challenging problem that has been
@@ -676,17 +810,54 @@ explored till grasping is successful or at least until the gripper reaches the
 objects (and only manipulator moves for grasping). This may not be optimal as grasping can happen
 with the mobile base and the manipulator moving when the gripper is closing \cite{thakar2023survey}.
 
+Broadly, automated grasping can be categorized into the following approaches 
+\cite{asadi2019construction}: 
+
+\begin{enumerate}
+	\item grasp using prior information from scene/objects
+	\item grasp using hand-eye coordination through learning directly from raw sensor data
+	\item grasp using template matching
+	\item grasp by detecting proper grasping pose using deep learning-based approaches
+	\item other field-specific approaches
+\end{enumerate}
+
+Systems in each category have one or more limitations that are detailed in the following
+subsections. The majority of the existing systems are static, where a robotic system 
+is fixed in an environment surrounded by the objects in its workspace.
+
+\textbf{\textit{Automated Object Manipulation Using Vision-Based Mobile 
+Robotic System for Construction Applications}} \quad
+The system designed and deployed for pick-and-place in a structured construction environment
+\cite{asadi2019construction} integrates scene understanding and autonomous navigation 
+with object grasping. To achieve this, two stereo cameras and a robotic arm are mounted
+on a mobile platform. This integrated system uses a global-to-local control planning strategy
+to reach the objects of interest (in this study, bricks, wood sticks, and pipes). 
+Then, the scene perception, together with grasp and control planning, enables the system
+to detect the objects of interest, pick, and place them in a predetermined location depending
+on the application.
+The system is implemented and validated in a construction-like environment for pick-and-place
+activities. The results demonstrate the effectiveness of this fully autonomous system 
+using solely onboard sensing for real-time applications with end-effector positioning
+accuracy of less than a centimeter.
+However, the researchers mention also the shortcomings of the system, since the robot
+was developed for a field-specific application, therefore non-adaptable to more generic
+use case scenarios. The system uses a heuristic-based approach in order to detect the
+bricks to grasp and pick up. Furthermore, the navigation pipeline relies on a static environment
+with no dynamic obstacles, since the arm manipulator does not employ any collision avoidance
+in the trajectory planning \cite{asadi2019construction}.
+
+
 \textbf{\textit{Autonomous Robotic Manipulation: Real-Time, Deep-Learning
-Approach for Grasping of Unknown Objects}} \quad
+		Approach for Grasping of Unknown Objects}} \quad
 The work \cite{sayour2022unknowngrasping} proposes a novel approach for grasping unknown objects.
-The researhers present a full grasping pipeline proposing a real-time data-driven 
-deep-learning approach for robotic grasping of unknown objects using MATLAB and 
+The researhers present a full grasping pipeline proposing a real-time data-driven
+deep-learning approach for robotic grasping of unknown objects using MATLAB and
 deep convolutional neural networks. The proposed approach employs RGB-D image data
 acquired from an eye-in-hand camera centering the object of interest in the field of
 view using visual servoing. Their approach aims at reducing propagation errors
 and eliminating the need for complex hand tracking algorithm, image segmentation,
 or 3D reconstruction, which are often either infeasible or too prone to errors.
-The proposed approach is able to efficiently generate reliable multi-view object grasps 
+The proposed approach is able to efficiently generate reliable multi-view object grasps
 regardless of the geometric complexity and physical properties of the object in question.
 The system employed is a 7 DoF robotic manipulator controlled with an IK solver,
 and a parallel gripper with overactuated fingers.
@@ -697,21 +868,23 @@ and a parallel gripper with overactuated fingers.
 	\includegraphics[width=1\textwidth]{img12.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Grasp generation results: comparison between grasp generated by the GG-CNN
-	with and without RGB-D image preprocessing for shiny and black objects
-	\cite{sayour2022unknowngrasping}}
+		with and without RGB-D image preprocessing for shiny and black objects
+		\cite{sayour2022unknowngrasping}}
 	\label{fig:img12}
 \end{figure}
 
-One of the main limitations of the approach in \cite{sayour2022unknowngrasping} is the fact 
+One of the main limitations of the approach in \cite{sayour2022unknowngrasping} is the fact
 that the grasping pipeline is implemented in MATLAB, therefore hardly portable and hardly
 replicable on other robotic hardware. Furthermore grasping with a parallel gripper is
 very limited, and the approach can work well with a limited set of objects. The authors
 demonstrated a good grasping capability with many different and unknown objects, but
-the approach cannot be generalized well without creating a multi-view perspective of 
+the approach cannot be generalized well without creating a multi-view perspective of
 the target object, in order to gain more understanding of the object's shape and
 geometry. Although the approach is very promising, there is room for improvement,
 especially in the CNN for grasping pose detection, which is the core of the grasping pipeline.
 
 
-\TODO{review of different grasping methods, object semantic understanding via multiple views,
-	object detection and pose estimation, grasping pipelines with heuristics, unknown objects}
+\TODO{add more papers about grasping?}
+
+
+\section{Autonomous Exploration [todo?]}
