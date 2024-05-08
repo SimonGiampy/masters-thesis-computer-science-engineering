@@ -1,58 +1,59 @@
 
 \chapter{State of the Art and Literature Review}
 
-This chapter will present the state of the art and literature review of the topics related to this project.
+This chapter will present the state-of-the-art and literature review of the topics related to this project.
 The topics are: Robotic Manipulator Control, Deep Reinforcement Learning in Robotic Manipulation and Mobile
 Manipulation, Autonomous navigation, Object Detection and Grasping.
 
-Particular focus is on the part regarding the Mobile Manipulation, since it is the main topic of 
+Particular focus is on the part regarding Mobile Manipulation since it is the main topic of
 this thesis project. In particular, the potential challenges as well as possible
 benefits and disadvantages of using each method will be discussed.
 
-\section{Robotic Manipulator Control}
+\section{Robotic Manipulator Control Approaches}
 
 Currently, the control sequence of a robotic manipulator is mainly achieved by solving
-inverse kinematic equations to move or position the end effector with respect to the
-fixed frame of reference. Robots can be controlled in open-loop or with
-an exteroceptive feedback. The \textbf{open-loop control} does not have external sensors or
-environment sensing capability, but heavily relies on highly structured environments
-that are very sensitively calibrated. Under this strategy, the robot arm performs by
-following a series of positions in memory, and moving to them at various times in their
-programming sequence. In some more advanced robotic systems, \textbf{exteroceptive feedback
+inverse kinematic equations to position the end effector with respect to the
+fixed frame of reference. Robots can be controlled in an open loop or with
+exteroceptive feedback. The \textbf{open-loop control} does not have external sensors or
+environment sensing capability but heavily relies on highly structured environments
+that are very sensitively calibrated. Under this strategy, the robot arm follows a series of positions
+stored in memory and goes through them at various times in their programming sequence.
+In more advanced robotic systems, \textbf{exteroceptive feedback
 	control} (closed loop system) is employed, through the use of monitoring sensors, force sensors,
 even vision or depth sensors, that continually monitor the robot's axes or end-effector, and
 associated components for position and velocity. The feedback is then compared to information
-stored to update the actuator command so as to achieve the desired robot behavior. Either
-auxiliary computers or embedded microprocessors are needed to perform interface with
-these associated sensors and the required computational functions. These two traditional
+stored to update the actuator command to achieve the desired robot behavior. Either
+auxiliary computers or embedded microprocessors are needed to interface with
+these additional sensors and to perform the required computations. These two traditional
 control scenarios are both heavily dependent on hardware-based solutions \cite{liu2021deep}.
 
-Other control strategies may include \textbf{robotic embodiement} and \textbf{teleoperation}.
-The former is a control strategy that is based on the idea that the
-robotic system emulates the human body movement, for learning a task quickly, instead of
+Other control strategies may include \textbf{robotic embodiement} for \textbf{imitation learning}.
+Robotic embodiment, in the context of imitation learning, is a control strategy that is based on the idea that the
+robotic system emulates the human body movement, to learn a task quickly, instead of
 relying on specific ad-hoc training and programming, as suggested in \cite{ji2021manufacturing}.
 This article presents an approach to the autoprogramming of robotic assembly
 tasks with minimal human assistance. The approach integrates
 "robotic learning of assembly tasks from observation" and
 "robotic embodiment of learned assembly tasks in the form of
-skills". These skills aim to enable robots to execute difficult tasks that involve inherent
-uncertainties and variations, and are most useful in smart manifacturing in industrial
-scenarios. The robotic embodiement is associated with a dramatic reduction in
-the human effort required for automating robotic assembly, as well for task training.
+skills". The aim of these skills is to let robots execute difficult tasks that involve inherent
+uncertainties and variations and are most useful in smart manufacturing in industrial
+scenarios. The robotic embodiment is associated with a dramatic reduction in
+the human effort required for automating robotic assembly, as well as task training.
 
 With the advancements in modern technologies in artificial intelligence, such as
 deep learning, and recent developments in robotics and mechanics, both the research
-and industrial communities have been seeking more software based control solutions
-using low-cost sensors, which has less requirements for the operating environment and
+and industrial communities have been seeking more software-based control solutions
+using low-cost sensors, which have fewer requirements for the operating environment and
 calibration. The key is to make minimal but effective hardware choices and focus on robust
 algorithms and software. Instead of hard-coding directions to coordinate all the joints,
 the control policy could be obtained by learning and then be updated accordingly. \textbf{Deep
 	Reinforcement Learning (DRL)} is among the most promising algorithms for this purpose
-because no predefined training dataset is required, which ideally suits robotic manipulation
-and control tasks. A reinforcement learning approach might use
-input from a robotic arm experiment, with different sequences of movements, or input
+because it ideally suits complex robotic manipulation and control tasks in dynamic and
+unstructured environments, or when the task is too complex to be explicitly programmed.
+A reinforcement learning approach might be trained on a dataset of experiential data, such as
+input data from a robotic arm experiment, with different sequences of movements, or input data
 from simulation models. Either type of dynamically generated experiential data can be
-collected, and used to train a Deep Neural Network (DNN) by iteratively updating specific
+collected and used to train a Deep Neural Network (DNN) by iteratively updating specific
 policy parameters of a control policy network \cite{liu2021deep}.
 
 Robotic control approaches can be broadly categorized into \textbf{model-based approaches}, such as
@@ -72,72 +73,79 @@ including Deep Reinforcement Learning (DRL) and other machine learning technique
 \end{itemize}
 
 The main differences lie in the reliance on explicit models in model-based methods,
-providing transparency and interpretability, versus the model-free nature of data-driven methods,
-offering flexibility and adaptability to diverse and evolving environments.
+providing \textbf{transparency and interpretability}, \textbf{versus} the model-free nature of data-driven methods,
+offering \textbf{flexibility and adaptability} to diverse and evolving environments.
 Integrating these approaches can harness the strengths of both paradigms, combining the precision of
 model-based control with the adaptability of data-driven learning for enhanced
 robotic control capabilities in multiple scenarios and tasks.
 
 An issue raised by the real-world application is the safety of the system while sharing
-the workspace with human workers. Identifying and more importantly also certifying methods
-how to collaborate with humans in the workspace in a safe way is
-one of the key points for bringing autonomous mobile robots to real industrial applications.
+the workspace with human workers. Identifying and, more importantly, certifying methods
+to collaborate with humans in the workspace in a safe way are key points for bringing autonomous
+mobile robots to real industrial applications.
 
 The following paragraphs will describe the available methods used for robotic manipulator control.
 
-\subsection{Mobile Manipulation}
+\subsection{Mobile Manipulation Tasks}
 
 Mobile manipulators that combine base mobility with the dexterity of an articulated
 manipulator have gained popularity in numerous applications ranging from manufacturing
 and infrastructure inspection to domestic service. Deployments span a range of interaction
-tasks with the operational environment comprising minimal interaction tasks such as
-inspection and complex interaction tasks such as logistics resupply and assembly. This flexibility,
+tasks with the operational environment from minimal interaction tasks, such as
+inspection, to complex interaction tasks such as logistics resupply and assembly. This flexibility,
 offered by the redundancy, needs to be carefully orchestrated to realize enhanced
 performance. Thus, advanced decision-support methodologies and frameworks are
 crucial for successful mobile manipulation in (semi-) autonomous and teleoperation
-contexts. Given the enormous scope of the literature, we restrict our attention to decision-support
-frameworks specifically in the context of wheeled mobile manipulation. \cite{thakar2023survey}
+contexts \cite{thakar2023survey}. Given the enormous scope of the literature, I restrict my attention to decision-support
+frameworks specifically in the context of wheeled mobile manipulation.
 
 As a quick aside, a disambiguation is necessary between the often interchangeably used
 \textbf{"motion planning"} and \textbf{"path planning"}.
 Although path planning only generates a path within the configuration space,
-motion planning generates time-indexed motion trajectories. Instead much path-following only requires
+motion planning generates time-indexed motion trajectories. Instead path-following only requires
 spatial feasibility (e.g., obstacle avoidance), while motion planning
-requires compatibility with spatiotemporal constraints (engendered in dynamics of both robot and
+requires compatibility with spatiotemporal constraints (engendered in the dynamics of both robot and
 environment). It is also noteworthy that ultimately any path planning effort requires a final time
 parameterization into a motion planning exercise before deployment \cite{thakar2023survey}.
 
-The combined controllable degrees of freedom within the kinematic-chain (from both
+The combined controllable degrees of freedom within the kinematic chain (from both
 mobile base and the articulated manipulator) presents the mobile
 manipulator design architecture the opportunity to address very
 complex tasks. However, resolving the redundancy (internal/external) is crucial to realizing
-this potential. As the complexity of overall mobile manipulation process
+this potential. As the complexity of the overall mobile manipulation process
 increases, a \textbf{two-stage hierarchical approach} is often pursued:
 \begin{enumerate}
-	\item task planning/breakdown into a series of tractable motion planning
-	      subtasks and their sequencing
-	\item motion planning of the high
-	      degree-of-freedom mobile manipulator within each sequenced task
+	\item task planning/breakdown into a series of tractable motion planning subtasks and their sequencing
+	\item motion planning of the high degree-of-freedom mobile manipulator within each sequenced task
 \end{enumerate}
 It is noteworthy that the two steps (task planning and motion planning) are closely coupled
 and should be solved concurrently but are addressed separately from a computational tractability
 perspective \cite{thakar2023survey}.
 
+\section{Traditional Control Approaches}
+
 However, a breakdown along the lines of mobile manipulator subsystems
 (mobile base versus manipulator versus gripper or combinations)
 or along the nature of the manipulation task (transportation versus grasping) feature prominently
-in the literature. the task-level and motion-level planning frameworks
-may be viewed as a form of "artificially constrained" motion planning within a higher dimensional space.
+in the literature. The task-level and motion-level planning frameworks
+can be viewed as a form of "artificially constrained" motion planning within a higher dimensional space.
 
-Although traditional methods have led to promising mobile manipulation skills in some specific tasks,
-mobile manipulations tasks require the explicit programming of hard-to-engineer behaviours and often fail
-in more complex tasks where the decision-making process is hard. In addition, such solutions
-are generally very inflexible and error-prone due to the impossibility
-of modelling all the uncertainty of dynamic industrial environments when those are programmed.
+The first applications for mobile manipulators were in the field of logistics, where the
+mobile base was used for transportation and the manipulator for grasping and placing objects.
+Traditional control approaches rely on a series of heuristics to solve the problem of
+navigation, grasping, and placing objects. The mobile base is controlled by a multitude of
+algorithms, such as SLAM, AMCL and DWA for navigation, while the manipulator is controlled
+by lower-level motor controllers or trajectory planners. The integration between the
+mobile base and the manipulator is often done by a \textbf{switching layer} that determines the
+currently pertinent control objectives. Traditional methods often do not handle multiple and different
+control objectives at the same time, so the robot divides one high-level task
+into multiple sub-tasks executed in a sequence.
+This approach requires a lot of engineering effort to coordinate the arm and the base
+movements, and often fails in complex tasks where the decision-making process is hard.
 
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering
-	\includegraphics[width=0.2\textwidth]{img02.png}
+	\includegraphics[width=0.3\textwidth]{img02.png}
 	\captionsetup{width=0.6\linewidth}
 	\caption{The continuum in the literature in regards to control
 		methodology ranging from model-based to end-end data-driven
@@ -148,17 +156,17 @@ of modelling all the uncertainty of dynamic industrial environments when those a
 
 \textbf{\textit{Mobile Manipulator for Autonomous Localization,
 		Grasping and Precise Placement of Construction
-		Material in a Semi-Structured Environment}} \quad
+		Materials in a Semi-Structured Environment}} \quad
 A starting point for mobile manipulation is the work \cite{loianno2021construction},
 presenting the winning mobile manipulation system for the \textit{Mohamed
 	Bin Zayed International Robotics Challenge (MBZIRC)} held in 2020. The proposed system
 is comprised of a mobile wheeled base performing localization and navigation in a
 semi-structured environment, and a 5-DoF manipulator for grasping and precise placement
-of bricks in a carrier. This work was among the first to demonstrate the potentialities
-in mobile manipulation in a practical scenario.
+of bricks in a carrier. This work was among the first to demonstrate the potential
+of mobile manipulation in a practical scenario.
 
-%add img13 from the paper
-\begin{figure}[H]
+% Add img13 from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img13.png}
 	\captionsetup{width=1\linewidth}
@@ -167,88 +175,94 @@ in mobile manipulation in a practical scenario.
 	\label{fig:img13}
 \end{figure}
 
-However, their approach is based on many simplyfying assumptions which may be suitable as a
-first one of a kind robotic pick and place system in a real-world scenario and application,
-but is not robust enough for a more complex task. For example, the grasping pipeline
+However, their approach is based on many simplifying assumptions which may be suitable as a
+first one-of-a-kind robotic pick-and-place system in a real-world scenario and application
+but is not robust enough for more complex tasks. For example, the grasping pipeline
 is trained to handle only bricks, i.e. solid parallelepiped objects, for which the grasping pose
 is straightforward to compute. Furthermore, the robot is not able to autonomously decide
-where to place the brick, but it is only able to place it in the predefined position.
-Also the arm controller is quite primitive, since it doesn't handle the self collisions
+where to place the brick, but it is only able to place it in a predefined position.
+Also, the arm controller is quite primitive, since it doesn't handle collisions with the mobile base
 appropriately, and the arm is not able to avoid obstacles in its workspace.
 
 \textbf{\textit{Go Fetch: Mobile Manipulation in Unstructured Environments}} \quad
 This work \cite{blomqvist2020gofetch} presents a mobile manipulation system
 that combines perception, localization, navigation,
 motion planning and grasping skills into one common workflow
-for fetch and carry applications in unstructured indoor environments. 
-The integration across the various modules is experimentally demonstrated 
-in the video \cite{youtube2020gofetch} on the task of finding a commonly available 
-object in an office environment, grasping it, 
-and delivering it to a desired drop-off location. 
+for "fetch-and-carry" applications in unstructured indoor environments.
+The integration across the various modules is experimentally demonstrated
+in the video \cite{youtube2020gofetch}, showing the task of finding a commonly available
+object in an office environment, grasping it, and delivering it to a desired drop-off location.
 
-%add img16 from the paper
-\begin{figure}[H]
+% Add img16 from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.6\textwidth]{img16.png}
 	\captionsetup{width=0.8\linewidth}
-	\caption{A picture of RoyalYumi in action. It features a two-arm ABB Yumi, a Clearpath 
-	Ridgeback mobile base, two Hokuyo 2D LiDARs, an	Intel RealSense D435 and a Skybotix VI-Sensor.
-	\cite{blomqvist2020gofetch}}
+	\caption{A picture of RoyalYumi in action. It features a two-arm ABB Yumi, a Clearpath
+		Ridgeback mobile base, two Hokuyo 2D LiDARs, an	Intel RealSense D435 and a Skybotix VI-Sensor.
+		\cite{blomqvist2020gofetch}}
 	\label{fig:img16}
 \end{figure}
 
 The research \cite{blomqvist2020gofetch} is an example of a mobile manipulation system
-for pick and place task in an indoor environment that adopted many simplifications in order
-to achieve the desired results. The system uses a series of heuristics to perform the
-approaching to the object and the grasping phase, as it can be seen from the demonstration video
+for pick-and-place tasks in an indoor environment that adopted many simplifications in order
+to achieve the desired results. The system uses a series of heuristics to
+approach the object and the grasping phase, as can be seen from the demonstration video
 \cite{youtube2020gofetch}. The navigation uses a feature-based map and localization
 modules, while the arm controller is handled by MoveIt! \cite{moveit2} solver coupled with
 the ROS framework \cite{ros2}. This system is not very
 well integrated as each phase of the task is carried out by a different module, and shows
 how slow and inefficient the robot is in picking the banana. The grasping phase uses multiple
 views of the object in order to compute a better grasp pose, which works well
-but seems to be overly complex given the predefined task. Overall, the system 
+but seems to be overly complex given the predefined task. Overall, the system
 can be regarded as a starting point for mobile manipulation and one of the first
 works in dual-arm manipulability.
 
-\subsection{Deep Reinforcement Learning - Data Driven Approach}
+Although traditional methods have led to promising mobile manipulation skills in some specific tasks,
+mobile manipulation tasks require the explicit programming of \textbf{hard-to-engineer behaviors} and often fail
+in more complex tasks where the decision-making process is hard. In addition, such solutions
+are generally very inflexible and error-prone due to the impossibility
+of modeling all the uncertainty of dynamic industrial environments when those are programmed.
+
+
+\section{Deep Reinforcement Learning: a Data-Driven Approach}
 
 Explicit programming is often needed in practice to account for uncertainties in the environment and
-sensors used, as well as to solve highly variable problems in an efficient way.
+sensors used, as well as to solve highly variable problems efficiently.
 Explicit behavior programming is therefore often tedious and impractical, and more flexible solutions
-are needed in environments where the robot must adapt to.
+are needed in environments where the robot must be adaptable.
 Alternatively, data-driven approaches address the main limitations of traditional methods and propose
-to learn robotic behaviours from real experience, thus alleviating the cost of modelling complex behaviours.
+to learn robotic behaviors from real experience, thus alleviating the cost of modeling complex behaviors.
 This approach allows them to use deep neural networks to model the uncertainties of the environment,
 which leads to a more robust controller compared to traditional ones.
 Unlike deep learning (DL), the reinforcement learning (RL) paradigm allows to automatically obtain the
-experience needed to learn robotic skills through trial-and-error and allows to learn complex decision-making
-policies.
+experience needed to learn robotic skills through trial-and-error and allows to \textbf{learn complex decision-making
+	policies}.
 
-With RL, the explicit modelling of the problem is no longer required since the learnt models are grounded
+With RL, the explicit modeling of the problem is no longer required since the learned models are grounded
 in real experience. Recently, the combination of DL and RL, also known as Deep Reinforcement Learning (DRL),
 has made it possible to tackle complex decision-making problems that were previously unfeasible. It combines
 the ability of DL to model very high dimensional data with the ability of RL to model decision-making agents
 through trial and error.
-In fact, DRL has proven to be the state-of-the-art technology for learning complex
-robotic behaviours through the interaction with the environment and solely guided
+DRL has proven to be the state-of-the-art technology for learning complex
+robotic behaviors through the interaction with the environment and the training solely guided
 by a reward signal \cite{liu2021deep}.
 
 While ML-based methods are generally used for offline forecasting, DRL is generally used online in
-sequential decision-making problems. In fact, DRL allows to autonomously learn complex control policies
+sequential decision-making problems. In fact, DRL allows one to autonomously learn complex control policies
 through trial and error and only guided by a reward signal. In the case of robotics, the most common
 use case is to use such algorithms to model agents capable of performing continuous control of robots.
 
-DRL has been successfully applied in a wide variety of areas such as robotics, computer vision and gaming.
-Taking into account the difficulty of modelling complex decision-making robotic skills, DRL offers
-a promising way to take advantage of the experience gathered interacting with the environment to
-autonomously learn complex robotic behaviours. In particular, the field of DRL applied to robotics has
-recently gained popularity due to the remarkable performance obtained in applications 
-with high decision-making and control complexity. 
-Applications range from manipulation, to autonomous navigation and locomotion.
+DRL has been successfully applied in a wide variety of areas such as \textbf{robotics, computer vision and video games}.
+Taking into account the difficulty of modeling complex decision-making robotic skills, DRL offers
+a promising way to take advantage of the experience gathered by interacting with the environment to
+autonomously learn complex robotic behaviors. In particular, the field of DRL applied to robotics has
+recently gained popularity due to the remarkable performance obtained in applications
+with high decision-making and control complexity.
+Applications range from manipulation to autonomous navigation and locomotion.
 \cite{iriondo2023learning}
 
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{img03.png}
 	\captionsetup{width=0.8\linewidth}
@@ -258,36 +272,36 @@ Applications range from manipulation, to autonomous navigation and locomotion.
 \end{figure}
 
 \textbf{\textit{Pick and Place Operations in Logistics Using
-a Mobile Manipulator Controlled with Deep
-Reinforcement Learning}} \quad
+		a Mobile Manipulator Controlled by Deep
+		Reinforcement Learning}} \quad
 The work \cite{iriondo2019pickandplace} presents one of the first and pioneering approaches
 to DRL-based methods for pick and place tasks. Their work focused on the positioning
-problem, consisting in a local navigation problem where the robot must move to a desired
+problem, consisting of a local navigation problem where the robot must move to a desired
 position moving by small distances in a confined environment to reach the target object.
 They relied on DRL for controlling the mobile wheeled base robot, while the arm controller
 was handled by MoveIt! framework \cite{moveit2}. This can be regarded as a first step towards
 more complex tasks, as it shows the foundations of DRL-based methods for mobile manipulation.
 The method had some flaws, like the imprecise navigation due to errors in localization and
-odometry, which the network was not able to overcome, since it was not fed video data stream.
-However, it paved the wasy for a lot of other works, many of which mentioned in this chapter.
+odometry, which the network was not able to overcome since it was not fed video data stream.
+However, it paved the way for a lot of other works, many of which are mentioned in this chapter.
 
 \textbf{\textit{Fully Autonomous Real-World Reinforcement
 		Learning with Applications to Mobile Manipulation}} \quad
 A work from Berkeley AI research \cite{sun2022relmm} show \textit{ReLMM}, a model that
-can learn continuously on a real-world platform without any environment instrumentation,
-without human intervention, and without access to privileged information, such as maps,
-objects positions, or a global view of the environment. Their method employs a
-modularized policy with components for manipulation and navigation, where manipulation
-policy uncertainty drives exploration for the navigation controller, and the manipulation
-module provides rewards for navigation. They trained the policy on a room cleanup task, where
+can learn continuously on a real-world platform without any environmental instrumentation,
+without human intervention, and access to privileged information, such as maps,
+objects positions, or a global view of the environment. Their method employs a modularized policy
+with components for manipulation and navigation, where manipulation
+policy uncertainty drives exploration for the navigation controller and the manipulation
+the module provides rewards for navigation. They trained the policy on a room cleanup task, where
 the robot must navigate to and pick up items scattered on the floor.
-The robot learns entirely from its own sensors in a real-world environment, without any
+The robot \textbf{learns entirely from its sensors} in a real-world environment, without any
 simulation and minimal human intervention. Furthermore, the entire learning process is efficient
-enough for real-world training. On top of this, the robot is able to continually gather data
+enough for real-world training. On top of this, the robot can continually gather data
 at scale and improve its performance over time, with the auto-reset functionality.
 
-%add img11 from the paper
-\begin{figure}[H]
+%Add img11 from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img11.png}
 	\captionsetup{width=1\linewidth}
@@ -298,12 +312,12 @@ at scale and improve its performance over time, with the auto-reset functionalit
 \end{figure}
 
 Although the results shown in \cite{sun2022relmm} demonstrate efficient performance in
-the pick and place task, there are many issues circumvented by simplyfying the problem.
+the pick and place task, there are many issues circumvented by simplifying the problem.
 For example, the robot is very small, a modified version of Turtlebot, running in a small and
 contained environment. They didn't address any safety and collision issues since the platform
 mounted bumping sensors, and any collision would not harm the robot at all. Doing so enabled them
 to train the policy online without any prior simulation.
-Furthermore the kinematics of the mobile base and the robotic arm are very simple, and having the
+Furthermore, the kinematics of the mobile base and the robotic arm are very simple, and having the
 stereo camera mounted on top of the robotic platform allowed them to easily detect the objects
 on the floor. This work paves the way for more complex systems and tasks, but it is still far
 from being a general solution for mobile manipulation.
@@ -314,7 +328,7 @@ Two of the most important challenges here concern \textbf{sample efficiency and 
 The goal of DRL in the context of robotic manipulation
 control is to train a deep policy neural network, to detect the optimal
 sequence of commands for accomplishing the task. The current state of the algorithm can include
-the angles of joints of the manipulator, position of the end effector, and their derivative information,
+the angles of joints of the manipulator, the position of the end effector, and their derivative information,
 like velocity and acceleration. The output of this policy network is an action indicating control
 commands to be implemented to each actuator, such as torques or velocity commands. When the robotic manipulator
 accomplishes a task, a positive reward will be generated. With these delayed and weak
@@ -322,44 +336,44 @@ signals, the algorithm is expected to find out the most successful control strat
 robotic manipulation \cite{liu2021deep}.
 
 The challenges of learning robust and versatile manipulation skills
-for robots with DRL are still far from being resolved satisfactorily for real-world application.
-Currently, robotic manipulation control with DRL may be suited to fault tolerant
-tasks, like picking up and placing objects, where a disaster will not be caused if the
-operation fails occasionally. It is quite attractive in situations, where there is enough
-variation that the explicit modeling algorithm does not work \cite{liu2021deep}.
+for robots with DRL are still far from being resolved in real-world applications.
+Currently, robotic manipulation control with DRL may be suited to fault-tolerant
+tasks, like picking up and placing objects, where failure will not cause significant damage.
+It is quite attractive in situations, where there are too many
+variables that make explicit modeling algorithms not work effectively \cite{liu2021deep}.
 
-However, even in this kind of applications, DRL-based methods are not widely
+However, even in this kind of application, DRL-based methods are not widely
 used in real-world robotic manipulation. The reasons are multiple, including sample efficiency and generation,
-where more progress is still required, as both gathering experiences by interacting with
-the environment and collecting expert demonstrations for imitation learning are expensive
-procedures, especially in situations where robots are heavy, rigid and brittle, and it will
-cost too much if the robot is damaged in exploration. Another very important issue is
-\textbf{safety guarantee}. Not like simulation tasks, we need to be very careful that learning
-algorithms are safe, reliable and predictable in real scenarios, especially if we move to
-other applications that require safe and correct behaviors with high confidence, such as
-surgery or household robots taking care of the elder or the disabled. There are also other
+where more progress is still required, as both the gathering experiences by interacting with
+the environment and the \textbf{collection of expert demonstrations} for imitation learning are expensive
+procedures, especially in situations where robots are heavy, rigid and brittle, causing high costs in case of failures.
+
+Another very important issue is the \textbf{safety guarantee}.
+Unlike in simulation tasks, we need to be very careful that learning
+algorithms are safe, reliable and predictable in real scenarios. This is especially true
+when moving to applications that require safe and correct behaviors with high confidence, such as
+surgery or household robots taking care of the elderly or the disabled. There are also other
 challenges including but not limited to the algorithm explainability, the learning speed,
-high-performance computational equipment requirements. \cite{liu2021deep}
+and high-performance computational equipment requirements. \cite{liu2021deep}
 
 \textbf{\textit{Learning positioning policies for mobile manipulation operations
 		with deep reinforcement learning}}
 \quad
 The work proposed in \cite{iriondo2023learning} is a practical example of a DRL-based approach
-facing these challenges and the enormous limitations to overcome (as well as the potentialities).
+facing these challenges and the limitations to overcome (as well as the potentialities).
 The mobile platform in figure \ref{fig:img01} is used in an industrial environment for an
-approaching task. The robot learns to navigate itself to the desk where the target object is located,
-then uses the MoveIt! planner to check whether the trajectory to pick the object is feasible.
-The robot locates itself using AMCL and the learned policy serves as a controller for
-local navigation task. Their work show many shortcomings of this approach, such as the
-difficult integration between the DRL policy and localization package, with noise in the
+approaching task. The robot learns to navigate to the desk where the target object is located,
+and then uses the MoveIt! planner to check whether the trajectory to pick the object is feasible.
+The robot's localization is based on AMCL and the learned policy serves as a controller for
+local navigation tasks. Their work shows many shortcomings of this approach, such as the
+integration between the DRL policy and localization package, with noise in the
 real environment affecting negatively the performance of the robot. As a result,
-the video presented shows an inefficient an jiggly movement
-because of the non-smooth control policy. In fact, they mention the necessity of mounting
-a stereo camera for navigation, in order to reduce the errors in the localization and
+the video presented shows an inefficient and jiggly movement
+because of the non-smooth control policy. They mention the necessity of mounting
+a stereo camera for navigation, to reduce the errors in the localization and
 improve the navigation of the robot.
 
-
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.5\textwidth]{img01.png}
 	\captionsetup{width=0.6\linewidth}
@@ -368,25 +382,23 @@ improve the navigation of the robot.
 	\label{fig:img01}
 \end{figure}
 
-
-
 \textbf{\textit{Deep Reinforcement Learning Based Mobile Robot Navigation Using Sensor Fusion}} \quad
 The problem of unstable and imprecise navigation with learned policies is overcome in the
 paper \cite{yan2023drlnavigation}, which proposes a DRL-based approach for navigation in dynamic
 environments. The proposed method is based on the Deep Deterministic Policy Gradient (DDPG)
 algorithm, which is a model-free, off-policy actor-critic algorithm that uses deep neural networks
 to represent the policy and the critic functions. The proposed method is evaluated in a
-simlated environment where the robot learns to navigate effectively and smoothly, while avoiding
+simulated environment where the robot learns to navigate effectively and smoothly while avoiding
 unknown dynamic obstacles. This work shows the right direction towards more robust
 navigation and obstacle avoidance systems.
 
 \section{Whole-body mobile manipulator control}
 
-In most control approaches to mobile manipulation, base and manipulator operation are strictly
-separated such that at any given time only one primary control objective is
+In most control approaches to mobile manipulation, base and manipulator operations are
+separated, since at any given time only one primary control objective is
 active. This separation principle is then augmented by a switching layer that determines the
 currently pertinent control objectives. The advantage of such a control formulation lies in its
-implicity, i.e., priorities can be separated among the arm and the base with individually
+simplicity, i.e., priorities can be separated among the arm and the base with individually
 designed different control algorithms employed for each subsystem \cite{thakar2023survey}.
 
 Instead, we refer to \textbf{whole-body control} as a unified control framework that considers
@@ -405,18 +417,18 @@ simultaneously without affecting much the performance of the end-effector manipu
 
 \textbf{\textit{Articulated Object Interaction in Unknown Scenes
 		with Whole-Body Mobile Manipulation}} \quad
-In a work conducted in universities in Zurich and Toronto \cite{mittal2022articulated},
+In a work conducted by the universities of Zurich and Toronto \cite{mittal2022articulated},
 the researchers demonstrated a successful application of whole-body control for a mobile
 manipulator. The proposed system introduces a two-stage architecture for autonomous interaction
 with large articulated objects in unknown environments.
 
-%add image from the paper
-\begin{figure}[H]
+%Add image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=0.7\textwidth]{img04.png}
 	\captionsetup{width=0.9\linewidth}
 	\caption{ The two-level hierarchy in the proposed framework. The
-		object-centric planner comprises of a scene interpreter and keyframe
+		object-centric planner comprises a scene interpreter and keyframe
 		generator. It uses perceptual information to generate task space
 		plans. The agent-centric planner follows the computed plan while
 		satisfying constraints and performing online collision avoidance.
@@ -425,8 +437,8 @@ with large articulated objects in unknown environments.
 \end{figure}
 
 
-In the first stage, an object-centric planner focuses solely on the object, providing an
-action-conditional sequence of states for manipulation using RGB-D data.
+In the first stage, an object-centric planner focuses solely on the object, providing
+the action-conditional sequence of states for manipulation using RGB-D data.
 The second stage involves an agent-centric planner that formulates whole-body motion control
 as an optimal control problem, ensuring safe tracking of the generated plan, even in scenes
 with moving obstacles.
@@ -434,40 +446,40 @@ The system proposed in \cite{mittal2022articulated} demonstrates effectiveness i
 dynamic kitchen settings for both wheel-based and legged mobile manipulators. A comparison with
 other agent-centric planners reveals a higher success rate and lower execution time. Hardware
 tests on a legged mobile manipulator further confirm the system's capability to interact with
-various articulated objects in a real kitchen. The approach combines object-centric and
-agent-centric planning, leveraging MPC-based solutions for improved success rates and reduced
+various articulated objects in a real kitchen. The approach combines \textbf{object-centric} and
+\textbf{agent-centric} planning, leveraging MPC-based solutions for improved success rates and reduced
 execution times, particularly in articulated object manipulation scenarios. The contributions
 include the extension of collision-free whole-body MPC for mobile manipulation, benchmarking
 in hyper-realistic simulation, and successful hardware experiments showcasing the system's
 real-world applicability.
 
-
-%add image from the paper
-\begin{figure}[H]
+%Add an image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img05.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Legged mobile manipulation of articulated objects in the kitchen test scenario:
-		(a) Drawer, (b) Cabinet. Throughout the interaction, we set the robot gait schedule
+		(a) Drawer, (b) Cabinet. Throughout the interaction, we set the robot's gait schedule
 		to trot. Only while grasping the handle, the robot enters stance mode.
 		\cite{mittal2022articulated}}
 	\label{fig:img05}
 \end{figure}
 
 
-The work \cite{mittal2022articulated}, published in 2022, is the first and one of a kind
-in successful real-world application of whole-body control using a MPC-based approach
+The work \cite{mittal2022articulated}, published in 2022, is a successful real-world application
+of whole-body control using an MPC-based approach
 combined with IK solvers for articulated object manipulation.
 Furthermore, they achieved good performance in both dynamic
-and static real world environments, which is a very challenging task for most of the
-existing methods. However, the proposed method is limited mostly with respect to the grasping
-capabilitities, which were hard-coded into the known interactive objects (in their case,
-the kitchen appliances handles), meaning that explicit behavior programming and tuning was
+and static real-world environments, which is a very challenging task for most of the
+existing methods. However, the proposed method is limited mostly concerning the grasping
+capabilities, which were hard-coded into the known interactive objects (in their case,
+the kitchen appliances handles), meaning that explicit behavior programming and tuning were
 needed for the grasping task. They propose data-centric methods to overcome these limitations.
+
 This research proved the feasibility of this approach, which many other researchers claimed
 to be unfeasible and way too complex to be implemented in real-world applications. However,
-it is worth noting that the proposed method is not a general solution for all robots hardware
-configurations, and extending it to other robots would require a lot of effort and time,
+it is worth noting that the proposed method is not a general solution for all robot hardware
+configurations, and extending it to other robots would require a lot of effort and time
 since it boils down to an optimal control problem.
 
 \subsection{Deep Reinforcement Learning for high DoF control}
@@ -483,14 +495,14 @@ and Advantage Mixing is introduced to overcome local minima during training.
 The authors present a low-cost legged manipulator design and demonstrate that their
 unified policy enables dynamic and agile behaviors across various tasks.
 
-%add image from the paper
-\begin{figure}[H]
+%Add an image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img06.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Framework for whole-body control of a legged robot with a robot arm attached.
-		Left half shows how whole-body control achieves larger workspace by leg bending and stretching.
-		Right half shows different real-world tasks, including wiping whiteboard, picking up a cup,
+		The left half shows how whole-body control achieves a larger workspace by leg bending and stretching.
+		The right half shows different real-world tasks, including wiping the whiteboard, picking up a cup,
 		pressing door-open buttons, placing, throwing a cup into a garbage bin and picking
 		in clustered environments. \cite{fu2022deeplegged}}
 	\label{fig:img06}
@@ -504,12 +516,13 @@ The proposed unified policy not only allows coordination but also enhances the c
 of individual components, such as the robot dynamically adjusting leg movements to extend
 the arm's reach \cite{fu2022deeplegged}.
 
-The challenges in scaling standard sim2real reinforcement learning to whole-body control
+The challenges in scaling standard \textit{sim2real} reinforcement learning to whole-body control
 are discussed, including the high degree of freedom, conflicting objectives, and dependencies
 between manipulation and locomotion. The paper introduces a hardware setup for a low-cost, fully
-untethered legged manipulator and outlines a method for learning a unified policy to control
+untethered-legged manipulator and outlines a method for learning a unified policy to control
 both legs and the arm. The authors leverage causal structure in action space and regularization
 for domain adaptation to enhance stability and speed up learning.
+
 The proposed method is evaluated through tasks like teleoperation and vision-guided tracking,
 demonstrating successful picking tasks using visual feedback from an RGB camera.
 Comparative analysis with a baseline method (MPC+IK) across various pick-up tasks measures success rate,
@@ -518,29 +531,30 @@ The authors conclude by acknowledging the preliminary nature of their results an
 potential extensions, such as incorporating vision-based policies and addressing challenges
 in general-purpose object interaction \cite{fu2022deeplegged}.
 
-%add image from the paper
-\begin{figure}[H]
+%Add an image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img07.png}
 	\captionsetup{width=1\linewidth}
-	\caption{Whole-body control framework. During training, a unified policy is learned by conditioned on
-		environment extrinsics. During deployment, the adaptation module is reused without
+	\caption{Whole-body control framework. During training, a unified policy is learned by conditioning on
+		the environment extrinsic. During deployment, the adaptation module is reused without
 		any real-world fine-tuning.
 		The robot can be commanded in various modes including teleoperation, vision and demonstration replay.
 		\cite{fu2022deeplegged}}
 	\label{fig:img07}
 \end{figure}
 
-As the authors of the paper \cite{fu2022deeplegged} state, the main limitation (but also the core
-idea behind the control input) is the fact that the robot requires a human operator to
+As the authors of the paper \cite{fu2022deeplegged} state, the main limitation (but also the core idea
+behind the control input) is the fact that the robot requires a human operator to
 provide the robot objectives, which are then translated into the control inputs. In fact,
-the robot is not able to autonomously decide what to do, but it is only able to either track the
-end effector pose given by the human operator, or to track the April marker in the human's hand.
+the robot is not able to autonomously plan its high-DoF motion trajectory, but instead,
+it is only able to either \textbf{track the end effector pose} given by the human operator or
+to track the April marker in the human's hand.
 This limitation can be overcome with appropriate task training, but it is not a general solution.
-However, the proposed method is very promising, since it is able to achieve very good results
+However, the proposed method is very promising, since it can achieve very good results
 in the robot body-hand coordination, which is a very challenging task for most of the existing
-methods. The movements look very smooth and natural, and the robot is able to perform
-simple task in dynamic environment. The April marker tracking mode shows also the effectiveness of
+methods. The movements look very smooth and natural, and the robot can perform
+simple tasks in a dynamic environment. The April marker tracking mode shows also the effectiveness of
 the use of a stereo camera for tracking the objective, meaning that promising results can be
 achieved in other tasks. This research used Nvidia Isaac Gym \cite{isaacgym} as a simulation environment
 \cite{isaacsim}, which proved to be very powerful for training and overcoming the simulation-to-reality gap.
@@ -548,63 +562,62 @@ achieved in other tasks. This research used Nvidia Isaac Gym \cite{isaacgym} as 
 \textbf{\textit{Learning Mobile Manipulation through Deep
 		Reinforcement Learning}} \quad
 \cite{wang2020drlmanipulation}
-This paper presents a pioneering mobile manipulation system that leverages deep
-reinforcement learning for unstructured environments. It uniquely integrates state-of-the-art
+This paper presents a mobile manipulation system that leverages deep
+reinforcement learning for unstructured environments. It integrates state-of-the-art
 algorithms with visual perception, adopting an efficient framework that separates
 visual processing from control. This design enables seamless generalization from simulation
 training to real-world scenarios, utilizing only on-board sensors.
-Notably, the transferability of policies from simulation to real robots is a key strength,
+Notably, the \textbf{transferability of policies} from simulation to real robots is a key strength,
 demonstrating the system's autonomy in grasping diverse objects across varied scenarios.
 The evaluation centers around a challenging mobile picking task, encompassing object recognition,
 collision-free robot-arm control, and object picking based on the learned policy.
 
 
 %add img14 from the paper
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img14.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Learning-based mobile manipulation control framework. There are mainly two parts,
 		deep reinforcement learning module and vision module. First, the vision module estimates
-		the object 6-degrees of freedom pose $p$ from images captured by an on-board RGB stereo camera.
+		the object 6 degrees of freedom pose $p$ from images captured by an onboard RGB stereo camera.
 		Then, based on the object pose $p$ and current robot state st, deep reinforcement learning
-		module predicts an action at for the robot to act. A new state $s_{t+1}$ and a reward
+		module predicts an action for the robot to act. A new state $s_{t+1}$ and a reward
 		$r_{t+1}$ are received after action.\cite{wang2020drlmanipulation}}
 	\label{fig:img14}
 \end{figure}
 
 Comparative assessments with state-of-the-art reinforcement learning algorithms highlight
-the stability and efficacy of the Proximal Policy Optimization (PPO) based system.
+the stability and efficacy of the Proximal Policy Optimization (\textit{PPO}) based system.
 Real-world experiments further confirm the system's ability to autonomously execute mobile grasping,
-overcoming challenges posed by the intricate nature of mobile base, arm, gripper, and vision subsystems.
+overcoming challenges posed by the intricate nature of the mobile base, arm, gripper, and vision subsystems.
 Acknowledging differences between simulation and real-world dynamics, the paper addresses
 the need for closer coupling between mobile base and arm motions in future work. Overall,
 this work represents a significant contribution to the field, showcasing the potential of
 deep reinforcement learning for autonomous mobile manipulation in complex, unstructured environments.
 
-%add img15 from the paper
-\begin{figure}[H]
+%Add img15 from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img15.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Real mobile grasping process for a soup can.
-	(a) is starting, (b,c,d) is approaching, (e) is grasping, (f) is picking up.
-	\cite{wang2020drlmanipulation}}
+		(a) is starting, (b,c,d) is approaching, (e) is grasping, and (f) is picking up.
+		\cite{wang2020drlmanipulation}}
 	\label{fig:img15}
 \end{figure}
 
-The method proposed in \cite{wang2020drlmanipulation} is very promising, since it is able to
-achieve very good results in the robot body-hand coordination, which is a very challenging task
-especially in dynamic environments. The movements look very smooth and natural, and the robot is
-able to perform simple task in dynamic environment. This approach is one of the first able
-to achieve such complex control using vision-based perception together with deep reinforcement
+The method proposed in \cite{wang2020drlmanipulation} is very promising since it can
+achieve very good results in robot body-hand coordination, which is a very challenging task,
+especially in dynamic environments. The movements look fluid and without any jitter,
+and the robot can perform simple tasks in a dynamic environment. This approach is one of the first
+to achieve complex control using vision-based perception together with deep reinforcement
 learning. However, it is far from being an optimal solution, since it achieves simple
-tasks in a very controlled environment. The research paper mentioned below is from the same
-research group, demonstrating the new advancements in their research.
+tasks in a very controlled environment.
 
-\textbf{\textit{Multi-Task Reinforcement Learning based Mobile Manipulation 
-	Control for Dynamic Object Tracking and Grasping}} \quad
-This research paper \cite{wang2022multitask} is a continuation of work demonstrated in the
+\textbf{\textit{Multi-Task Reinforcement Learning based Mobile Manipulation
+		Control for Dynamic Object Tracking and Grasping}} \quad
+This research paper \cite{wang2022multitask} is a continuation of work demonstrated in
 their previous research paper \cite{wang2020drlmanipulation} mentioned above.
 \cite{wang2022multitask} addresses the challenges associated with
 agile control of mobile manipulators in unstructured environments, particularly focusing
@@ -612,21 +625,22 @@ on dynamic object tracking and grasping. The authors propose a multi-task reinfo
 learning-based control framework that aims to achieve general dynamic object tracking and
 grasping capabilities. The framework utilizes various dynamic trajectories as a training set,
 incorporating random noise and dynamics randomization to enhance policy generalization.
+
 Experimental results demonstrate the trained policy's ability to adapt to unseen dynamic
-trajectories, achieving a 0.1m tracking error and a 75\% grasping success rate for dynamic objects.
+trajectories, achieving a $0.1m$ tracking error and a $75\%$ grasping success rate for dynamic objects.
 The proposed method is successfully deployed on a real mobile manipulator, showcasing its
 potential for real-world applications. The contributions of this work include the development
 of a versatile control framework and its successful deployment in unstructured environments,
 addressing the challenges of mobile manipulation with dynamic objects.
 
-%add image from the paper
-\begin{figure}[H]
+%Add the image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img08.png}
 	\captionsetup{width=1\linewidth}
 	\caption{(a) Dynamic trajectory tracking task with a mobile manipulator. (b)
 		Dynamic object grasping task with a mobile manipulator. (c) Several basic
-		trajectories as multi-task RL training set. (d) Random trajectories as multi-task
+		trajectories as multi-task RL training sets. (d) Random trajectories as multi-task
 		RL testing set.\cite{wang2022multitask}}
 	\label{fig:img08}
 \end{figure}
@@ -636,32 +650,32 @@ and learn a policy, but the method is general and can be applied to most on/off-
 PPO is one of the state-of-the-art RL algorithms that is easy to implement and tune, and performs
 relatively well. The policy is learned through a deep neural network.
 
-%add image from the paper
-\begin{figure}[H]
+%Add the image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img09.png}
 	\captionsetup{width=1\linewidth}
 	\caption{(a) In the multi-task RL training, six basic trajectories are used as the task
 		training set to train a general policy. To improve the robustness, gaussian noise is added
 		to the action and observation space in each training episode. (b) The RL testing includes
-		simulation and real world for policy evaluation.\cite{wang2022multitask}}
+		simulation and real-world for policy evaluation.\cite{wang2022multitask}}
 	\label{fig:img09}
 \end{figure}
 
-The images above show the training and testing process of the proposed method. They created a
-realistic simulation environment which enabled efficient parallel training of the policy,
+The images \ref{fig:img09} above show the training and testing process of the proposed method. They created a
+realistic simulation environment that enabled efficient parallel training of the policy,
 and simulation of the dynamic objects and tracking. They also managed to correctly transfer the
 learned policy to the real robot, which is a very challenging task for most of the existing methods.
-Artificial noise addition was essential for the training process, since it allowed the policy
+Artificial noise addition was essential for the training process since it allowed the policy
 to generalize better to unseen trajectories and environments.
 
-%add image from the paper
-\begin{figure}[H]
+%Add the image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img10.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Snapshots of the real robot experiments. The upper row shows a mobile
-		tracking process in which the end-effector try to track the target trajectory.
+		tracking process in which the end-effector tries to track the target trajectory.
 		The lower row shows a mobile grasping process in which the object moves
 		randomly. \cite{wang2022multitask}}
 	\label{fig:img10}
@@ -675,119 +689,121 @@ the model doesn't show very high success rate in the tasks shown, it shows promi
 and a direction of research that can be further explored.
 
 
-\subsection{Mobile manipulation with imitation learning}
+\subsection{Mobile manipulation with Imitation Learning}
 
 Imitation learning from human-provided demonstrations is a promising tool for developing generalist
-robots \cite{tony2024mobile}, as it allows people to teach arbitrary skills to robots. 
+robots \cite{tony2024mobile}, as it allows people to teach arbitrary skills to robots.
 Indeed, direct behavior cloning can enable robots to learn a variety of primitive robot skills
-ranging from lane-following in mobile robots, to simple pick-and-place manipulation skills
+ranging from lane-following in mobile robots to simple pick-and-place manipulation skills
 to more delicate manipulation skills like spreading pizza sauce or slotting in a battery.
 However, many tasks in realistic, everyday environments require whole-body coordination of both mobility
 and dexterous manipulation, rather than just individual mobility or manipulation behaviors.
-Two main factors hinder the wide adoption of imitation learning for mobile manipulation. 
+Two main factors hinder the wide adoption of imitation learning for mobile manipulation.
 
 \begin{itemize}
 	\item We lack accessible, plug-and-play hardware for whole-body teleoperation. Teleoperation
-	for whole-body control requires a human to provide demonstrations of the task to the robot, 
-	using a specific and often expensive hardware setup. Also mobile manipulatore,
-	especially bimanual mobile manipulators, can be costly if purchased off-the-shelf.
+	      for whole-body control requires a human to provide demonstrations of the task to the robot,
+	      using a specific and often expensive hardware setup. Furthermore, mobile manipulators,
+	      especially bimanual mobile manipulators, can be costly if purchased off the shelf.
 	\item Prior robot learning works have not demonstrated high-performance bimanual mobile manipulation
-	for complex tasks. Same goes for single manipulator in complex tasks in dynamic, 
-	cluttered or unknown environments.
+	      for complex tasks. The same goes for single manipulators in complex tasks in dynamic,
+	      cluttered or unknown environments.
 \end{itemize}
 
 \textbf{\textit{Mobile ALOHA: Learning Bimanual Mobile Manipulation with
-Low-Cost Whole-Body Teleoperation}} \quad
-On the hardware front, the researchers from Stanford University in their new paper \cite{tony2024mobile}
+		Low-Cost Whole-Body Teleoperation}} \quad
+On the hardware front, the researchers from Stanford University in their paper \cite{tony2024mobile}
 present a low-cost and whole-body teleoperation system for collecting bimanual mobile manipulation
 data. Mobile ALOHA extends the capabilities of the original ALOHA \cite{tony2023bimanual},
 the low-cost and dexterous bimanual puppeteering setup \cite{tony2023bimanual},
 by mounting it on a wheeled base.
 
-%add image from the paper
-\begin{figure}[H]
+%Add the image from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img18.png}
 	\captionsetup{width=1\linewidth}
-	\caption{Low-cost mobile manipulation system that is bimanual and supports whole-body teleoperation. 
-	The system costs 32k USD including onboard power and compute. Left: A user teleoperates to 
-	obtain food from the fridge. Right: Mobile ALOHA can perform complex long-horizon tasks
-	with imitation learning. \cite{tony2024mobile}}
+	\caption{Low-cost mobile manipulation system that is bimanual and supports whole-body teleoperation.
+		The system costs 32k USD including onboard power and compute. Left: A user teleoperates to
+		obtain food from the fridge. Right: Mobile ALOHA can perform complex long-horizon tasks
+		with imitation learning. \cite{tony2024mobile}}
 	\label{fig:img18}
 \end{figure}
 
 The main contribution of the research paper \cite{tony2024mobile} is the hardware setup of
 a low-cost bimanual mobile manipulation system supporting whole-body teleoperation.
-Using data collected with Mobile ALOHA, performing supervised behavior cloning results in a more 
+Using data collected with Mobile ALOHA, performing supervised behavior cloning results in more
 accurate behavior mimicking. Also co-training with existing static ALOHA datasets \cite{tony2023bimanual}
-boosts performance on mobile manipulation tasks. 
+boosts performance on mobile manipulation tasks.
 The robot can not yet improve itself autonomously or explore to acquire new knowledge.
 In addition, the Mobile ALOHA demonstrations are collected by two expert operators.
 
+The software architecture upon which the robot system in figure \ref{fig:img18} relies
+is the one presented in \cite{tony2023bimanual}, which is a modular architecture
+that allows for easy integration of functionalities. The architecture is described below.
+
+\textbf{\textit{Learning Fine-Grained Bimanual Manipulation with
+		Low-Cost Hardware}} \quad
+Fine manipulation tasks, such as threading cable ties or slotting a battery, are notoriously difficult
+for robots because they require precision, careful coordination of contact forces, and closed-loop
+visual feedback. Performing these tasks typically requires high-end robots, accurate sensors,
+or careful calibration, which can be expensive and difficult to set up.
+The researchers in \cite{tony2023bimanual} present a low-cost system that performs
+end-to-end imitation learning directly from real demonstrations, collected with a custom
+teleoperation interface. Imitation learning, however, presents its own challenges,
+particularly in high-precision domains: errors in the policy can compound over time,
+and human demonstrations can be non-stationary. To address these challenges, they developed a simple yet
+novel algorithm, Action Chunking with Transformers (ACT), which learns a generative
+model over action sequences. ACT allows the robot to learn multiple difficult tasks in the real world.
+
+%Add img17 from the paper
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=1\textwidth]{img17.png}
+	\captionsetup{width=1\linewidth}
+	\caption{Detail architecture of Action Chunking with Transformers (ACT).
+		First, they train ACT as a Conditional VAE (CVAE), which has an encoder and a decoder.
+		The encoder of the CVAE compresses action sequence and joint observation into $z$, the style variable.
+		The encoder is discarded at test time. The decoder or policy of ACT synthesizes images from
+		multiple viewpoints, joint positions, and z with a transformer encoder, and
+		predicts a sequence of actions with a transformer decoder. $z$ is simply set to the mean of the prior
+		(i.e. zero) at test time \cite{tony2023bimanual}.}
+	\label{fig:img17}
+\end{figure}
+
+The proposed method is evaluated on a wide variety of complicated tasks, and the robot can
+perform well in most of them. However, their method has some limitations, mostly due to the
+difficulty in perception of the environment and the lack of training data. However, the architecture
+proposed shows very promising results from a few training examples.
+
+In some extremely complex tasks (the ones in which even humans find some difficulty),
+the robots fail consistently, as reported in \cite{tony2023bimanual}. The failures can then be
+attributed to the difficulty in perception and lack of data, since the input video sequences were
+created from standard RGB cameras, therefore no depth information was available. Furthermore,
+object semantic understanding would have been very useful for the robot to understand the task
+deeply and perform better. The lack of data is also a big issue since the robot was trained
+by teleoperation. They believe that pretraining, more data and better perception are promising
+directions to tackle these extremely difficult tasks.
+
+
 \textbf{Shortcomings of imitation learning approaches} \quad
 The main shortcomings of imitation learning approaches are the lack of generalization and
-the difficulty in perception of the environment. Imitation learning is feasible in a general 
-context and environment given:
+the difficulty in perception of the environment. Imitation learning is feasible in a general
+context and environment proven that it is given enough data and the right perception tools:
 
 \begin{itemize}
 	\item A large dataset of demonstrations collected with human teleoperation
 	\item Human-made demonstrations available offline for training and evaluation
 	\item A hardware component with a similar kinematic structure to the human demonstrator.
-		The hardware mimicking structure must also not occupy too much space, since it would
-		affect the real robot physical constraints.
-	\item Mobile arms controlled by each degree of freedom, since it would not be possible
-		to give a proper demonstration by inputting only the end-effector pose and getting
-		the joints positions by inverse kinematics.
+	      The hardware-mimicking structure must also not occupy too much space, since it would
+	      affect the real robot's physical constraints.
+	\item Mobile arms are controlled by each degree of freedom since it would not be possible
+	      to give a proper demonstration by inputting only the end-effector pose and getting
+	      the joints' positions by inverse kinematics.
 	\item Appropriate depth perception and semantic object understanding would be ideal
-		for the robot to understand the task deeply and perform better.
+	      for the robot to understand the task deeply and perform better.
 \end{itemize}
 
-The software architecture upon which the robot system in figure \ref{fig:img18} relies upon
-is the one presented in \cite{tony2023bimanual}, which is a modular architecture
-that allows for easy integration of functionalities. The architecture is described below.
-
-\textbf{\textit{Learning Fine-Grained Bimanual Manipulation with
-Low-Cost Hardware}} \quad
-Fine manipulation tasks, such as threading cable ties or slotting a battery, are notoriously difficult
-for robots because they require precision, careful coordination of contact forces, and closed-loop 
-visual feedback. Performing these tasks typically requires high-end robots, accurate sensors, 
-or careful calibration, which can be expensive and difficult to set up. 
-The researchers in \cite{tony2023bimanual} present a low-cost system that performs
-end-to-end imitation learning directly from real demonstrations, collected with a custom
-teleoperation interface. Imitation learning, however, presents its own challenges, 
-particularly in high-precision domains: errors in the policy can compound over time,
-and human demonstrations can be non-stationary. To address these challenges, they developed a simple yet 
-novel algorithm, Action Chunking with Transformers (ACT), which learns a generative
-model over action sequences. ACT allows the robot to learn multiple difficult tasks in the real world.
-
-%add img17 from the paper
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=1\textwidth]{img17.png}
-	\captionsetup{width=1\linewidth}
-	\caption{Detail architecture of Action Chunking with Transformers (ACT).
-	First they train ACT as a Conditional VAE (CVAE), which has an encoder and a decoder. 
-	The encoder of the CVAE compresses action sequence and joint observation into $z$, the style variable.
-	The encoder is discarded at test time. The decoder or policy of ACT synthesizes images from 
-	multiple viewpoints, joint positions, and z with a transformer encoder, and 
-	predicts a sequence of actions with a transformer decoder. $z$ is simply set to the mean of the prior
-	(i.e. zero) at test time \cite{tony2023bimanual}.}
-	\label{fig:img17}
-\end{figure}
-
-The proposed method is evaluated on a wide variety of complicated tasks, and the robot is able to
-perform well in most of them. Although their method has some limitations, mostly due to the 
-difficulty in perception of the environment and the lack of training data. However, the architecture
-proposed shows very promising results from few training examples.
-
-In some extremely complex tasks (the ones in which even humans find some difficulty),
-the robots fails consistently, as reported in \cite{tony2023bimanual}. The failures can then be
-attributed to the difficulty in perception and lack of data, since the input video sequences were
-created from standard rgb cameras, therefore no depth information was available. Furthermore,
-object semantic understanding would have been very useful for the robot to understand the task
-deeply and perform better. The lack of data is also a big issue, since the robot was trained
-by teleoperation. They believe that pretraining, more data, and better perception are promising
-directions to tackle these extremely difficult tasks.
 
 
 \subsection{Comparison of Model-Based and Data-Driven approaches}
@@ -795,6 +811,8 @@ directions to tackle these extremely difficult tasks.
 \singlespacing
 \begin{table}[H]
 	\centering
+	\caption{Summary of the main differences between model-based and data-driven approaches
+		for robotic manipulator controls}
 	\begin{tabular}[c]{|m{3cm} || m{6cm} | m{6cm}|}
 		\hline
 		\raggedleft \textbf{Approach}                           &
@@ -866,7 +884,7 @@ directions to tackle these extremely difficult tasks.
 		}                                                       &
 		\customtablelist{
 			\item Requires large amounts of training data and extensive training
-			\item Very long time needed to fine tune the hyperparameters
+			\item Very long time needed to fine-tune the hyperparameters
 			\item May result in unstable and jiggly movements
 			\item May result in unsafe behaviors in real-world applications
 			if not properly trained
@@ -874,8 +892,6 @@ directions to tackle these extremely difficult tasks.
 		}                                                         \\
 		\hline
 	\end{tabular}
-	\caption{Summary of the main differences between model-based and data-driven approaches
-		for robotic manipulator controls}
 	\label{table:1}
 \end{table}
 
@@ -885,34 +901,34 @@ directions to tackle these extremely difficult tasks.
 \section{Addressing the Simulation-to-Reality Gap}
 
 The simulation-to-reality gap is a well-known problem in robotics, which is the difference
-between the performance of a robot in simulation and in the real world. The simulation-to-reality
+between the performance of a robot in simulation and the real world. The simulation-to-reality
 gap is a major challenge in robotics, as it is difficult to accurately model the real world
 in simulation. This is especially true for mobile manipulation, where the robot must interact
-with the environment in order to perform its task. 
+with the environment to perform its task.
 
-Many works addressed this problem explicitly in the past, such as \cite{liu2021deep} and 
+Many works addressed this problem explicitly in the past, such as \cite{liu2021deep} and
 \cite{zhang2021simtoreal}, proposing methods to make simulations more realistic and
 to improve the generalization of the learned policies.
 
 Nvidia has developed some tools, such as Nvidia Isaac Gym \cite{isaacgym} and Nvidia Isaac Sim
 \cite{isaacsim}, which are very powerful tools for simulating robots and environments.
 Isaac Sim is the simulation engine for Isaac Gym, which is a framework for training and
-testing robots in simulated environments with DRL and other tensor-based ML techniques. 
+testing robots in simulated environments with DRL and other tensor-based ML techniques.
 Isaac Gym is built on top of Nvidia Omniverse, which is a platform for real-time
 simulation and collaboration. Nvidia Omniverse allows also bridging the simulation with ROS
 thanks to the Isaac ROS bridge \cite{isaacros}. Overall, these tools enable reducing the
 simulation-to-reality gap, since they support many different robots, environments and perception
-sensors, so they are very powerful for training and testing DRL policies, if properly set up.
+sensors, so they are very powerful for training and testing DRL policies if properly set up.
 
 %add img19
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img19.png}
 	\captionsetup{width=1\linewidth}
 	\caption{Simulated environment with Nvidia Isaac Gym \cite{isaacros}.
-	The screenshot depicts a simulated environment with many legged mobile manipulators trained in
-	parallel using DRL, as in \cite{mittal2022articulated}. 
-	The environment is simulated using Nvidia Isaac Sim \cite{isaacsim}}.
+		The screenshot depicts a simulated environment with many legged mobile manipulators trained in
+		parallel using DRL, as in \cite{mittal2022articulated}.
+		The environment is simulated using Nvidia Isaac Sim \cite{isaacsim}}.
 	\label{fig:img19}
 \end{figure}
 
@@ -924,11 +940,12 @@ A work from Toronto \cite{zhang2021simtoreal} proposes a sim-to-real pipeline fo
 deep reinforcement learning for autonomous robot navigation in cluttered rough terrain.
 Sim-to-real strategies have been developed for robot navigation tasks. For example,
 domain randomization can be applied to visual parameters such as texture,
-lighting, and object placement in synthetic environments to improve the generalizability.
-The paper \cite{zhang2021simtoreal} addresses the "sim-to-real Gap" in training robots for
+lighting, and object placement in synthetic environments to improve generalizability.
+The paper \cite{zhang2021simtoreal} addresses the \textbf{sim-to-real gap} in training robots for
 3D terrain navigation by incorporating three sim-to-real strategies. Firstly, to account
 for depth camera measurement errors in 3D mapping that affect terrain steepness accuracy,
 the authors vary terrain steepness during training using a uniform distribution.
+
 Secondly, the paper tackles disturbances in robot motion during interactions with rough
 terrain, such as slippage and insufficient traction. Both 3D terrain interactions and
 latency from visual odometry measurements contribute to disturbances in robot travel distance
@@ -942,22 +959,23 @@ model's performance in the face of localization inaccuracies.
 
 \section{Object Detection and Grasping}
 
-Grasp planning for mobile manipulators is a challenging problem that has been
-dealt with in several ways in the literature. On the one hand, grasping requires coordination
-within a very challenging high-dimensional constrained configuration space (mobile base /
-manipulator / gripper). Further, grasping requires detecting object, constructing data-driven
-representation, determining the gripper approach-vector, and computing all the mobile manipulator's
-plans in the presence of uncertainty. Many of the traditional grasp planners (designed for stationary
+Grasp planning for mobile manipulators is a challenging problem tackled in several ways in the literature.
+On the one hand, grasping requires coordination within a very challenging high-dimensional constrained
+configuration space (mobile base, manipulator, gripper).
+On the other hand, grasping requires detecting objects and constructing data-driven geometrical representations,
+to produce effective grasping plans in the presence of statistical data uncertainties.
+Many of the traditional grasp planners (designed for stationary
 manipulators) can be used for mobile manipulators once the mobile base has been fixed.
-However, a generic grasping pipeline is desirable, which achieves arm-base-gripper
+
+However, a \textbf{generic grasping pipeline} is desirable, which achieves arm-base-gripper
 coordinated grasping given the information about object pose and
-the operating environment. Such concurrent manipulator / mobile base motion approaches are being
-explored till grasping is successful or at least until the gripper reaches the
-objects (and only manipulator moves for grasping). This may not be optimal as grasping can happen
+the operating environment. Such coordinated manipulator and mobile base motion approaches are explored
+to find a feasible grasp or to identify an approach position that can lead to a successful grasp.
+(and only the manipulator moves for grasping). This may not be optimal as grasping can happen
 with the mobile base and the manipulator moving when the gripper is closing \cite{thakar2023survey}.
 
-Broadly, automated grasping can be categorized into the following approaches 
-\cite{asadi2019construction}: 
+Broadly, automated grasping can be categorized into the following approaches
+\cite{asadi2019construction}:
 
 \begin{enumerate}
 	\item grasp using prior information from scene/objects
@@ -968,26 +986,27 @@ Broadly, automated grasping can be categorized into the following approaches
 \end{enumerate}
 
 Systems in each category have one or more limitations that are detailed in the following
-subsections. The majority of the existing systems are static, where a robotic system 
+subsections. The majority of the existing systems are static, where a robotic system
 is fixed in an environment surrounded by the objects in its workspace.
 
-\textbf{\textit{Automated Object Manipulation Using Vision-Based Mobile 
-Robotic System for Construction Applications}} \quad
+\textbf{\textit{Automated Object Manipulation Using Vision-Based Mobile
+		Robotic System for Construction Applications}} \quad
 The system designed and deployed for pick-and-place in a structured construction environment
-\cite{asadi2019construction} integrates scene understanding and autonomous navigation 
+\cite{asadi2019construction} integrates scene understanding and autonomous navigation
 with object grasping. To achieve this, two stereo cameras and a robotic arm are mounted
 on a mobile platform. This integrated system uses a global-to-local control planning strategy
-to reach the objects of interest (in this study, bricks, wood sticks, and pipes). 
+to reach the objects of interest (i.e., bricks, wood sticks, and pipes).
 Then, the scene perception, together with grasp and control planning, enables the system
-to detect the objects of interest, pick, and place them in a predetermined location depending
+to detect the objects of interest, pick them, and place them in a predetermined location depending
 on the application.
-The system is implemented and validated in a construction-like environment for pick-and-place
-activities. The results demonstrate the effectiveness of this fully autonomous system 
+The system is implemented and validated in a \textbf{construction-like environment} for pick-and-place
+activities. The results demonstrate the effectiveness of this fully autonomous system
 using solely onboard sensing for real-time applications with end-effector positioning
 accuracy of less than a centimeter.
+
 However, the researchers mention also the shortcomings of the system, since the robot
-was developed for a field-specific application, therefore non-adaptable to more generic
-use case scenarios. The system uses a heuristic-based approach in order to detect the
+was developed for a field-specific application and, therefore non-adaptable to more generic
+use case scenarios. The system uses a heuristic-based approach to detect the
 bricks to grasp and pick up. Furthermore, the navigation pipeline relies on a static environment
 with no dynamic obstacles, since the arm manipulator does not employ any collision avoidance
 in the trajectory planning \cite{asadi2019construction}.
@@ -996,20 +1015,21 @@ in the trajectory planning \cite{asadi2019construction}.
 \textbf{\textit{Autonomous Robotic Manipulation: Real-Time, Deep-Learning
 		Approach for Grasping of Unknown Objects}} \quad
 The work \cite{sayour2022unknowngrasping} proposes a novel approach for grasping unknown objects.
-The researhers present a full grasping pipeline proposing a real-time data-driven
+The researchers present a full grasping pipeline proposing a real-time data-driven
 deep-learning approach for robotic grasping of unknown objects using MATLAB and
 deep convolutional neural networks. The proposed approach employs RGB-D image data
 acquired from an eye-in-hand camera centering the object of interest in the field of
-view using visual servoing. Their approach aims at reducing propagation errors
-and eliminating the need for complex hand tracking algorithm, image segmentation,
+view. The arm control is based on \textbf{visual servo-ing techniques}, i.e. the robot arm
+is controlled based on the visual feedback from the camera. Their approach aims at reducing propagation errors
+and eliminating the need for complex hand-tracking algorithms, image segmentation,
 or 3D reconstruction, which are often either infeasible or too prone to errors.
-The proposed approach is able to efficiently generate reliable multi-view object grasps
+The proposed approach can efficiently generate reliable multi-view object grasps
 regardless of the geometric complexity and physical properties of the object in question.
-The system employed is a 7 DoF robotic manipulator controlled with an IK solver,
+The system employed is a 7-DoF robotic manipulator controlled with an IK solver
 and a parallel gripper with overactuated fingers.
 
-%add img12 from the paper
-\begin{figure}[H]
+%Add img12 from the paper
+\begin{figure}[ht]
 	\centering
 	\includegraphics[width=1\textwidth]{img12.png}
 	\captionsetup{width=1\linewidth}
@@ -1025,12 +1045,43 @@ replicable on other robotic hardware. Furthermore grasping with a parallel gripp
 very limited, and the approach can work well with a limited set of objects. The authors
 demonstrated a good grasping capability with many different and unknown objects, but
 the approach cannot be generalized well without creating a multi-view perspective of
-the target object, in order to gain more understanding of the object's shape and
+the target object, to gain more understanding of the object's shape and
 geometry. Although the approach is very promising, there is room for improvement,
 especially in the CNN for grasping pose detection, which is the core of the grasping pipeline.
 
 
-\TODO{add more papers about grasping?}
+\subsection{Grasping Soft Objects}
+
+Grasping soft objects is a challenging task for robotic manipulators, as it requires
+precise and effective control of the robot's end-effector to avoid damaging the object.
+Soft objects can deform under the pressure of the robot's gripper, making it difficult
+to grasp them effectively. Many existing methods for grasping soft objects rely on
+force control to regulate the pressure applied by the robot's gripper, but these methods
+can be difficult to implement and may not be effective for all types of soft objects.
+
+Instead, some other solutions rely on open-loop control strategies to grasp soft objects,
+which do not require force feedback but may not be as effective as force control methods.
+These strategies employ \textbf{soft fingers or force-compliant grippers} that can conform to the shape
+of the object, reducing the risk of damage during grasping. Soft fingers can be made
+from materials like silicone or rubber that can deform to fit the shape of the object,
+providing a more secure grip without applying excessive pressure.
+
+The inherent difficulty in grasping soft objects is the lack of a well-defined grasp
+configuration, as the object can deform and change shape during the grasping process,
+as well as the inevitable deformation of the soft gripper itself. This makes it difficult
+to predict the behavior of the object and the gripper during the grasping process.
+As a result, creating simulated environments for training and testing grasping policies
+for soft objects is challenging, as it requires accurate modeling of the object's
+deformation properties and the gripper's compliance to ensure realistic results.
+
+Many existing methods for grasping soft objects that rely on force or torque control
+can be difficult to adapt to different types and shapes of soft objects. 
+This often makes the only viable solution
+to create control strategies pre-tuned for specific soft objects, which limits the
+applicability of the method to only known objects of a specific shape but can be effective for
+many applications. The other difficulty in implementing adaptable control strategies
+for grasping soft objects is the need to create ad-hoc solutions engineered for
+specific soft gripper configurations, which are hard to generalize to other robots' end effectors
+or grippers.
 
 
-\section{Autonomous Exploration [todo?]}
