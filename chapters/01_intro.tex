@@ -1,50 +1,79 @@
+\chapter*{Introduction}
 
-\chapter{Introduction}
-
-\section{Context}
+\section*{Background}
 
 Robots were originally designed to assist or replace humans by performing repetitive
-and/or dangerous tasks which humans usually prefer not to do, or are unable to do
-because of physical limitations imposed by extreme environments. Those include the
-limited accessibility of narrow, long pipes underground, anatomical locations in specific
-minimally invasive surgery procedure, objects at the bottom of the sea, for example.
+and/or dangerous tasks that humans usually prefer not to do, or are unable to do
+because of physical limitations imposed by extreme environments.
 With the continuous developments in mechanics, sensing technology, intelligent control
 and other modern technologies, robots have improved autonomy capabilities and are
 more dexterous.
 
-Nowadays, commercial and industrial robots are in widespread use with
-lower long-term cost and greater accuracy and reliability, in the 2 fields like manufacturing,
-assembly, packing, transport, surgery, earth and space exploration, etc.
-Articulated robots, are among the most common robots used today. They look like a human arm and
-that is why they are also called robotic arm or manipulator arm. In some contexts,
+Articulated robots are among the most common robots used today. They look like human arms and
+that is why they are also called robotic arms or manipulator arms. In some contexts,
 a robotic arm may also refer to a part of a more complex robot. A robotic arm can be
-described as a chain of links that are moved by joints which are actuated by motors \cite{liu2021deep}.
+described as a chain of links that are moved by joints that are actuated by motors \cite{liu2021deep}.
 
 The majority of robotics applications focus either on navigation aspects of mobile platforms
 (e.g. industrial transportation systems, guide robots), or the manipulation of goods
 with robotic arms (e.g., bin-picking applications). Nonetheless, few applications consider mobile manipulation
-itself combining both robotic tasks. Despite there are several commercial mobile manipulators
-in the market, there is a lack of real applications due to the complexity and uncertainty introduced
-by combining both, manipulation and navigation \cite{liu2021deep}.
+itself combining both robotic tasks. There is a lack of real applications of mobile manipulation systems
+due to the complexity and uncertainty introduced by combining both manipulation and navigation \cite{liu2021deep}.
 
-Due to the particular morphology of robotic arms, their scope is limited, and not all the positions of the
-base near the table enable a successful picking. Traditionally, such mobile manipulation operations have
-been solved using analytical planning and control methods. These methods require explicit programming of the
-skills which can be very costly and error-prone particularly in problems where decision making is complex.
+\section*{Challenges and Research}
+
+Traditionally, such mobile manipulation operations have been solved using analytical planning and control methods. 
+These methods require explicit programming of the skills which can be very costly and error-prone, particularly
+in problems where decision-making is complex and the environment dynamic and partially known.
 The performance of these models depends on how well the reality fits the assumptions made by the model.
-Due to the impossibility of predicting all the cases that may occur in dynamic
-and unstructured environments, these methods are generally impractical \cite{liu2021deep}.
+Well-known planning and control methods have been widely used for scheduling mobile manipulation behaviors, 
+for example using the NAV2 navigation stack and SLAM algorithms for localization and navigation 
+and MoveIt for arm and object manipulation.
 
-Traditionally, well known planning and control methods have been widely used for scheduling
-mobile manipulation behaviours, for example using the ROS navigation stack for navigation and SLAM
-and MoveIt! for arm and object manipulation.
+The main challenge in mobile manipulation is to combine the navigation and manipulation tasks in a single system.
+The navigation task requires the robot to move from one place to another, while the manipulation task requires the robot
+to interact with objects in the environment. The robot must be able to plan and execute both tasks in a coordinated manner.
+This requires the robot to have a good understanding of the environment, including the location of objects and obstacles,
+and the ability to plan and execute complex manipulation tasks. 
 
-\section{Contribution}
+\section*{Objectives of the Project}
 
-todo: write contribution of the thesis work
+This Thesis project aims to develop a mobile manipulation system that can perform simple manipulation tasks in a
+dynamic environment. The system is based on 2 robots: a mobile robot and a robotic arm. The mobile robot is equipped
+with a LIDAR sensor for navigation and the robotic arm is equipped with a camera for object detection and perception.
+The system can perform simple mobile manipulation tasks in both agricultural and industrial environments.
+The entire project revolves around the development of software components that will enable the robots to perform
+high-level tasks in a completely autonomous fashion, without human intervention, and minimal human supervision.
+The core focus of the project is the complete autonomy of the system, including navigation, object detection, manipulation,
+and task planning.
 
-\section{Structure}
+This project will be limited to the development of algorithms, software packages and libraries that will be
+used to control the mobile manipulation system and perform high-level tasks. The project is based on already available
+robotic platforms and hardware, and the focus will be on the development of software components that will enable the
+robots to perform mobile manipulation tasks.
 
-todo: write structure: list chapters and their content briefly
+The final objective of the project is the development and realisation of two Demonstrations that will showcase the capabilities
+of the mobile manipulation system. The first demonstration is a system that can interact with a control panel in an
+industrial environmentm, specifically pressing buttons on a box knowing only the relative positioning of the buttons
+and the Aruco markers on the box. The second demonstration is a system that can interact with a plant in an agricultural
+environment, specifically picking up fake apples (or colored balls) from a plastic tree. 
 
+\section*{Structure of the Thesis}
 
+This Thesis is structured as follows:
+
+\begin{itemize}
+    \item Chapter 1: \textbf{Introduction}.
+    This chapter provides an overview of the thesis project, the challenges and the objectives.
+    \item Chapter 2: \textbf{State of the Art and Literature Review}. 
+    This chapter provides an overview of the state-of-the-art and a review of the relevant literature on mobile manipulation.
+    \item Chapter 3: \textbf{Robotic Platform for Mobile Manipulation}.
+    This chapter describes the robotic platform used in the project, including all the hardware components and sensors.
+    \item Chapter 4: \textbf{Software Architecture and Simulation environments}.
+    This chapter describes the software architecture of the system, all the algorithms, software libraries and the simulation 
+    environments used for testing and development of the system.
+    \item Chapter 5: \textbf{Experimental Setup and Demonstrations}.
+    This chapter describes the experimental setups used to test the system and demonstrate the capabilities of the entire system.
+    \item Chapter 6: \textbf{Results and Future Work}.
+    This chapter presents the results of the experiments and discusses the limitations of the system and future work.
+\end{itemize}

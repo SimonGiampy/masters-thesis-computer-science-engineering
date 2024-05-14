@@ -1,6 +1,6 @@
-## Mobile Manipulation for exploration and inspections in industrial environments - Ongoing Development
+# Mobile Manipulation in industrial and agricultural environments - Ongoing Development
 
-### Master's Thesis in Computer Science Engineering - Artificial Intelligence and Robotics Laboratory
+## Master's Thesis in Computer Science Engineering - Artificial Intelligence and Robotics Laboratory (AIRLab)
 
 Author: Simone Giampà
 
