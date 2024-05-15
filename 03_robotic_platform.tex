@@ -31,11 +31,12 @@
 \usepackage{graphicx}
 \usepackage{transparent} % Enables transparent images
 \usepackage{eso-pic} % For the background picture on the title page
-\usepackage{subfig} % Numbered and caption subfigures using \subfloat.
+%\usepackage{subfig} % Numbered and caption subfigures using \subfloat.
 \usepackage{tikz} % A package for high-quality hand-made figures.
 \usetikzlibrary{}
 \graphicspath{{./images/}} % Directory of the images
 \usepackage{caption} % Coloured captions
+\usepackage{subcaption} % Subfigures
 \usepackage{xcolor} % Coloured captions
 \usepackage{amsthm,thmtools,xcolor} % Coloured "Theorem"
 \usepackage{float}
@@ -69,6 +70,7 @@
 \usepackage{afterpage}
 \usepackage{lipsum} % DUMMY PACKAGE
 \usepackage{fancyhdr} % For the headers
+
 \fancyhf{}
 
 % Input of configuration file. Do not change config.tex file unless you really know what you are doing. 
@@ -133,14 +135,7 @@
 
 \input{chapters/03_robotic_platform.tex}
 
-\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
-
-%bibtex bibliography
-%\bibliography{chapters/biblio}
-
-%biblatex bibliography
-\setlength\bibitemsep{0.5\baselineskip}
-\printbibliography
+\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetic
 
 
 
