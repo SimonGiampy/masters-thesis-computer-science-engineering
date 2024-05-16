@@ -179,60 +179,6 @@ It proved also useful for dynamic obstacle avoidance, thanks to its high resolut
     \label{fig:c3_img06}
 \end{figure}
 
-\subsection{Issues with LiDAR low frequency}
-
-Throughout the development of the project, I encountered several issues with the autonomous navigation stack.
-Sometimes the software crashed at random times, unpredictably, and without any apparent reason.
-Some other times the dynamic obstacle avoidance algorithm did not work as expected, causing the robot to collide
-with obstacles that were not perceived by the LiDAR sensor in the surrounding environment.
-Overall, the robot's navigation stack was not reliable and robust, which was a significant issue for the project's development,
-especially for the autonomous navigation tasks in the laboratory's environment (cluttered and dynamic).
-
-After many trials and tests, my supervisor and I discovered that the LiDAR pointcloud data's low and unreliable frequency
-was the main cause of all these problems. The LiDAR sensor works at a nominal frequency of $10$Hz. 
-The LiDAR sensor was not providing a stable scan rate of $10$Hz, but it was fluctuating between $3$Hz and $8$Hz, 
-and only in a few cases, it was able to provide the nominal $10$Hz scan rate.
-Once we discovered the source of the problem and ensured that the LiDAR sensor was working correctly
-(meaning that the sensor was not malfunctioning or working at a lower but valid data rate), 
-we tried to find the culprit of the low and unreliable frequency of the LiDAR sensor.
-
-After many attempts, I found out the cause of the problem: the culprit was the \textbf{router}
-used to connect the robot's computer
-to the laboratory's network and the internet and the DDS (\textit{Data Distribution Service}) middleware used 
-internally by ROS2 for the communication between the nodes in a local network. Basically, the DDS middleware
-was configured to broadcast all ROS2 packets and data streams to the laboratory's network, causing delays in the transmission
-and packet loss, as the network was not able to handle the high-frequency and heavy-weight data streams of the LiDAR sensor.
-In fact, by just unplugging the router from the robot's computer, the LiDAR sensor was able to provide a stable scan rate
-of $10$Hz, without any fluctuations or drops in the frequency, since no broadcast packets were sent to the network.
-Since the router was necessary for the remote control and monitoring, it was simply just not an option
-to unplug it from the robot's computer.
-
-For the correct operation of the robot's localization and obstacle 
-avoidance algorithms, it is fundamental that the LiDAR sensor works at a \textbf{stable frequency}, 
-without any fluctuations or drops in the scan rate. This requirement is essential because these algorithms rely on the
-coherent and continuous data stream for time interpolation and filtering of the pointcloud data.
-This is why the LiDAR sensor's low and unreliable frequency was causing the software to crash and malfunction.
-
-The solution was to configure properly the \textbf{DDS middleware} to ensure that all ROS-related nodes and data streams
-were handled inside the robot's computer only, and not going through the router and the laboratory's network.
-Having the data streams in the local machine only, ensured that the LiDAR sensor's data was not distributed 
-among the network, causing delays in the transmission and packet loss, which were the main causes of the low and unreliable
-frequency of the LiDAR sensor. Furthermore, we configured ROS2 to use the \textit{Cyclone DDS} middleware, which is a lightweight
-and fast DDS implementation, suitable for real-time and high-frequency data streams. This DDS implementation was able to handle
-heavy-weight data packets at high frequencies, ensuring that the LiDAR sensor's data was transmitted and received correctly
-in its entirety, without any losses or delays in the transmission.
-
-After this configuration, the LiDAR sensor was able to provide a stable scan rate of $10$Hz,
-and the software stack was working correctly, without any crashes or malfunctions.
-Furthermore, I was also able to test the LiDAR sensor at a higher frequency of $20$Hz, 
-with lower resolution, and it was working fine and stable.
-This solution was essential also for the correct operation of the IMU sensor for the SLAM algorithm, which required
-a stable and continuous data stream of the LiDAR at the moment of startup of the sensor in the software stack. Before the 
-fix of the LiDAR sensor's frequency, the IMU sensor was not able to start correctly, due to the lack of data
-from the LiDAR sensor, and the computed odometry data was drifting too much to be useful.
-Many other algorithms and software benefitted from this fix. The robot's navigation stack was now reliable and robust,
-and the autonomous navigation tasks were working correctly and smoothly.
-
 \subsection{RGB-D Stereo Camera Sensor}
 
 The robotic arm is equipped with a \textit{Intel Realsense D435} RGB-D stereo camera sensor.

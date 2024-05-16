@@ -45,6 +45,7 @@
     4.7 Ignition Gazebo Simulation Environment
     4.8 Parking Algorithm for Mobile Robot
     4.9 Aruco Marker Detection and Pose Estimation
+        Multi Aruco Setup for Plane Estimation
     4.10 Object Detection with YOLOv8
     4.11 Collision Avoidance with Octomap 
     4.12 ROS2 Actions Client-Server Architecture for High-Level Tasks
@@ -53,11 +54,10 @@
     5.1 Description of the Demonstrations and Objectives
     5.2 Aruco Follower Demo
         5.2.1 End Effector Positioning
-        5.2.2 Tests with MoveIt2 Servo library
     5.3 Button Presser Demo
         5.3.1 Objective and Description of the Demo
         5.3.2 Buttons Setup Box and End Effector Setups
-        5.3.3 Multi Aruco Setup for Plane Estimation
+        5.3.3 
         5.3.4 End Effector Positioning and Arm Trajectories
         5.3.5 Mobile Button Presser Demo
         5.3.6 Experimental Challenges
