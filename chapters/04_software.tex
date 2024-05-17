@@ -437,7 +437,7 @@ It was essential for the development of the software stack and the navigation al
 the robot's behavior in different scenarios and environments. It allowed me to tune the navigation stack's parameters
 thoroughly and ensure the robot would avoid obstacles and navigate safely.
 
-The simulated environment in Ignition Gazebo was a warehouse with various obstacles such as walls, shelves, and boxes,
+The simulated environment in Ignition Gazebo was a \textbf{warehouse} with various obstacles such as walls, shelves, and boxes,
 which the robot had to navigate around to reach its goal. The warehouse environment was designed to be challenging
 for the robot, with narrow passages and tight spaces, to test the robot's ability to navigate in complex environments.
 Ignition Gazebo also provides the possibility to add dynamic obstacles, i.e. objects not present in the map
@@ -446,7 +446,7 @@ algorithm, which allows the robot to navigate safely in environments with unknow
 
 I was able to simulate also the sensors mounted on the robot, such as a 2D LiDAR and a 3D LiDAR sensor, which were used
 for perception and obstacle avoidance. I also tested the robot's localization algorithms, such as AMCL and SLAM Toolbox,
-using the simulated odometry data created by the robot's motion in the simulated environment.
+using the simulated odometry data created by the robot's wheels' motion in the simulated environment.
 
 %TODO: add a screenshot of the simulation environment in Ignition Gazebo
 
@@ -475,9 +475,55 @@ autonomously to the parking pose, it publishes feedback data containing its curr
 from the parking pose. 
 
 The parking algorithm is non-deterministic, meaning that it can compute different parking poses for the same target
-pose, depending on the obstacles in the environment. It works as follows:
+pose, depending on the obstacles in the environment. The algorithm is explained in \ref{alg:parking}.
 
-%TODO: add pseudo code of the parking algorithm
+\begin{algorithm}[H]
+    \caption{\textbf{Parking Pose Computation Algorithm}}
+    \label{alg:parking}
+    \begin{algorithmic}[1]
+    \Require Target $t = (x_t, y_t, \theta_t)$
+    \Require Costmap $C$, Robot's Footprint $F$
+
+    \State $n \gets 50$ \Comment {number $n$ of parking pose candidates $p_c$}
+    \State $r \gets 0.4$ \Comment {parking radius in meters from the target position}
+    \State $P_{current} \gets$ current robot's position in the map
+    \State $V_c \gets \emptyset$  \Comment{list of valid candidate poses}
+
+    \Function{rank}{$p$}
+        \State $w_{cost} = 0.5, w_{dist} = 0.2, w_{orientation} = 0.3$ 
+        \State $cost = cost(F(p), C)$ \Comment{cost in the costmap for given pose and footprint}
+        \State $dist = ||P_{current} - p|| ^2$ \Comment {Euclidean distance between poses}
+        \State $orient = | \theta_t - \theta_p |$ \Comment {difference between target and candidate orientation}
+        \State \Return $w_{cost} \cdot cost + w_{dist} \cdot dist + w_{orientation} \cdot orient$
+    \EndFunction
+
+    \For {$i = 1$ to $n$}
+        \State $\phi \sim $\textit{Uniform}$(-\phi_{max}, \phi_{max})$ \Comment {random angle}
+        \State $x_c \gets x_t + r \cdot \cos(\theta_t + \phi)$ \Comment {candidate $x$ coordinate}
+        \State $y_c \gets y_t + r \cdot \sin(\theta_t + \phi)$ \Comment {candidate $y$ coordinate}
+        \State $\psi \sim $\textit{Uniform}$(-\psi_{max}, \psi_{max})$ \Comment {random orientation}
+        \State $\theta_c \gets \theta_t + \psi$ \Comment {candidate orientation}
+        \State $p_c \gets (x_c, y_c, \theta_c)$ \Comment {candidate parking pose}
+        \State \Comment{ discard the poses having their footprint $F$ with lethal cost in costmap $C$}
+        \If {\textit{cost}$(C, F(p_c)) \neq $ \textit{LETHAL}}
+            \State add $p_c$ to $V_c$
+        \EndIf
+    \EndFor
+    \State $V_{ranked} \gets \left[\textbf{rank}(p_{c,1}), \ldots, \textbf{rank}(p_{c, n_c})\right] 
+        \quad \forall p_c \in V_c $
+    \State $V_{c} \gets \textit{sorted}(V_{ranked}, V_c) $ \Comment{sort list of candidates by their rank}
+
+    \Repeat 
+        \State pick {$P_{candidate} \in V_c$} \Comment{pick parking pose from the highest ranked candidates}
+        \If {$\exists$ traversable path from $P_{current}$ to $P_{candidate}$}
+            \State save parking pose $P_{parking} \gets P_{candidate}$
+        \EndIf
+    \Until {a traversable path is found}
+    \If {$\exists P_{parking}$}
+        \State \textbf{navigate} towards $P_{parking}$ with computed traversable path
+    \EndIf
+    \end{algorithmic}
+\end{algorithm}
 
 Experimental tests were performed to evaluate the accuracy and reliability of the parking algorithm.
 The tests were conducted in both simulated and real environments, with different configurations of obstacles
@@ -558,38 +604,42 @@ The algorithm that I implemented makes use of the following statistical data ana
     and irrelevant data points.
 \end{itemize}
 
-The algorithm works as follows:
-%TODO: write algorithm description
+The perception algorithm works as illustrated in \ref{alg:multi_aruco}:
+
 \begin{algorithm}[H]
-    \caption{Multi-Aruco Plane Estimation Algorithm}
+    \caption{\textbf{Multi-Aruco Plane Estimation Algorithm}}
     \label{alg:multi_aruco}
     \begin{algorithmic}[1]
     
-    \REQUIRE Reference voltage vector $V_{ref}$, sector angle $\theta_{ref}$, modulation index $m$
-    \ENSURE Duty cycles $d_a$, $d_b$, $d_c$
+    \Require points $P = \left[ p_1, \ldots, p_n \right]$ with $p_i = (x_i, y_i, z_i)$ coordinates of all points
+    \Require collinear points $T = \left[t_1, \ldots, t_n \right]$ with $t_i = (x_i, y_i, z_i)$ assumed to be collinear
     
-    \STATE Calculate $x$, $y$, $z$ components of $V_{ref}$:
-    \STATE $x \gets m \cdot \cos(\theta_{ref})$
-    \STATE $y \gets m \cdot \sin(\theta_{ref})$
-    \STATE $z \gets 0$
-    
-    \STATE Determine the sector ($s$) and the angles ($\theta_1$, $\theta_2$) for the two nearest space vectors:
-    \STATE $s \gets \lfloor \frac{\theta_{ref}}{\pi/3} \rfloor + 1$
-    \STATE $\theta_1 \gets \theta_{ref} - (s-1) \cdot \frac{\pi}{3}$
-    \STATE $\theta_2 \gets \frac{\pi}{3} - \theta_1$
-    
-    \STATE Calculate the duty cycles for the three phases:
-    \STATE $d_a \gets \frac{\sqrt{3}}{2} \cdot m \cdot \sin(\theta_2)$
-    \STATE $d_b \gets \frac{\sqrt{3}}{2} \cdot m \cdot \sin(\theta_1)$
-    \STATE $d_c \gets 1 - d_a - d_b$
-    
-    \STATE Normalize duty cycles if necessary:
-    \IF{$d_a + d_b + d_c \neq 1$} 
-        \STATE $d_a \gets d_a / (d_a + d_b + d_c)$
-        \STATE $d_b \gets d_b / (d_a + d_b + d_c)$
-        \STATE $d_c \gets d_c / (d_a + d_b + d_c)$
-    \ENDIF
-    
+    \Function{RANSAC}{P}
+        \State $\tau \gets 0.01$ \Comment {distance threshold in meters}
+        \Repeat
+            \State $S =$ random subset of points from $P$
+            \State $c =$ centroid($S$) 
+            \State $n = SVD(S - c)$  \Comment{Compute SVD from subset of points centered in $0$}
+            \State inliers $ = 0$ \Comment{number of inliers for S}
+            \ForAll { $s_i$ in $S$}
+            \State $d = n \cdot s_i$ \Comment{distance between normal $n$ and point $s_i$}
+                \If { $||d|| ^2 < \tau$} \Comment{if point $s_i$ is close enough to the plane defined by $n$}
+                    \State inliers $++$
+                \EndIf
+            \EndFor
+        \Until {inliers number is maximized}
+        \State \Return $n$ \Comment{Returns normal vector $n$ to the best fitting plane to $S$}
+    \EndFunction
+    \State
+    \State $n$ = \textbf{RANSAC}$(P)$
+    \State $c =$ \textit{centroid}($T$) 
+    \State $B = $ \textbf{PCA}$(T)$ \Comment{compute \textbf{PCA} of collinear points without centroid}
+    \State $d = B[2]$ \Comment{direction of highest variance is the last eigenvector in $B$}
+    \State $V_x \gets d, \quad V_z \gets n$
+    \State $V_y \gets V_z \times V_x$ 
+    \State $Rot = \left[V_x, V_y, V_z \right]$ \Comment{compose 3d rotation matrix from vectors}
+    \State $q = $ \textit{rot2quat}$(Rot)$ \Comment{convert rotation matrix to quaternion $q$}
+    \State update points in $P$ with the orientation quaternion $q$
     \end{algorithmic}
 \end{algorithm}
 
@@ -637,7 +687,7 @@ that I created, a learning rate scheduler with exponential decay, and the early 
 when the validation loss stops decreasing. The model is compiled with the Adam optimizer, which is a popular optimizer
 for training deep neural networks, and with the YOLOv8 Backbone, which is a state-of-the-art backbone architecture
 that provides the best candidate features for object detection tasks. The metrics used to evaluate the model's performance
-are the \textbf{mean Average Precision} (mAP) and the Intersection over Union (IoU),
+are the \textbf{mean Average Precision} (mAP) and the \textbf{Intersection over Union} (IoU),
 which are standard metrics for object detection tasks. These metrics are incorporated within the COCO evaluation metrics,
 which are the standard evaluation metrics provided by the KerasCV library.
 
@@ -660,7 +710,64 @@ The model is trained with the combination of 2 loss functions:
 
 %TODO: add pictures of detected balls
 
-\section{Object Pose Estimation with Object Detection and Depth Sensing}
+\section{Pose Estimation with Object Detection and Depth Sensing}
+
+The object's pose estimation task involves estimating the position of an object in 3D space using the depth-sensing
+camera and the object detection neural network. The object detection algorithm detects the object 
+in the RGB image and provides the bounding box coordinates, class label, and confidence score. 
+The depth-sensing camera provides the depth map of the scene, which contains the distance of each pixel from the camera.
+By combining the object detection results with the depth map, we can estimate the object's position in 3D space
+relative to the camera, which is essential for the robot to interact with the object effectively.
+
+This perception algorithm works by creating a segmented pointcloud of the object from the depth map, using the
+bounding box coordinates provided by the object detection algorithm, and the projected depth values
+from the depth image. This perception algorithm is implemented to estimate the center position
+of detected colored balls. 
+The segmented pointcloud contains only the points that belong to the object, which are used
+to estimate the object's position in 3D space. The segmentation process involves extracting the points within
+the bounding box and filtering out the points that are not part of the object using a color mask corresponding
+to the predicted class label. The segmented pointcloud is then used to estimate the object's center position
+by fitting an ideal sphere of known radius to the segmented points. This center position is then
+used to compute the optimal grasping pose for the robot to interact with the object.
+
+This perception algorithm is used to estimate the optimal grasping pose for the robot's end-effector to grasp
+the object. The algorithm was first designed to work only with colored balls (of spherical shape),
+but I extended it to work with apples too, which are more complex objects with a more irregular shape.
+
 
 \section{ROS2 Actions Client-Server Architecture for High-Level Tasks}
 
+I leveraged the ROS2 Actions client-server architecture to implement high-level tasks for the mobile manipulation
+robotic system. The Action architecture is a powerful and flexible way to define and execute complex tasks
+in a distributed system, such as a robotic system. It allows for asynchronous communication between nodes,
+enabling the robot to perform multiple tasks concurrently and efficiently. The Actions architecture is based on
+the concept of goals, which represent the desired outcome of a task, and results, which represent the task's outcome.
+The client sends a goal to the server, which executes the task and returns the result to the client. The client
+can monitor the task's progress with the feedback messages and cancel it if necessary, providing a robust 
+and reliable way to manage high-level behaviors. The advantage of using the Actions architecture is that it decouples
+the task's definition from its execution, allowing for easy reusability and extensibility of the tasks
+across different applications. 
+
+The architecture diagram of the ROS2 Actions client-server is shown in figure \ref{fig:actions_architecture}.
+The client sends a goal message to the server, which processes the goal and generates feedback messages
+to inform the client about the task's progress. The server then sends a result message to the client
+once the task is completed. The client can also send a cancel message to the server to stop the task
+prematurely. I used this architecture to implement high-level tasks:
+
+\begin{itemize}
+    \item \textbf{ROS2 Action Server}: the servers are nodes that handle the task execution, and they are responsible
+    for processing the goals, generating feedback messages, and sending the result messages to the clients.
+    The servers are implemented on top of the underlying algorithms and functionalities that perform the tasks,
+    provided by a separate node inside the same package.
+    \item \textbf{ROS2 Action Client}: the clients are nodes that send the goals to the servers, monitor the task's progress
+    with the feedback messages, and receive the result messages once the task is completed. The clients are implemented
+    as unique nodes that handle the sequence of actions to be executed, decoupled from the underlying algorithms
+    and instructions that perform the tasks.
+\end{itemize}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{c4_07.png}
+    \caption{ROS2 Actions Client-Server Architecture}
+    \label{fig:actions_architecture}
+\end{figure}
