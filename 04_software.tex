@@ -125,9 +125,6 @@
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}}
 
-
-
-
 \startpreamble
 \setcounter{page}{1} % Set page counter to 1
 \addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
@@ -136,7 +133,8 @@
 \input{chapters/04_software.tex}
 
 \addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetic
-
+\setlength\bibitemsep{0.5\baselineskip}
+\printbibliography
 
 
 \end{document}

@@ -25,7 +25,7 @@ Controlling the cobot using ROS2 requires a hardware interface, used to command 
 with the hardware via the \textbf{CRI protocol}. The hardware interface is implemented as a ROS2 lifecycle node that
 is interfaced directly with the Joint Trajectory Controller, which is a ROS2 controller that can be used to
 control the arm using joint trajectory messages. This controller is then handled by MoveIt2, which is a ROS2
-motion planning framework that can be used to plan and execute trajectories for the arm.
+motion planning framework that can be used to plan and execute trajectories for the arm \cite{moveit2}.
 
 %Add a figure of the control architecture
 \begin{figure}[t]
@@ -50,7 +50,7 @@ The controller interpolates in time between the points so that their distance ca
 Trajectories are specified as a set of waypoints to be reached at specific time instants, which the controller 
 attempts to execute as well as the mechanism allows. Waypoints consist of positions, and optionally velocities and accelerations.
 
-It can be operated either in position, velocity or acceleration mode, depending on the type of trajectory message
+It can be operated either in position, velocity, or acceleration mode, depending on the type of trajectory message
 that it handles.
 The position mode is used to send joint positions to the arm, while the velocity mode is used to send joint velocities
 in the form of jog values (velocities in percentage of the maximum velocity). The Joint Trajectory Controller can
@@ -59,7 +59,7 @@ In closed-loop mode, the controller uses the joint positions received from the a
 to the desired position, by controlling the arm via velocity commands. In open-loop mode, the controller sends the
 trajectory to the arm without any feedback, which can be useful for testing the arm's performance without any feedback
 control. The closed-loop velocity control requires a PID controller to adjust the velocity commands based on the
-difference between the desired and actual joint positions. The PID controller requires tuning of the gains to
+difference between the desired and actual joint positions. The PID controller requires tuning the gains to
 achieve the desired performance of the arm. I did not manage to find the best gains for the PID controller,
 for a stable and smooth trajectory execution, so I used the open-loop mode for controlling the arm.
 
@@ -76,6 +76,15 @@ for the robot controllers that provide ROS2 actions for \textit{FollowJointTraje
     \caption{MoveIt2 General Architecture}
     \label{fig:moveit2}
 \end{figure}
+
+%Add a figure of the control architecture
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{c4_03.png}
+    \caption{Planning Scene and Occupancy Mapping Architecture}
+    \label{fig:planninscence}
+\end{figure}
+
 
 MoveIt2 is a ROS2 framework that provides a set of tools for motion planning, kinematics, control, perception, and
 manipulation. It is a powerful tool for controlling robotic arms and mobile bases, and it can be used to plan and
@@ -114,28 +123,38 @@ The \textit{MoveGroupInterface} can be used to plan and execute trajectories for
 It allows to define and compute joint-space goals, Cartesian-space goals,
 and pose goals for the robot's end-effector, which is used to compute the joint space trajectories.
 
-%Add a figure of the control architecture
+% Add a figure of the rviz2 interface with moveit2
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.8\textwidth]{c4_03.png}
-    \caption{Planning Scene and Occupancy Mapping Architecture}
-    \label{fig:planninscence}
+    \includegraphics[width=1.0\textwidth]{c4_11.png}
+    \caption{RViz2 Interface with MoveIt2 Control Panels and the mobile manipulation robot.}
+    \label{fig:rviz2}
 \end{figure}
+
 
 MoveIt2 can be used along with RViz2, which is a 3D visualization tool for ROS2 that can be used to visualize the
 robot's motion in both simulated and real environments. RViz2 provides a set of tools for visualizing the robot's
 kinematic model, the robot's state, the obstacles in the environment, and the robot's motion plans.
 Figure \ref{fig:rviz2} shows a screenshot of the RViz2 interface with the control panels dedicated to the MoveIt2
-planning and execution tools. With this interface, it is possible to send joint space goals to the robot
-and control it via the underlying hardware interface.
+planning and execution tools. The figure shows the Igus Rebel cobot mounted on the Scout mobile robot,
+with blue collision boxes to prevent the arm from colliding with the sensors mounted on top.
+With this interface, it is possible to send joint space goals to the robot
+and control it via the underlying hardware interface. There is also an interactive marker that allows the user
+to set the robot's end-effector pose by dragging it around in the RViz2 interface.
 
-%TODO: Add a figure of the rviz2 interface with moveit2
-\begin{figure}[t]
-    \centering
-    %\includegraphics[width=0.8\textwidth]{c4_00.png}
-    \caption{RViz2 Interface with MoveIt2 Control Panels and the mobile manipulation robot.}
-    \label{fig:rviz2}
-\end{figure}
+I developed a custom library that incorporates the \textit{MoveGroupInterface}, providing high-level functions
+in C++ that allow to plan and execute different types of motion, as well as computing the end-effector position
+and orientation quaternion from sensor input data. This library makes use of different planners to obtain
+the highest probability of generating a valid motion trajectory given the planning scene, and current and target
+joint positions. The planner \textit{Pilz Industrial Motion Planner} is used for linear cartesian trajectories 
+since it outperforms the other planners for this task. The \textit{OMPL} (Open Motion Planning Library) and
+\textit{STOMP} (Stochastic Trajectory Optimization) motion planners
+are instead used for generating trajectories with joint-space or cartesian-space targets.
+The kinematic solver used throughout the project is \textit{KDL} (Kinematics and Dynamics Library), which is a C++ library
+that provides a set of tools for computing the forward and inverse kinematics of the robot's kinematic model.
+For collision detection, the \textit{FCL} (Flexible Collision Library) is used, which is a C++ library that provides
+a set of tools for detecting collisions between the robot and the obstacles in the environment.
+Its advantage is the integration with Octomap for 3D collision checking, which is used in the MoveIt2 framework.
 
 \section{Robotic Arm Visual Servoing}
 
@@ -175,11 +194,14 @@ rely exclusively on ROS2-Iron distribution.
 
 \section{Collision Avoidance with Octomap}
 
-The MoveIt2 library provides a framework for collision avoidance using the Octomap library, which is a library for
-generating volumetric 3D occupancy maps of the surrounding environment.
+The MoveIt2 library provides a framework for collision avoidance using the \textbf{Octomap} library, which is a library for
+generating volumetric 3D occupancy maps of the surrounding environment \cite{hornung13octomap}.
 Octomap is a 3D probabilistic occupancy grid representation of the robot's environment. It divides the space into voxels
 (3D cubes) and assigns probabilities to each voxel, indicating whether it's occupied (by an obstacle) or free.
 MoveIt2 integrates data from various sensors, such as the depth camera to update the Octomap in real time.
+Figure \ref{fig:octomap} shows the integration of Octomap inside MoveIt2, where the voxels defining the occupancy
+mapping are inside the Planning Scene, so the motion planning algorithms can use the voxels to plan a trajectory
+that avoids them.
 
 MoveIt2's collision checker uses the Octomap to efficiently check for collisions between the robot's planned trajectory
 and the environment. By checking if the voxels along the path are occupied, it can determine if the robot will collide 
@@ -192,7 +214,13 @@ If the environment changes during execution (e.g., an obstacle moves), MoveIt2 c
 to quickly replan a new collision-free path, allowing for dynamic obstacle avoidance.
 This allows for a dynamic representation of the environment, even if obstacles move.
 
-%TODO: Add a screenshot of the Octomap in RViz2
+% Add a screenshot of the Octomap in RViz2
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_15.png}
+    \caption{Mobile robot using the depth camera to construct the Octomap with the obstacles nearby}
+    \label{fig:octomap}
+\end{figure}
 
 However, the reality is far from the ideal scenario. The Octomap library is not yet fully integrated with the MoveIt2
 interfaces, resulting in a \textbf{poorly optimized} Octomap probabilistic representation of the environment.
@@ -228,13 +256,15 @@ while the RELEASE pin is used to open the gripper.
 
 \section{Autonomous Navigation with NAV2}
 
-Nav2 is a powerful open-source software framework used for autonomous navigation within the ROS2 ecosystem.
+Nav2 is a powerful open-source software framework used for autonomous navigation within the ROS2 ecosystem
+\cite{macenski2020nav2}.
 It provides a comprehensive set of tools and algorithms for enabling robots to navigate complex environments intelligently.
 With Nav2, robots can perceive their surroundings, localize themselves, plan optimal paths, and execute 
 those paths while avoiding obstacles. Its modular architecture allows for customization and integration with various sensors,
 such as LiDAR and cameras, making it adaptable to different robot platforms and use cases. 
 Nav2's flexibility and robust features make it a popular choice for both research and industrial applications 
-in fields like robotics and autonomous vehicles.
+in fields like robotics and autonomous vehicles
+\cite{macenski2023survey}.
 
 Nav2's \textbf{modular architecture} enables the seamless integration of various plugins that contribute
 to its robust autonomous navigation capabilities. Costmap plugins, such as static and obstacle layers,
@@ -251,8 +281,24 @@ robotic system. The Nav2 stack is used to plan and execute trajectories for the 
 LiDAR sensor to perceive the environment and avoid obstacles. The stack operates within a ROS2 
 composable node architecture, which allows for the integration of various plugins and algorithms to achieve
 efficient intra-process communication and data sharing between the various components and threads of the stack.
+I created and configured the Nav2 stack to work with the AgileX Scout robot, using the SLAM Toolbox algorithm
+for creating maps of the laboratory. Figure \ref{fig:nav2_hallway} and figure \ref{fig:nav2_airlab} show the autonomous
+navigation of the robot in the hallways and AIRlab in building 7 of Politecnico di Milano, respectively.
 
-%TODO: add screenshot of map and costmaps in RViz2
+% Add screenshots of map and costmap in RViz2
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_20.png}
+    \caption{Autonomous Navigation with Nav2 in the hallways of building 7 of Politecnico di Milano}
+    \label{fig:nav2_hallway}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_22.png}
+    \caption{Autonomous Navigation in cluttered and dynamic environment with moving obstacles (AIRlab)}
+    \label{fig:nav2_airlab}
+\end{figure}
 
 \subsection{Nav2 Parameters Tuning}
 
@@ -266,10 +312,14 @@ and real environments, to ensure that the robot can navigate safely and efficien
 I tested and applied both AMCL and SLAM Toolbox algorithms for localization, and I found that the AMCL algorithm
 performed worse in terms of scan matching when the robot rotates in place. Therefore, I decided to use the SLAM Toolbox
 algorithm for localization, which provided better performance and improved reliability in terms of localization accuracy,
-even in maps with dynamic obstacles and changing environments.
+even in maps with dynamic obstacles and changing environments. The pose graph generated by the SLAM Toolbox algorithm
+is displayed in the maps, as shown in figure \ref{fig:nav2_hallway} and figure \ref{fig:nav2_airlab}, where the
+blue lines represent the pose graph created during map creation, and the cyan lines represent the robot's
+the path traversed during navigation, estimated by the algorithm, and connected to one of the nodes in the pose graph.
 
 \textbf{Global Planner}:
-I tested and used the Hybrid A* global planner, and I found that it performed well in generating optimal paths
+I tested and used the SMAC planners \cite{macenski2024smac}, in particular the Hybrid A* global planner.
+I found that it performed well in generating optimal paths
 for the robot to follow, even in cases where an unknown obstacle appears in the environment. The Hybrid A*
 global planner uses an A* search algorithm to generate optimal paths for the robot to follow, which allows the robot
 to compute efficient paths and adjust quickly to changes in the environment. The Hybrid A* global planner is based on
@@ -284,11 +334,13 @@ the Reeds-Shepp algorithm works only in the real environment, and not in the sim
 \textbf{Local Planner (Controller)}:
 I tested and applied the DWB and MPPI local planners, and I found that the MPPI local planner performed better
 in tracking the global plan and avoiding tight obstacles. The MPPI (Model Predictive Path Integral Controller) 
-local planner uses a \textbf{model predictive control approach}
+\cite{mppicontroller} local planner uses a \textbf{model predictive control approach}
 to generate collision-free paths for the robot to follow, which allows the robot to navigate efficiently in complex
 environments with tight spaces and obstacles. The MPPI local planner also provides better performance in terms of
 trajectory tracking, compared to the DWB local planner. The DWB local planner uses a dynamic window approach to generate
 collision-free paths for the robot to follow, which can be less effective in tight spaces and complex environments.
+The sampled trajectories of the local planner are visualized in \ref{fig:nav2_hallway} and \ref{fig:nav2_airlab},
+in front of the robot's footprint, showing the robot's sampled trajectories to follow the global path.
 
 \textbf{Recovery Behaviors}:
 I tested the default recovery behaviors provided by the Nav2 stack, and I found that the default recovery behaviors
@@ -302,7 +354,10 @@ itself in a different configuration, enabling it to generate a new path and cont
 The local costmap plugin is used to generate a local costmap of the robot's surroundings, highlighting obstacles
 and free space. The local costmap plugin uses the robot's LiDAR sensor to perceive the environment and update the costmap
 in realtime. The local costmap plugin is used by the local planner to generate collision-free paths for the robot
-to follow. The local costmap can be configured with these plugins:
+to follow. The local costmap includes the unknown obstacle in the environment, which is represented as pink areas
+in the costmap, as shown in figure \ref{fig:nav2_airlab}. The unknown obstacle is detected by the LiDAR sensor
+and updated in the costmap, allowing the robot to avoid collisions with objects not present on the map.
+The local costmap can be configured with these plugins:
 
 \begin{itemize}
     \item \textbf{Inflation Layer}: The inflation layer is used to inflate the obstacles in the costmap, creating a buffer
@@ -320,6 +375,8 @@ The global costmap plugin is used to generate a costmap of the entire map that t
 the static obstacles and free space. The global costmap plugin is used by the global planner to generate optimal paths
 for the robot to follow. The global costmap is configured to use only the static layer inflated by the inflation layer,
 to ensure that the robot avoids collisions with the obstacles already present in the map.
+The global costmap is represented in \ref{fig:nav2_hallway} as the blue and red areas, where the blue areas are the 
+\textit{lethal} space (i.e. must be avoided) and the red areas are the inflated obstacle areas with high cost.
 
 \textbf{Collision Monitor}:
 The collision monitor plugin is used to continuously assess the robot's planned path against the costmap, ensuring
@@ -329,7 +386,8 @@ footprint and locally planned path.
 
 \textbf{Mapping Algorithm}:
 The algorithm of choice for mapping is the \textit{SLAM Toolbox} algorithm, which is a 2D SLAM algorithm
-that uses the robot's LiDAR sensor to create a 2D map of the environment. The SLAM Toolbox algorithm is used to create
+that uses the robot's LiDAR sensor to create a 2D map of the environment \cite{Macenski2021slamtoolbox}.
+The SLAM Toolbox algorithm is used to create
 a 2D map of the environment, which is used by the global planner to generate optimal paths for the robot to follow.
 The SLAM Toolbox proved to be effective in creating accurate 2D maps of the environment, even in dynamic environments
 with moving obstacles. I managed to use it correctly in both simulated and real environments, and it provided
@@ -342,7 +400,7 @@ trajectories from the computed paths, which allows the robot to navigate efficie
 The velocity smoother is configured also to avoid unnecessary stops and starts, which can wear out the robot's transmission
 gears and reduce the robot's battery life.
 
-\textbf{Spatio-Temporal Voxel Costmap Layer}:
+\textbf{Spatio-Temporal Voxel Costmap Layer} \cite{macenski2020stvl}:
 The dynamic obstacle avoidance algorithm is a critical component of the Nav2 stack, as it allows the robot to navigate
 safely in dynamic environments with moving obstacles. The dynamic obstacle avoidance algorithm uses the robot's LiDAR sensor
 to perceive the environment and detect the moving obstacles in realtime. Dynamic obstacles update the local costmap
@@ -353,13 +411,15 @@ that are no longer present in the environment. This leads to false positives in 
 the robot from executing the planned trajectory, especially in highly dynamic environments with fast-moving obstacles.
 The spatio-temporal voxel costmap layer is an open-source plugin that addresses this issue by updating the costmap
 efficiently and accurately. It replaces the traditional voxel grid approach with a \textbf{sparse voxel grid} implemented
-using OpenVDB, a high-performance C++ library. This allows STVL to handle large, dynamic environments with ease,
+using OpenVDB, a \textbf{high-performance C++ library}. This allows STVL to handle large, dynamic environments with ease,
 such as the one shown in figure \ref{fig:stvl}, 
 reducing computational overhead. By leveraging temporal information and applying a voxel grid filter to sensor data,
 STVL can better handle noisy and dense sensor readings, especially in proximity to objects. 
 This results in smoother, more reliable navigation and improved robot performance in continuously evolving scenarios.
 STVL's adaptability, efficiency, and ability to integrate with various sensor types made it the ideal substitute
-for the voxel layer in the Nav2 stack.
+for the voxel layer in the Nav2 stack. Figure \ref{fig:nav2_airlab} shows the effectiveness of the STVL in a dynamic
+and cluttered environment, such as the AIRLab, where the robot is navigating despite many unknown obstacles 
+and moving objects in a tight space.
 
 \begin{figure}[t]
     \centering
@@ -377,6 +437,15 @@ Some other times the dynamic obstacle avoidance algorithm did not work as expect
 with obstacles that were not perceived by the LiDAR sensor in the surrounding environment.
 Overall, the robot's navigation stack was not reliable and robust, which was a significant issue for the project's development,
 especially for the autonomous navigation tasks in the laboratory's environment (cluttered and dynamic).
+Figure \ref{fig:3dlidar} shows the pointcloud generated from a cluttered environment and the expected view 
+from a correctly functioning sensors.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_18.png}
+    \caption{3D LiDAR sensor in a cluttered environment}
+    \label{fig:3dlidar}
+\end{figure}
 
 After many trials and tests, my supervisor and I discovered that the LiDAR pointcloud data's low and unreliable frequency
 was the main cause of all these problems. The LiDAR sensor works at a nominal frequency of $10$Hz. 
@@ -429,15 +498,33 @@ and the autonomous navigation tasks were working correctly and smoothly.
 Ignition Gazebo is a useful open-source simulation environment for robotics and autonomous systems.
 It provides a realistic and customizable 3D environment for testing and developing robotic algorithms and applications.
 Ignition Gazebo is the new version of the Gazebo simulator, which is widely used in the robotics community for simulating
-robots and sensors for perception systems. Ignition Gazebo was the simulation environment of choice for the project,
+robots and sensors for perception systems. \textbf{Ignition Gazebo} is the simulation environment of choice for the project,
 as it proved to be very useful in testing the mobile robot base in simulated environments before deploying the algorithms
 on the real robot. Simulating the robot in a virtual environment allows for testing the algorithms in 
 a controlled and repeatable environment, without the risk of damaging the real robot or the laboratory environment.
-It was essential for the development of the software stack and the navigation algorithms, as it allowed for testing
+The simulations were essential for the development of the software stack and the navigation algorithms, 
+as they allowed for testing
 the robot's behavior in different scenarios and environments. It allowed me to tune the navigation stack's parameters
 thoroughly and ensure the robot would avoid obstacles and navigate safely.
 
-The simulated environment in Ignition Gazebo was a \textbf{warehouse} with various obstacles such as walls, shelves, and boxes,
+% add a screenshot of the simulation environment in Ignition Gazebo
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_12.png}
+    \caption{Ignition Gazebo Simulation Environment}
+    \label{fig:ignition}
+\end{figure}
+
+% Add the created map of the warehouse
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_14.png}
+    \caption{Mobile robot navigating in the simulated warehouse environment}
+    \label{fig:warehousenav2}
+\end{figure}
+
+The simulated environment in Ignition Gazebo was a \textbf{warehouse} \ref{fig:ignition} 
+with various obstacles such as walls, shelves, and boxes,
 which the robot had to navigate around to reach its goal. The warehouse environment was designed to be challenging
 for the robot, with narrow passages and tight spaces, to test the robot's ability to navigate in complex environments.
 Ignition Gazebo also provides the possibility to add dynamic obstacles, i.e. objects not present in the map
@@ -446,15 +533,14 @@ algorithm, which allows the robot to navigate safely in environments with unknow
 
 I was able to simulate also the sensors mounted on the robot, such as a 2D LiDAR and a 3D LiDAR sensor, which were used
 for perception and obstacle avoidance. I also tested the robot's localization algorithms, such as AMCL and SLAM Toolbox,
-using the simulated odometry data created by the robot's wheels' motion in the simulated environment.
+using the simulated odometry data created by the robot's wheels' motion in the simulated environment. Figure 
+\ref{fig:warehousenav2} shows the simulated mobile robot navigating in the warehouse environment
+while avoiding the boxes and shelves in its path.
 
-%TODO: add a screenshot of the simulation environment in Ignition Gazebo
-
-%TODO: add the created map of the warehouse
 
 \section{Parking Algorithm for Mobile Robot}
 
-I designed a parking algorithm for the mobile robot to autonomously park near a target spot in the laboratory.
+I designed a \textbf{parking algorithm} for the mobile robot to autonomously park near a target spot in the laboratory.
 The parking algorithm takes as input the location in the map of the target spot that the robotic arm must reach,
 and it outputs the parking pose next to the target pose where the mobile robot must park to give the robotic arm
 enough space to reach the target. I had to structure and design the algorithm to ensure that the mobile robot
@@ -559,8 +645,6 @@ we can compensate for the camera's inherent distortions and obtain a more accura
 in the real world. I had also to calibrate the camera's intrinsic parameters using a calibration pattern and the
 automatic calibration software tool provided by the RealSense SDK.
 
-%TODO: add pictures of detected markers
-
 \subsection{Multi-Aruco Plane Estimation Algorithm}
 
 One of the challenges I faced was estimating the orientation of small Aruco markers from the camera feed.
@@ -570,11 +654,20 @@ was the most challenging part, as the pose estimation algorithm often returns or
 oscillate between different values, making it difficult to determine the correct orientation of the marker.
 This is especially true for small markers that appear far away from the camera. To address this issue,
 I developed a multi-Aruco plane estimation algorithm that estimates the orientation of a plane over which
-multiple Aruco markers are placed.
+multiple Aruco markers are placed. Figure \ref{fig:multi_aruco} shows the algorithm in action.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_17.png}
+    \caption{Multi-Aruco Plane Estimation algorithm in action. The screenshot shows RViz2 displaying
+    on the top left corner the input image, bottom left the image with the detected markers drawn on top of it,
+    and in the center the colored pointcloud captured by the depth sensor.}
+    \label{fig:multi_aruco}
+\end{figure}
 
 The algorithm works by detecting multiple Aruco markers in the image and estimating their poses using the pose
 estimation algorithm. The poses of the Aruco markers are then used to estimate the orientation of the plane
-on which the markers are placed. The algorithm assumes that the Aruco markers are coplanar, meaning that 
+on which the markers are placed. The algorithm assumes that the Aruco markers are \textbf{coplanar}, meaning that 
 they have different positions but the same orientation. By estimating the orientation of the plane that passes
 through the markers, we can determine the correct orientation of the markers from the vector normal
 to the plane. The algorithm processes a list of Aruco markers poses and returns the poses with their
@@ -647,33 +740,51 @@ The perception algorithm works as illustrated in \ref{alg:multi_aruco}:
 
 For the project, it was also necessary to detect objects in the environment, such as colored balls, which the robot
 had to grasp and move to a different location. For this task, I used the YOLOv8 object detection algorithm, trained
-on a custom dataset that I collected and annotated.
+on a custom dataset that I collected and annotated. Figure \ref{fig:balls} shows the YOLOv8 model in inference
+in realtime, predicting the colors of the balls in the field of view of the camera.
+
+%Add a picture of the detected balls
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_16.png}
+    \caption{YOLOv8 detecting colored balls in realtime from the RGB camera feed. The screenshot displays the image
+    with the bounding boxes colored with the same color as the predicted class. For each prediction, the 
+    class probability is associated.}
+    \label{fig:balls}
+\end{figure}
 
 \textbf{YOLO (You Only Look Once)} is a cutting-edge, real-time object detection algorithm 
-that has revolutionized computer vision.
+that has revolutionized computer vision \cite{redmon2015yolo}.
 Unlike traditional methods that require multiple passes over an image, YOLO analyzes the entire image in a single pass,
 making it incredibly fast and efficient. It divides the image into a grid and predicts bounding boxes and class probabilities
 for each grid cell simultaneously, achieving impressive accuracy while maintaining speed. 
 YOLO has evolved through several versions (YOLOv2, YOLOv3, etc.), each improving upon the previous iteration in terms of speed, 
 accuracy, and ability to detect small objects. Its versatility and effectiveness have led to widespread adoption in various
-applications, including autonomous driving, robotics and image analysis tools. This was the object detection neural
+applications, including autonomous driving, robotics, and image analysis tools. This was the object detection neural
 network of choice for the project, as it provided the speed and accuracy needed for detecting objects in real-time
 from the camera feed. It is also lightweight, making it ideal to run on CPUs without the need for a GPU.
 The inference time for a single image on an Intel i7 12th gen CPU was around $0.15$ seconds, which is fast enough
 for the time requirements of my applications. However, when running along other ROS2 nodes using other CPU-intensive
 algorithms, the inference time increased to $0.4$ seconds, which was still acceptable for the demos and tests.
 
-The YOLOv8 algorithm is a state-of-the-art object detection model that combines the best features of previous YOLO versions
+The \textbf{YOLOv8} neural network model is a state-of-the-art object detection model \cite{reis2023realtimeyolov8}
+that combines the best features of previous YOLO versions
 to achieve superior performance. I used this model for my object detection task, such as detecting colored balls
-from the camera feed. I trained the YOLOv8 model on a custom dataset of colored balls, which included images of the balls
+from the camera feed. The YOLOV8 architecture is shown in figure \ref{fig:yolov8}. It shows the backbone architecture
+of the YOLOv8 model, which consists of a series of convolutional layers that extract features from the input image
+and pass them to the detection head, which predicts the bounding boxes and class probabilities for the objects in the image.
+The backbone architecture used in the training is the default one (CSPDarknet), which is a state-of-the-art backbone.
+The neck is a feature pyramid network (FPN) that combines features from different scales to improve the model's
+performance in detecting objects of different sizes.
+
+I trained the YOLOv8 model on a custom dataset of colored balls, which included images of the balls
 from different angles, distances, and lighting conditions. I collected the dataset using the RealSense camera mounted
 on a tripod, which allowed me to capture images of the balls from different perspectives and distances. The dataset
 was annotated manually with the bounding boxes and class labels of the balls, which were used to train the YOLOv8 model.
-
 I used the YOLOv8 model provided by \textbf{Keras}, which is a high-level deep-learning library that provides a user-friendly
 API for building and training neural networks. Since the training dataset I collected is of small size,
 I used data augmentation techniques to increase the dataset's size and diversity, which helped improve the model's
-generalization and robustness. The data augmentation techniques included random rotations, translations, and flips
+generalization and robustness. The \textbf{data augmentation techniques} included random rotations, translations, and flips
 of the images, which created variations of the original images and helped the model learn to detect the balls
 from different perspectives and orientations. I included also other types of image augmentation techniques, such as
 brightness and contrast adjustments, and Gaussian noise addition, which further increased the dataset's
@@ -682,6 +793,14 @@ which is a powerful image augmentation library for computer vision tasks, specia
 object detection tasks. It is essential to adjust properly the bounding boxes after each image
 is augmented, to ensure that the bounding boxes are still correctly positioned around the objects of interest.
 
+% Add the architecture diagram
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_10.jpg}
+    \caption{Architecture overview in detail of the YOLOv8 architecture}
+    \label{fig:yolov8}
+\end{figure}
+
 As training hyperparameters, I used a batch size of $16$, which is enough for a small dataset such as the one
 that I created, a learning rate scheduler with exponential decay, and the early stopping callback to stop the training
 when the validation loss stops decreasing. The model is compiled with the Adam optimizer, which is a popular optimizer
@@ -689,7 +808,7 @@ for training deep neural networks, and with the YOLOv8 Backbone, which is a stat
 that provides the best candidate features for object detection tasks. The metrics used to evaluate the model's performance
 are the \textbf{mean Average Precision} (mAP) and the \textbf{Intersection over Union} (IoU),
 which are standard metrics for object detection tasks. These metrics are incorporated within the COCO evaluation metrics,
-which are the standard evaluation metrics provided by the KerasCV library.
+which are the standard evaluation metrics provided by the \textbf{KerasCV} library \cite{wood2022kerascv}.
 
 The model is trained with the combination of 2 loss functions:
 
@@ -697,18 +816,15 @@ The model is trained with the combination of 2 loss functions:
     \item \textbf{Box Loss}: The box loss function is used to penalize the model for incorrect predictions of the bounding
     boxes of the objects. The box loss function computes the difference between the predicted bounding boxes and the
     ground-truth bounding boxes, using the \textit{CIoU} (Complete Intersection over Union) loss function, which is a
-    state-of-the-art loss function that accounts for the object's aspect ratio and orientation.
+    state-of-the-art loss function that accounts for the object's aspect ratio and orientation \cite{zheng2021ciou}.
     \item \textbf{Class Loss}: The class loss function is used to penalize the model for incorrect predictions of the
     object classes. The class loss function computes the difference between the predicted class probabilities and the
     ground-truth class labels, using the \textit{Binary Cross-Entropy} loss function, which is the loss function of
     choice for multi-class classification tasks that use multi-hot encoded labels instead of one-hot encoded labels.
     After some tests, I switched to the \textit{Binary Penalty Reduced Focal CrossEntropy} loss function, which is a variant
     of the focal loss function that reduces the penalty for misclassifications, and focuses more on the correct
-    classification of the objects. This loss function helped improve the model's accuracy.
+    classification of the objects \cite{law2019cornernet}. This loss function helped improve the model's accuracy.
 \end{itemize}
-
-
-%TODO: add pictures of detected balls
 
 \section{Pose Estimation with Object Detection and Depth Sensing}
 
@@ -719,7 +835,7 @@ The depth-sensing camera provides the depth map of the scene, which contains the
 By combining the object detection results with the depth map, we can estimate the object's position in 3D space
 relative to the camera, which is essential for the robot to interact with the object effectively.
 
-This perception algorithm works by creating a segmented pointcloud of the object from the depth map, using the
+This perception algorithm works by creating a \textbf{segmented pointcloud} of the object from the depth map, using the
 bounding box coordinates provided by the object detection algorithm, and the projected depth values
 from the depth image. This perception algorithm is implemented to estimate the center position
 of detected colored balls. 
