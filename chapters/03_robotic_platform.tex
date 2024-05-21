@@ -8,19 +8,19 @@ The chapter will also discuss the issues faced during the development of the mob
 
 \section{Mobile Robot Platform}
 
-The mobile robot used for the Thesis project is an \textit{AgileX Scout 2.0} robot. 
+The mobile robot used for the Thesis project is an \textit{AgileX Scout 2.0} robot, depicted in \ref{fig:c3_img01}.
 This robot is a skid-steering robot, suitable for outdoor and indoor environments. 
 Designed for robotics research and development, the Scout 2.0 is an unmanned ground vehicle (UGV). 
 This autonomous mobile robot is CE-certified and offers a robust mechanical design along with capable mobility performance. 
 Built to endure diverse conditions, Scout 2.0 features rugged materials and protective casings, ensuring longevity
 and reliability during missions. SCOUT 2.0 offers aluminum T-slot rails for secure mounting of external sensors or kits. 
-On these rails, a variety of sensors, computers or other devices are mounted, allowing the creation of a mobile robotic platform
+On these rails, a variety of sensors, computers, or other devices are mounted, allowing the creation of a mobile robotic platform
 for a wide range of applications, and without relying on power cables to the wall, thanks to its 
 \textbf{onboard battery system}.
 
 It supports CAN bus protocol for connections and provides open-source SDK and software resources for expanded capabilities.
 Its maximum speed is $1.5 m/s$, and it can carry a payload of $50$ kg. 
-The robot is powered by a 24V battery, which provides a range of $15$ km maximum. 
+The robot is powered by a $24V$ battery, which provides a range of $15$ km maximum. 
 The robot is controlled by a ROS-based software system, which allows the control of the robot's speed using a ROS topic
 and receiving odometry data from the robot's encoders.
 
@@ -35,7 +35,8 @@ and receiving odometry data from the robot's encoders.
 	\label{fig:c3_img01}
 \end{figure}
 
-On the mobile robot, an \textit{Intel NUC 12} computer is mounted. This \textbf{computer} is used for running all the control
+On the mobile robot, an \textit{Intel NUC 12} computer \ref{fig:c3_img02} is mounted.
+This \textbf{computer} is used for running all the control
 software and the perception algorithms. The computer is connected to a switch, which is used to connect
 the computer to the robot's control system and all the sensors and electronic devices mounted on the robot.
 The computer is also connected to a router, which is used to connect the computer to the laboratory's network
@@ -75,7 +76,7 @@ at a fast transmission rate.
  
 \section{Robotic Arm Manipulator}
 
-The robotic arm manipulator used for the Thesis project is a \textit{Igus ReBeL 6-DoF} \textbf{cobot}.
+The robotic arm manipulator used for the project is a \textit{Igus ReBeL 6-DoF} \textbf{cobot}, depicted in \ref{fig:c3_img04}.
 Cobot is a term used to describe a collaborative robot, which is a robot designed to work alongside humans in a shared workspace.
 This cobot is a lightweight, compact, and affordable robotic arm, suitable for research and development
 in robotics. It is produced by the German company Igus, which specializes in the production of robotic components
@@ -91,7 +92,7 @@ The \textbf{advantages} of the ReBeL cobot are:
 \begin{itemize}
     \item Lightweight, sleek and compact design
     \item Plastic arm, inexpensive and cost-effective
-    \item Easy to install and operate
+    \item Easy to install and operate with the provided software \ref{fig:c3_img05}
     \item Plug and play proprietary control system, or open-source control option
 \end{itemize}
 
@@ -159,7 +160,7 @@ is mounted on the robotic arm's wrist, allowing the camera to move with the arm'
 \subsection{3D LiDAR Sensor}
 
 The main sensor for environment perception for localization and navigation is mounted on the robot's T-slot rails.
-The sensor is a \textit{Ouster OS1-64} LiDAR sensor.
+The sensor is a \textit{Ouster OS1-64} LiDAR sensor, as shown in \ref{fig:c3_img06}.
 The OS1 offers clean, dense data across its entire field of view for accurate perception and crisp detail in industrial,
 automotive, robotics, and mapping applications.
 This sensor is a \textbf{64-plane LiDAR sensor}, capable of providing a 360-degree field of view with a range of $120$ meters. 
@@ -181,7 +182,7 @@ It proved also useful for dynamic obstacle avoidance, thanks to its high resolut
 
 \subsection{RGB-D Stereo Camera Sensor}
 
-The robotic arm is equipped with a \textit{Intel Realsense D435} RGB-D stereo camera sensor.
+The robotic arm is equipped with a \textit{Intel Realsense D435} RGB-D stereo camera sensor, shown in \ref{fig:c3_img07}.
 This camera is mounted on the \textit{wrist} of the robotic arm, allowing the camera to move with the arm's end effector.
 The camera is used for object detection and recognition, and also for Aruco markers detection and pose estimation.
 This is the camera of choice for robotic applications, as it provides both RGB and depth images, which are essential
@@ -248,7 +249,7 @@ which were consistent with the real-world distances of the objects in the enviro
 
 \section{Soft Gripper Actuator}
 
-The robotic arm is equipped with a Soft Gripper Pneumatic Actuator from \textit{Soft Gripping}.
+The robotic arm is equipped with a Soft Gripper Pneumatic Actuator from \textit{Soft Gripping}, depicted in \ref{fig:c3_img09}.
 This gripper is composed of 3 soft fingers, which are actuated by a pneumatic pump. The fingers are made of
 \textbf{silicone rubber}, which is soft and flexible, allowing the gripper to grasp and manipulate objects of different shapes
 and sizes. The silicone material of the fingers is also non-slip, which ensures a secure grip on the objects.
@@ -265,11 +266,12 @@ food products.
     \label{fig:c3_img09}
 \end{figure}
 
-The soft gripper is controlled by a pneumatic pump, which provides compressed air to the fingers, allowing them
-to open and close. The pneumatic system works at a pressure of $1$ bar when the fingers are closed, and at
+The soft gripper is controlled by a pneumatic pump \ref{fig:c3_img13}, which provides compressed air to the fingers,
+allowing them to open and close. The pneumatic system works at a pressure of $1$ bar when the fingers are closed, and at
 a negative pressure of $0$ bar when the fingers are opened. The pneumatic pump that controls the soft gripper
 allows the user to set the pressure value used when closing the fingers, but the pressure value cannot be
-changed dynamically via electronic control. 
+changed dynamically via electronic control. Figure \ref{fig:sg_combined} shows the soft gripper mounted on the end effector
+with the fingers opened and closed.
 
 % Add a picture of the pneumatic pump
 \begin{figure}[t]
@@ -314,6 +316,7 @@ using the \textbf{onboard batteries}. The pump is powered by a 24V lead battery,
 the robotic arm. I created a system for powering both the robotic arm and the pneumatic pump with the same battery,
 using Molex cables and connectors. These Molex cables proved to be a reliable and optimal solution,
 as they allowed me to switch easily between the onboard batteries and the external cobot power supply.
+The Molex cable management is shown in \ref{fig:c3_img12}.
 In fact, the cobot's power supply provides 24V at a maximum of 10A, which is enough to power the robotic arm
 and the pneumatic pump simultaneously, since the pneumatic pump doesn't require a high current to operate.
 The cable of the external power supply is also a Molex cable, so that's why I used Molex connectors and cables
@@ -335,9 +338,10 @@ The Arduino UNO is connected to the robot's computer via USB, allowing the compu
 via the serial port. The Arduino UNO is then connected to the pneumatic pump via a relay module,
 composed of 4 different relays, each controlling a different digital pin of the pump. The relays were necessary
 to provide an output voltage of 24V, while the Arduino UNO provides only 5V via its digital pinout.
-The relays are cheap and quick enough to switch between the digital pins of the pump, allowing an efficient
-control of the pump's operation, and the installation of a simple circuitry for the control system 
-directly on the mobile robot platform.
+The relays are cheap and quick enough to switch between the digital pins of the pump, allowing efficient
+control of the pump's operation, and the installation of simple circuitry for the control system 
+directly on the mobile robot platform. Figure \ref{fig:c3_img10} shows the Arduino UNO microcontroller
+and the relay module used to control the pneumatic pump.
 
 % Add a picture of the Arduino UNO and the relay module
 \begin{figure}[t]
@@ -353,31 +357,35 @@ directly on the mobile robot platform.
 Mounting the sensors and electronic devices on the mobile robot platform required the design and 3D printing
 of custom mounts. The mounts were designed using the \textit{Fusion 360} CAD software, which allowed me to create
 precise and accurate models of the mounts. The mounts were then 3D printed using the laboratory's 3D printer,
-which is a \textit{Creality CR-10S} 3D printer. I designed and printed two versions of the mount for the
-cobot's flange:
+which is a \textit{Creality CR-10S} 3D printer. 
 
-\begin{itemize}
-    \item \textit{Mount V1}: a mount for the Realsense camera and a digital button on top of a cylinder used
-    for pressing buttons on a control panel. The mount was designed to be robust and easy to switch with other
-    mount extensions. This mount was used for the first demos and tests of the project.
-    \item \textit{Mount V2}: a mount for the Realsense camera and the soft gripper as an end-effector.
-    This mount was designed to be compact, robust and more effective for the final versions of the project.
-\end{itemize}
-
-I also designed and created another \textbf{mount for the GPS antenna}, which was used for outdoor localization
+I designed and created the \textbf{mount for the GPS antenna}, which was used for outdoor localization
 and navigation tasks. The GPS antenna mount was designed to be placed on top of the LiDAR sensor, ensuring
 that the antenna had a clear view of the sky and the satellites. The mount was also designed to be lightweight
 and quick to install, without affecting the LiDAR sensor's field of view, and without using any screws or bolts.
-I never used the GPS in my project, but the mount that I created was used by other researchers in the laboratory
-for their projects.
+Figure \ref{fig:gpsprint} shows the mount installation on top of the LiDAR sensor, while Figure \ref{fig:gps3d}
+shows the 3D design of the mount.
+I never used the GPS in my project, but the support that I created for it was used by other researchers 
+in the laboratory for other projects.
 
 % Add pictures of the GPS antenna mount render and 3D print
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.4\textwidth]{c3_20.jpg}
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=0.7\textwidth]{c3_20.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \caption{GPS antenna 3D-printed mount}
+        \label{fig:gps3d}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.67\textwidth}
+        \includegraphics[width=1.0\textwidth]{c3_22.png}
+        \caption{3D design}
+        \label{fig:gpsprint}
+    \end{subfigure}
     \captionsetup{width=1\linewidth}
-    \caption{GPS antenna 3d-printed mount on top of the LiDAR}.
-    \label{fig:c3_img20}
+    \caption{GPS antenna mount design and 3D-print on top of the LiDAR}.
+    \label{fig:c3_gps}
 \end{figure}
 
 The 3D printer that I used in the AIRLab is a Fused Deposition Modeling (FDM) printer,
@@ -385,6 +393,16 @@ which uses a thermoplastic filament to create the 3D models layer by layer. The 
 for the 3D prints was \textit{PETG} (Polyethylene Terephthalate Glycol), which is a strong and durable material,
 suitable for mechanical parts and mounts. The PETG material is also resistant to mechanical stress and heat,
 making it the ideal material for the mounts for these kinds of applications.
+
+I designed and printed two versions of the mount for the cobot's flange:
+
+\begin{itemize}
+    \item \textit{Mount V1} \ref{fig:mountv1}: a mount for the Realsense camera and a digital button on top of a cylinder used
+    for pressing buttons on a control panel. The mount was designed to be robust and easy to switch with other
+    mount extensions. This mount was used for the first demos and tests of the project.
+    \item \textit{Mount V2} \ref{fig:mountv2}: a mount for the Realsense camera and the soft gripper as an end-effector.
+    This mount was designed to be compact, robust, and more effective for the final versions of the project.
+\end{itemize}
 
 The 3D-printed mounts were designed to be lightweight and compact, to ensure that the robot's mobility and stability
 were not affected. The mounts were also designed to be very robust and durable, to withstand the vibrations and shocks
@@ -395,10 +413,30 @@ the sensors in their fixed position.
 
 \subsection{Mount V1}
 
-% TODO: Add pictures of the Mount V1 render and 3D print
+% Add pictures of the Mount V1 render and 3D print
+\begin{figure}
+    \centering
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=0.9\textwidth]{c3_20.png} % Replace with your image file
+        \caption{Back side view of the 3D design}
+        \label{fig:frontv1}
+    \end{subfigure}
+    
+    \vspace{1em} % Add some vertical space between images (adjust as needed)
 
-The first version of the mount, alias \textit{Mount V1}, was designed to be robust and easy to switch with other
-mount extensions. The mount was designed to be lightweight and long, to ensure that the cobot's end effector
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=0.9\textwidth]{c3_23.png} % Replace with your image file
+        \caption{Frontal side view of the 3D design}
+        \label{fig:sidev1}
+    \end{subfigure}
+
+    \caption{MountV1 Design screenshots from \textit{Autodesk Fusion 360}}
+    \label{fig:mountv1}
+\end{figure}
+
+The first version of the mount, alias \textit{Mount V1}, shown in \ref{fig:mountv1},
+was designed to be robust and easy to switch with other mount extensions. 
+The mount was designed to be lightweight and long, to ensure that the cobot's end effector
 would be able to reach objects not in the immediate vicinity of the robot. The mount was also designed to be
 compact, with the stereo camera mounted in front of the cobot's flange, and the digital button mounted on top
 of a cylinder used for pressing buttons on a control panel. The mount was also designed to be very robust and durable.
@@ -420,9 +458,30 @@ second improved version for the next demos.
 \subsection{Mount V2}
 
 % Add pictures of the Mount V2 render and 3D print
+\begin{figure}
+    \centering
+
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{c3_21.png} % Replace with your image file
+        \caption{Front view of the 3D design}
+        \label{fig:frontv2}
+    \end{subfigure}
+    
+    \vspace{1em} % Add some vertical space between images (adjust as needed)
+
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth]{c3_24.png} % Replace with your image file
+        \caption{Side view of the 3D design}
+        \label{fig:sidev2}
+    \end{subfigure}
+
+    \caption{MountV2 Design screenshots from \textit{Autodesk Fusion 360}}
+    \label{fig:mountv2}
+\end{figure}
 
 The second version of the mount, alias \textit{Mount V2}, was designed to be compact, robust, and more effective
-for the final versions of the project and the "soft grasping" demos. The mount comprises 3 parts:
+for the final versions of the project and the "soft grasping" demos. The mount,
+shown in \ref{fig:mountv2}, comprises 3 parts:
 the flange connector, the camera mount, and the soft gripper mount. The flange connector is used to connect
 the mount to the cobot's flange, ensuring that the mount is securely attached to the cobot. The camera mount
 is used to mount the stereo camera on top of the cobot's wrist, ensuring that the camera has a wider field of view.
@@ -438,7 +497,8 @@ ensuring that the camera is securely attached to the cobot while preventing vibr
 offset the sensor position and orientation. The camera mount is designed to host the camera cable angled connector.
 This angled connector is magnetic, and it prevents the cable from being pulled out of the camera when
 the cobot's end effector moves around. This was a critical feature, set to avoid the camera's cable
-being broken or damaging the internal USB-C port of the stereo camera.
+being broken or damaging the internal USB-C port of the stereo camera. The MountV2 installed on the cobot
+is shown in \ref{fig:c3_img17}.
 
 \begin{figure}[t]
     \centering
@@ -465,14 +525,18 @@ extruder gears and the filament feeder, as they were not accessible to me due to
 
 The mobile robot's internal battery is capable of powering all the sensors and computational
 units that are mounted. To meet the specific voltage and current requirements of these devices, 
-two DC/DC converters are employed:
-- one DC/DC converter with an output voltage of 12V at a maximum of 15A for the on-board computer, router, and switch
-- one DC/DC converter with an output voltage of 24V at a maximum of 5A for the LiDAR sensor.
+two DC/DC converters are employed, one of which is shown in \ref{fig:c3_img03}:
+
+\begin{itemize}
+    \item one DC/DC converter with an output voltage of 12V at a maximum of 15A for the on-board computer, router, and switch
+    \item one DC/DC converter with an output voltage of 24V at a maximum of 5A for the LiDAR sensor.
+\end{itemize}
 
 The mobile robot platform's internal batteries are not sufficient to power the robotic arm and the pneumatic pump
 mounted on board. To power these devices, an external power supply is used, which provides 24V at a maximum of 10A.
-The cobot is powered by two 12V \textbf{lead batteries} with 9Ah of power capacity, which provide the necessary power 
-to the robotic arm motors and the pneumatic pump. The batteries are mounted and secured on the robot's base,
+The cobot is powered by two 12V \textbf{lead batteries} \ref{fig:c3_img15} with 9Ah of power capacity, 
+which provides the necessary power to the robotic arm motors and the pneumatic pump. 
+The batteries are mounted and secured on the robot's base,
 ensuring that the robot is powered and operational during its missions. There are 2 batteries available
 in the laboratory, which can be switched easily when one of them is discharged.
 
@@ -495,7 +559,7 @@ in the laboratory, which can be switched easily when one of them is discharged.
 \end{figure}
 
 Another tool used to power the robots is a \textit{Santino}, a holy figure card presenting \textit{Saint Staianet}, 
-the patron saint and protector of the mobile manipulation robot. This figure, placed in the front,
+the patron saint and protector of the mobile manipulation robot. This figure, placed in the front, as shown in \ref{fig:c3_img19},
 helped and protected the robot during the development and testing of the project, ensuring that everything
 was working fine and smoothly. The Santino was also used to provide a spiritual and religious touch to the project,
 ensuring that the robot was blessed and protected during its missions.
