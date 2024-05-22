@@ -65,7 +65,6 @@
         5.4.1 Objective and Description of the Demo
         5.4.2 Plants, Colored Balls and Fruits Setup
         5.4.3 Algorithm for Object Position Estimation
-        5.4.4 Algorithm for Grasping Pose Estimation
         5.4.5 Demo with Manual User Input
         5.4.6 Demo with Object Detection Neural Network
         5.4.7 Mobile Fruit Picking Demo
