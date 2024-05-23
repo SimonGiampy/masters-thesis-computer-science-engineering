@@ -272,45 +272,224 @@ can compensate for the localization and navigation errors, no further improvemen
 
 \section{Object Picking Demo}
 
-picking balls for simulation
-picking fruits for real world
-agricultural objective
-integration of robotic hand gripper
+The "Object Picking" demo is a more complex demonstration that showcases the mobile manipulation robot's capabilities
+in picking objects from the environment autonomously. The demo consists of the robotic arm picking colored balls
+or apples from a fake plant tree, in an autonomous way. The objective is to demonstrate the robotic system's integration of
+multiple software components and the orchestration of the robotic arm and mobile base to interact and grasp objects of
+different shapes and sizes, using a soft robotic hand gripper.
+The soft gripper enables the robotic arm to grasp fragile objects without damaging them, and it is also able to
+grasp objects of different shapes and sizes, thanks to the flexibility and adaptability of the silicone fingers.
+For this demo, only MountV2 is used, since it is the only one that supports the soft gripper.
 
-\subsection{Plants, Colored Balls and Fruits Setup}
+The colored balls used in the demo are small plastic balls of different colors. The balls are used as a simple
+test ground for the grasping capabilities of the soft gripper, in fact, the balls are small enough to be easy to grasp
+and the plastic material enables high grip friction between the fingers and the ball. Instead, the fake plastic apples
+are a little more challenging to grasp, because of their irregular shape (not as ideal as the sphere).
+The fake apples are used to simulate a realistic and more complex scenario, where the objects to be picked are
+closer to objects appearing in real-world environments, such as fruits on trees.
 
-dataset collection
-training on colored balls
-training on apples
-attachment of balls with magnet
-plant setup with picture
-better plant setup with fruits and pictures
-mountv2
+The objective of the demo is to apply the mobile manipulation robot in an agricultural environment, which is
+often more challenging and irregular than in industrial environments. The demo is meant to be a proof of concept
+of the autonomous control of a robot to pick and place objects in a realistic environment, such as a plantation.
 
-\subsection{Algorithm for Object Position Estimation}
+For this demo, three different versions were developed, each with different levels of complexity and challenges.
+The first version is used as a test for the algorithm for object pose estimation and the grasping capabilities
+of the soft gripper. The second version is used to test the robot's navigation and obstacle avoidance capabilities
+in conjunction with the object detection neural network and the perception algorithms. The third version is a 
+simplified version of the second one because it is not a pick and place task with the targets in two different
+locations, but a picking task where the placing location is on the robot itself.
+
+
+\subsection{Plants, Colored Balls, and Fruits Setup}
+
+The first setup for testing and demonstrating the demo uses a small fake plant tree with colored balls attached to it.
+The second more realistic setup uses a big flat surface with fake apples placed on it, simulating a more realistic
+espalier apple tree. This sort of tree is used in agriculture to grow apples flatly and vertically, to save space,
+and to make the apples more accessible for picking. The apples are placed on the tree at different heights and distances
+from each other, to simulate a more realistic scenario where the apples are not all at the same height and distance
+from the robot. The apples are also placed in a way that the robot must move around the tree to reach all the apples,
+and this is meant to test the robot's navigation and obstacle avoidance capabilities.
+
+The colored balls and apples are attached to the plant with a nylon string. At the extremity of the string, there is a small
+magnet that is attached to the string with hot glue. In the case of the apples, the magnet is attracted to another magnet
+placed on a screw that is screwed into the plastic apple. In the case of the colored balls, the magnet is attracted
+to another magnet glued onto the ball. To make this solution more robust, the balls have two magnets: one inside it,
+and one glued onto the external surface.
+This solution is effective in attaching the objects to the plant and making them detachable, 
+without the need to exert too much force to detach them so that the robotic arm can easily detach them
+without stressing the motors at all. The magnets are small and lightweight, and they do not affect the object's weight and shape.
+The nylon string is thin and transparent, and it is not visible in the camera's field of view, 
+so it does not affect the object's appearance.
+
+TODO: add picture of real plant tree and simulated apple tree
+
+TODO: add picture of colored balls on fake plant tree
+
+TODO: add picture of magnet attachment to apples and balls
+
+\subsection{Algorithm for Grasp Pose Estimation}
 
 algorithm for center estimation
 refer to algorithm 
 
-\subsection{Demo with Manual User Input}
 
-user click opencv
-ball center estimation algorithm
+\begin{algorithm}[H]
+    \caption{\textbf{Grasp Pose Estimation from Object's Barycenter}}
+    \label{alg:grasping}
+    \begin{algorithmic}[1]
+    \Require $p = (x, y, z)$ estimated object's barycenter in the camera frame
 
-\subsection{Demo with Object Detection Neural Network}
+    \State $C \gets \emptyset$ \Comment Set of candidate grasping poses
+    \State $n_{candidates} \gets 50$ \Comment Number of candidate grasping poses
+    \State $\theta_{min}, \theta_{max} \gets -\pi, \pi/3$ \Comment Range of angles for the orientation of the end effector
+    \State $g \gets 0.05$ \Comment Grasping distance from the object's barycenter in meters
+
+    \State \textbf{transform} $p$ into the robot's base frame
+
+    \For {$\theta$ in linspace($\theta_{min}, \theta_{max}, n_{candidates}$)}
+        \State $v_{c} = \frac{(x,y,z)}{||(x,y,z)||}$ \Comment Vector from the base to the object's barycenter
+        \State $v_{l} = -v_{c} \cdot g \cdot \cos(\theta)$ \Comment Longitudinal component $v_l$
+        \State $p_v = \frac{(x, y, 0)}{||(x,y)||}$ 
+
+        \State $v_v = (v_c \times p_v) \times v_c$ \Comment Vertical component $v_v$
+        \State $v_v = v_v \cdot g \cdot \sin(\theta)$
+        
+        \State $v_{grasp} = v_v + v_l + v_c$ \Comment Grasping vector $v_{grasp}$
+        
+        \State $v_{grasp, x} = \frac{-v_{grasp}}{||v_{grasp}||}$ 
+        \State $plane_{xy} = (0, 0, 1)$ 
+        \State $v_{grasp, y} = plane_{xy} \times v_{grasp, x}$
+        \State $v_{grasp, z} = v_{grasp, x} \times v_{grasp, y}$
+        \State $rot_{grasp} \gets$ Rotation matrix $\left[v_{grasp, x}, v_{grasp, y}, v_{grasp, z}\right]$
+        \State $q_{grasp} \gets$ Quaternion representation of $rot_{grasp}$
+        \State $q_{grasp} = \frac{q_{grasp}}{||q_{grasp}||} $   \Comment normalize quaternion
+        
+        \State \textbf{grasping candidate} position $\gets v_{grasp}$
+        \State \textbf{grasping candidate} orientation $\gets q_{grasp}$
+
+        \If {$\exists$ I-K solution for $(v_{grasp}, q_{grasp})$}
+            \State $C \gets C \cup (v_{grasp}, q_{grasp})$ \Comment add the candidate grasping pose to the list
+        \EndIf
+    \EndFor
+
+    \State $size \gets |C|$ \Comment get the size of the list of candidate grasping poses
+    \If {$size \geq 1$}
+        \State $i = size \cdot 1/4$ \Comment get the candidate in position $1/4$ of the list
+    \Else 
+        \State \textbf{return} \textit{No feasible grasping poses found}
+    \EndIf 
+
+    \State \textbf{return} $C[i]$ \Comment return the selected candidate grasping pose
+
+    \end{algorithmic}
+\end{algorithm}
+
+
+\subsection{DemoV1 with Manual User Input}
+
+This first version of the demo (\textit{DemoV1}) is a test for the grasping capabilities of the soft gripper and
+the autonomous control of the robotic arm, without any advanced perception algorithm implemented. 
+This demo is also meant to be used when the robotic arm is fixed in a specific location. The demo consists of
+the robotic arm picking colored balls from the fake plant tree, with manual user input for selecting the target
+object to be picked. The user selects the target object by clicking on the object in the camera's field of view,
+and the robotic arm moves to the target object's position and grasps it. The user can select only one object at 
+a time. The choice of the object is rather simple, as it does not use any neural network for detecting
+the objects. Instead, it relies on the user's input to select the pixel on the image corresponding
+to the center of the object to be picked.
+
+When starting the demo, an image window appears on the screen, showing the camera's RGB image feed.
+The user can click on the image and the coordinates of the mouse click are recorded, and broadcast on a ROS2
+topic. The algorithm for object position estimation computes the object's position in the camera frame
+using the pixel coordinates, the camera's intrinsic parameters, and the depth image from the infrared camera.
+The result is a $(x, y, z)$ position vector of the visible point in the camera frame. 
+This is the point of the pointcloud on the surface of the object, which roughly corresponds to the 
+object's visible surface center. By projecting a ray from the camera's optical sensor to the computed point,
+the algorithm computes the object's approximate barycenter in the camera frame. The barycenter is then transformed
+into the robot's base frame, and used as input to the grasping pose estimation algorithm to compute the target pose
+for the end effector required to position the robot where the object can be grasped.
+
+Once the grasping pose is computed, the robot moves to the target pose and the end effector grasps the object.
+The robot then moves to a standard pre-defined position and drops the object, assuming that a basket
+is placed exactly underneath the robot's end effector in the dropping position. The robot then returns to the
+starting position and waits for the user to select the next object to be picked.
+
+\subsection{DemoV2 with Object Detection Neural Network}
 
 automatic detection
 algorithm for checking feasibility and validity
 
-\subsection{Mobile Fruit Picking Demo}
+In the demo version 2 (\textit{DemoV2}), the demo does not require any user input for selecting the object to be picked.
+Instead, it relies on a neural network for detecting the objects in the camera's field of view. The neural network
+is trained to detect the colored balls and the apples, and it outputs the object's bounding box and class label
+with the confidence score. The predicted bounding box is used as the starting point to obtain a pointcloud
+containing the points on the entire object's surface. The pointcloud is then used to compute the object's barycenter
+in the camera frame, and the grasping pose is computed as in the previous version of the demo.
+The algorithm makes the strong assumption that the object can be approximated as an ideal sphere of known radius.
+This algorithm is very robust for the colored balls, since they are spheres, and less robust and reliable
+for the apples, because of their irregular shape. The algorithm is able to compute the object's barycenter
+even from a small portion of the object's surface, and this is a strong point of the algorithm because
+it does not require the entire object to be visible in the camera's field of view.
+
+The algorithm for the object's barycenter estimation from the surface pointcloud is the one described
+in \ref{alg:sphere}. The algorithm uses a random sample consensus (\textit{RANSAC}) algorithm to estimate the sphere's center:
+
+\begin{algorithm}[H]
+    \caption{\textbf{Sphere Barycenter Estimation from Object Detection}}
+    \label{alg:sphere}
+    \begin{algorithmic}[1]
+    \Require RGB image $I$, Depth image $D$
+    \Require predicted bounding box $B = (x, y, w, h)$, predicted class label $\hat{y}$
+    \State sphere radius range $r_{min}, r_{max}$, tolerance $\epsilon$
+    \State $d_{max} \gets 1.5$ \Comment maximum depth of useful points in meters
+
+    \State $I_{crop} \gets I[y:y+h, x:x+w]$ \Comment Crop the image to the bounding box
+    \State $D_{crop} \gets D[y:y+h, x:x+w]$ \Comment Crop the depth image to the bounding box
+
+    \State $P \gets \textit{get\_pointcloud}(D_{crop})$ \Comment Get the pointcloud from the depth image
+    \State filter pointcloud $P$ by removing points with $z \geq d_{max}$
+    \State $colormask \gets \textit{get\_colormask}(\hat{y})$ \Comment Get the color mask based on predicted class label
+    \State $P_{s} \gets \emptyset$ \Comment Object's surface segmented pointcloud
+    \For {each pixel $p \in I$}
+        \If {color of $p$ is within $colormask$}
+            \State $P_{s} \gets P_{s} \cup P(p)$ \Comment Apply color mask filter and add point to surface pointcloud
+        \EndIf
+    \EndFor
+
+    \State $n_{min} \gets 4$ \Comment minimum number of points passing through a unique sphere
+    \For{a fixed number of iterations} \Comment Random sample consensus algorithm
+        \State $S \gets$ random subset of $n_{min}$ points from $P_s$  
+        \State $c, r \gets$ center and radius of sphere fit to subset $S$
+        \If{$r_{min} \leq r \leq r_{max}$}  
+            \State Calculate $inliers$: points within a distance threshold $\epsilon$ of the sphere's surface
+            \State Calculate \textit{MLESAC} score based on the number of inliers and the residual error
+            \If{$score >$ \textit{best\_score}}
+                \State Update \textit{best\_model} $\gets (c, r)$, \textit{best\_score} $\gets$ $score$
+            \EndIf
+        \EndIf
+    \EndFor
+
+    \State Refine \textit{best\_model} by fitting the $inliers$ using least squares method
+
+    \State \textbf{return} \textit{best\_model}
+
+    \end{algorithmic}
+\end{algorithm}
+
+The algorithm uses \textit{MLESAC} (Maximum Likelihood Estimation Sample Consensus) to estimate the sphere's center
+from the segmented pointcloud. The function used for sphere fitting to a pointcloud is provided by
+\textit{SACSegmentation} package from \textit{Pointcloud Library}.,
+
+\subsection{Mobile Fruit Picking Demos}
 
 composition of the actions
-other version of the demo
+
+demov2: pick and place
+demov3: pick and place on robot
 
 \subsection{Experimental Challenges}
 
 grasping is difficult
 infrared reflectivity
 object detection false positive and negative
-object detection slow
+object detection slow on cpu
 
