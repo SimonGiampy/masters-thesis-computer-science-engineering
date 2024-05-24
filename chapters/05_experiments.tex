@@ -129,8 +129,8 @@ the node computes the position of the buttons in the robot's base frame. The nod
 of the end effector, such that the tip of the end effector faces the plane of the markers orthogonally, and this
 is needed to compute the orientation required to press the buttons.
 
-The algorithm for computing the sequence of target poses that the end effector must reach uses the estimated 
-position and orientation of the buttons. For each button, the algorithm computes the target pose that 
+The \textbf{algorithm} for computing the sequence of target poses that the end effector must reach uses the 
+\textbf{estimated position and orientation of the buttons}. For each button, the algorithm computes the target pose that 
 "sits" above the button, meaning that the end effector faces the button orthogonally from a fixed distance.
 Then the algorithm generates the linear path that the end effector must follow to reach the pose where 
 the button is pressed. The linear path is then reversed to get the path required to lift the end effector 
@@ -197,7 +197,7 @@ capabilities in pressing buttons on an industrial control panel autonomously. Th
 manipulation robot navigating to the control panel's location, detecting the control panel, and pressing the buttons
 in a predefined sequence.
 
-The complete demo consists of the following steps:
+The \textbf{complete demo} consists of the following steps:
 \begin{enumerate}
     \item The mobile manipulation robot starts from a random location in the laboratory and does not know 
     where the control panel is located.
@@ -329,11 +329,32 @@ TODO: add picture of magnet attachment to apples and balls
 
 \subsection{Algorithm for Grasp Pose Estimation}
 
-algorithm for center estimation
-refer to algorithm 
+Picking objects requires the software to know where the object is located in the environment and how to grasp it.
+Since explicit programming of how to grasp objects is quite difficult and not extensible to different objects,
+the software neglects the grasping strategy and focuses on the object's position estimation. The algorithm for
+computing the optimal grasping pose focuses solely on the object's barycenter, which is computed from the object's
+perceived pointcloud data. This simplification allows the software to be fast in computing the grasping pose,
+even though the generated grasping poses are not optimal for all objects. The algorithm is based on the assumption
+that the object can be approximated as a sphere and that getting the end effector sufficiently close to the
+object's surface is good enough to grasp it.
 
+The algorithm used for computing the grasping pose from the object's barycenter is described
+in algorithm \ref{alg:grasping}. The object's barycenter is estimated using algorithm \ref{alg:sphere},
+using the depth and RGB images. The algorithm generates a list of possible candidate grasping poses
+based on the object's barycenter and the object's known radius. For each candidate, it checks whether 
+an inverse kinematic solution exists for the end effector at the candidate grasping pose. 
+If a solution exists, the candidate grasping pose is added to the list of feasible grasping poses.
+The algorithm then uses a heuristic to choose which candidate grasping pose to use, based on the list
+of feasible grasping poses. It selects the candidate at one fourth of the list's size. The first candidate in the 
+list will correspond to grasping poses of the object from the top, while the last candidate will correspond
+to grasping poses from the bottom. This heuristic is used to choose a grasping pose from a position closer to 
+the top because it is usually easier for the robotic arm to reach it, compared to the ones closer to the bottom,
+due to the kinematic constraints of the robotic arm placed on the mobile robot base.
 
-\begin{algorithm}[H]
+If no feasible grasping poses are computed, the algorithm returns an error message, and the robot does not attempt
+to grasp the object. Otherwise, the robot moves to the selected grasping pose and attempts to grasp the object.
+
+\begin{algorithm}[h]
     \caption{\textbf{Grasp Pose Estimation from Object's Barycenter}}
     \label{alg:grasping}
     \begin{algorithmic}[1]
@@ -384,6 +405,22 @@ refer to algorithm
     \end{algorithmic}
 \end{algorithm}
 
+Considering the increased complexity of a soft gripper, compared to a more traditional rigid mechanical gripper,
+it becomes extremely difficult to simulate the grasping process accurately. The soft gripper's fingers are
+flexible and deformable, and they can adapt to the object's shape and size. This makes it difficult to simulate
+the fingers' behavior when in contact with the object, and how the fingers adapt to the object's shape.
+Since no accurate simulation of the soft gripper is available, the algorithm neglects the deformation of the
+fingers when actuating them, and it assumes that if the fingers are close enough to the object's surface,
+the object will be grasped. This is a strong assumption, but it is the only feasible solution to grasp objects
+with a soft gripper without simulating the complex behavior of the fingers.
+
+An important note is that the algorithm \ref{alg:grasping} does not guarantee finding a feasible grasping
+pose for a certain object, even if it exists. 
+The algorithm is based on a simplified model of the object and the end effector and
+restricts the range of search for a grasping pose to the vertical plane passing through the object's barycenter
+and the robotic arm's base. This simplification is necessary to make the algorithm fast and reliable, but it
+also results in the impossibility of guaranteeing the successful computation of a feasible grasping pose
+for any object. 
 
 \subsection{DemoV1 with Manual User Input}
 
@@ -415,10 +452,7 @@ starting position and waits for the user to select the next object to be picked.
 
 \subsection{DemoV2 with Object Detection Neural Network}
 
-automatic detection
-algorithm for checking feasibility and validity
-
-In the demo version 2 (\textit{DemoV2}), the demo does not require any user input for selecting the object to be picked.
+In demo version 2 (\textit{DemoV2}), the demo does not require any user input for selecting the object to be picked.
 Instead, it relies on a neural network for detecting the objects in the camera's field of view. The neural network
 is trained to detect the colored balls and the apples, and it outputs the object's bounding box and class label
 with the confidence score. The predicted bounding box is used as the starting point to obtain a pointcloud
@@ -433,7 +467,7 @@ it does not require the entire object to be visible in the camera's field of vie
 The algorithm for the object's barycenter estimation from the surface pointcloud is the one described
 in \ref{alg:sphere}. The algorithm uses a random sample consensus (\textit{RANSAC}) algorithm to estimate the sphere's center:
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
     \caption{\textbf{Sphere Barycenter Estimation from Object Detection}}
     \label{alg:sphere}
     \begin{algorithmic}[1]
@@ -477,14 +511,104 @@ in \ref{alg:sphere}. The algorithm uses a random sample consensus (\textit{RANSA
 
 The algorithm uses \textit{MLESAC} (Maximum Likelihood Estimation Sample Consensus) to estimate the sphere's center
 from the segmented pointcloud. The function used for sphere fitting to a pointcloud is provided by
-\textit{SACSegmentation} package from \textit{Pointcloud Library}.,
+\textit{SACSegmentation} package from \textit{Pointcloud Library}. This package provides a robust and fast
+implementation of the RANSAC algorithm for fitting geometric shapes to pointcloud data. 
+
+The assumption that the algorithm \ref{alg:sphere} makes is that the barycenter (center of mass) of the object
+is the same as the object's center. This is not always true, especially for irregularly shaped objects, but
+it is a good approximation for objects that are not too irregular. The algorithm computes the object's center
+and uses it as the barycenter, which is then used to compute the grasping pose.
 
 \subsection{Mobile Fruit Picking Demos}
 
-composition of the actions
+The \textbf{complete demo} is based on DemoV2 and extended to include the mobile base's navigation and obstacle avoidance
+capabilities. The demo consists of the mobile manipulation robot navigating to the apple tree's location, detecting the apples
+using the neural network, and picking the apples in a predefined sequence. The robot then drops the apples into a basket.
+There are two versions of the complete demo:
 
-demov2: pick and place
-demov3: pick and place on robot
+\begin{enumerate}
+    \item \textbf{DemoV2 with pick and place}: the robot picks the apples from the tree and navigates to a predefined
+    location to drop the apples in a basket. The basket is located in a position separate from the tree, and the robot
+    must navigate to the basket's location to drop the apples. The robot must avoid obstacles in the environment
+    while navigating to the basket's location. This version is more complex and challenging because the robot must
+    navigate to two different locations. Once the mobile robot parks next to the basket's location, the robotic
+    arm searches with the stereo camera an Aruco marker, which signals the position of the basket. Then
+    an algorithm finds a feasible pose for the end effector such that it gets placed immediately above the basket,
+    where it can release the grip on the grasped object and drop it.
+    \item \textbf{DemoV2 with pick and place on robot}: the robot picks the apples from the tree and drops them on
+    a basket that is positioned on the mobile robot base. The robot does not need to navigate to a separate location
+    to drop the apples, but it is sufficient for the robotic arm to move to a predefined position so that
+    the end effector is immediately above the basket. This version is simpler and less challenging than the first one,
+    but it was implemented to have a demo that is faster to execute and more appealing to the public.
+\end{enumerate}
+
+The \textbf{object picking routine}, explained in algorithm \ref{alg:picking} is the routine that the robot follows
+to pick up objects from a plant tree. This algorithm is suitable for both apples and colored balls since they are
+both approximated as spheres. This routine defines the sequence of algorithms and actions to be executed by the robot
+to search for an object to pick, grasp, and drop in a basket, which can be located either on the robot itself
+or in a separate location far from the tree.
+The picking routine differs based on the version of the demo. When the robot must place the object
+in the basket positioned on the mobile robot itself, or just next to the robot itself, the robotic arm moves to
+the dropping pose and drops the object, as explained in the algorithm \ref{alg:picking}. Instead, when the robot
+must pick and place in separate locations, the robotic arm moves to its parking position and doesn't release the object
+until the mobile base has not reached the dropping location and the camera recognizes the basket using the Aruco marker.
+
+\begin{algorithm}[h]
+    \caption{\textbf{Object Picking Routine}}
+    \label{alg:picking}
+    \begin{algorithmic}[1]
+        \Require Neural Network for object detection \textit{NN}
+        \Require Depth Image feed $D$
+        \State max object distance $z_{max} = 1.5$ in meters
+        \State Generate a list of pose waypoints $W$
+        \For {each waypoint $w$ in $W$}
+            \State plan and execute trajectory from current pose to $w$
+            \State check if there are objects detected by \textit{NN}
+            \For {each object $o$ detected by \textit{NN}}
+                \State compute \textbf{segmented pointcloud} using algorithm \ref{alg:sphere}
+                \State compute centroid point $P$ from segmented pointcloud
+                \State compute distance $z$ from centroid $P$
+                \State get confidence score $c$ of object $o$ from vector $C$
+                \State compute \textbf{priority score} $s = c \cdot 1/4 + (z_{max} - z)/z_{max} \cdot 3/4$
+            \EndFor
+            \State Choose object $o$ having highest score $s$
+        \EndFor
+        \State Estimate \textbf{object's barycenter} using algorithm \ref{alg:sphere}
+        \State Estimate \textbf{grasping pose} $G$ using algorithm \ref{alg:grasping}
+        \If {$\exists$ feasible pose $G$}
+            \State compute pre-grasping pose $G'$
+            \State plan and execute trajectory to $G'$
+            \State \textbf{open the gripper}
+            \State plan and execute linear trajectory from $G'$ to $G$
+            \State \textbf{close the gripper} to grasp the object
+            \State plan and execute linear trajectory from $G$ to $G'$
+            \State move back to waypoint $w$
+            \State move to dropping pose $d$
+            \State \textbf{open the gripper} to drop the object
+            \State \textbf{turn off the gripper}
+        \Else
+            \State move to next waypoint
+        \EndIf
+    \end{algorithmic}
+\end{algorithm}
+
+The algorithm \ref{alg:picking} is the main algorithm that the robot follows to pick objects from the tree.
+The algorithm is executed for each waypoint in the list of poses that the robot must follow to search
+for objects to pick. If there are multiple objects detected by the neural network in a unique searching pose,
+the algorithm chooses the object with the highest priority score, which is computed based on the object's distance
+from the robot and the confidence score of the object's detection. The priority score is used to choose the object
+that is closest to the robot and has the highest confidence score. The algorithm then computes the object's barycenter
+and the grasping pose, and it executes the trajectory to grasp the object. The robot then moves to the dropping pose
+and drops the object into the basket. 
+
+This complete demo requires the integration of multiple software components, such as the neural network for object detection,
+the perception algorithms for computing the object's barycenter, the grasping pose estimation algorithm, the trajectory
+planning algorithms, and the navigation and obstacle avoidance algorithms. The demo is a complex orchestration of
+multiple algorithms wrapped in ROS2 action servers. The action servers are responsible for executing the actions
+and the algorithms required to pick the objects. The action client node is responsible for orchestrating the actions
+of the mobile base and the robotic arm, and for sending the goals to the action servers. The action client node
+also handles the sequence of actions in case of any failure of any software component and logs the feedback data
+received from the action servers.
 
 \subsection{Experimental Challenges}
 
