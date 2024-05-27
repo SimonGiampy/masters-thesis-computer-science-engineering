@@ -28,11 +28,13 @@ The Aruco Follower demo is a simple demonstration of the robotic arm's autonomou
 consists of the robotic arm following an Aruco marker with the end effector. The demo is meant to showcase the
 motion planning and execution libraries with MoveIt2 and the integration of the Aruco marker detection 
 and pose estimation algorithms with the robotic arm's control software.
-The demo tests the autonomous control software of the robotic arm in tracking and following a moving target. 
+The demo tests the autonomous control software of the robotic arm in tracking and following a moving target.
+Figure \ref{fig:arucofollower} shows the demo in execution, with \textit{MountV1} as end effector (but without
+the cylinder presser). The cardboard shown to the camera displays an Aruco marker, tracked by the robotic arm.
 
 In this demo, the end effector,
 equipped with the camera, will move in a position and orientation that points toward the center of the
-Aruco marker. The algorithm for tracking the marker computes the end effector's target position such that
+Aruco marker. The algorithm for \textbf{tracking the marker} computes the end effector's target position such that
 the arm can always reach it, and the orientation of the end effector is always pointing towards the marker.
 The position of the end effector will be exactly the marker's position if the marker is sufficiently close to the arm,
 otherwise, the end effector will be positioned in a way such that the camera points toward the marker.
@@ -44,17 +46,23 @@ in the camera frame. The marker's pose is transformed in the robot arm's base fr
 computed based on the robotic arm's workspace. The target pose is then sent to the motion planning and execution
 libraries to compute and execute the trajectory to reach the target pose.
 
-I tested also the MoveIt2 Servo node to control the end effector's position and orientation in realtime
+I tested also the \textbf{MoveIt2 Servo} node to control the end effector's position and orientation in realtime
 using the Aruco marker's pose as the target pose. This feature is available only in ROS2 Iron, at the moment
 of writing this thesis. Unfortunately, the MoveIt2 Servo node was not stable enough to be used in the demo,
 in fact, the generated trajectories were very jerky and the end effector was not able to reach the target
-pose in a short time. The problem is due to the fact that the MoveIt2 Servo node is still in development
+pose in a short time. The problem exists because the MoveIt2 Servo node is still in development
 and it is not yet stable enough to be used in real-time applications. It also requires a precise PID tuning
 of the closed loop joint trajectory controller to work properly, which is not easy to do in a short time.
 So eventually I gave up on using the MoveIt2 Servo node and I used the standard MoveIt2 planning and execution
 libraries.
 
-TODO: add a figure of the Aruco Follower demo setup during testing
+% Add a figure of the Aruco Follower demo setup during testing
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.7\textwidth]{c5_19.jpg}
+    \caption{Aruco Follower demo during execution. The cardboard shows an Aruco marker.}
+    \label{fig:arucofollower}
+\end{figure}
 
 \section{Button Presser Demo}
 
@@ -76,22 +84,22 @@ buttons and the time taken to press all the buttons.
 
 \subsection{Buttons Setup Box and End Effector Setups}
 
-For this demo, the MountV1 was employed, mounted on the robotic arm's end effector. The MountV1 is a 
+For this demo, the \textit{MountV1} was employed, mounted on the robotic arm's end effector. The \textit{MountV1} is a 
 custom-designed 3D-printed mount attached to the cobot's flange, which allows the installation of the stereo camera and 
 the cylinder presser. The cylinder presser is a cylinder-shaped tool used for pressing buttons.
-In MountV1 the camera is placed in front of the flange, and this resulted in a reduced field of view of the camera.
+In \textit{MountV1} the camera is placed in front of the flange, and this resulted in a reduced field of view of the camera.
 Despite this non-ideal camera position, the camera was able to detect the Aruco markers on the control panel
-and the buttons to be pressed. Since the MountV1 proved to be effective in the demo, I didn't apply any
+and the buttons to be pressed. Since the \textit{MountV1} proved to be effective in the demo, I didn't apply any
 structural changes to the design. The only change that I made was to shorten the cylinder presser to prevent
 the mobility of the end effector from being reduced due to the length of the tool.
 
-Further in the development of the demo, I switched to MountV2, which is the next version of MountV1.
-The biggest improvement of MountV2 is the camera's position, which is placed on the wrist of the cobot,
+Further in the development of the demo, I switched to \textit{MountV2}, which is the next version of \textit{MountV1}.
+The biggest improvement of \textit{MountV2} is the camera's position, which is placed on the wrist of the cobot,
 allowing a greater field of view of the camera. This proved more effective in finding the Aruco markers
 on the control panel from a vicinity. 
 
-Using MountV1, the end effector was slipping during the execution of the linear trajectories, due to the
-roundness of the button caps. With MountV2, instead of having a cylinder presser, 
+Using \textit{MountV1}, the end effector was slipping during the execution of the linear trajectories, due to the
+roundness of the button caps. With \textit{MountV2}, instead of having a cylinder presser, 
 the end effector presents a vacuum suction cap on its tip, which can be also used to press the buttons. 
 This solution is more effective in pressing the buttons, thanks to the greater friction between the plastic
 button cap and the silicon suction cup. The vacuum suction cap presses the buttons effectively,
@@ -103,7 +111,8 @@ depth estimation. The position of the markers is in fact computed using the RGB 
 the equations for 3D camera projection on a 2D matrix for the pose estimation.
 
 The control panel is a custom-designed box with 3 buttons of different sizes and 7 Aruco markers
-with a dictionary 4x4 placed around the buttons. The control panel is mobile, meaning that it can be moved
+(having dictionary 4x4) placed around the buttons. Figure \ref{fig:buttonsbox} shows the control panel.
+The control panel is mobile, meaning that it can be moved
 around the laboratory to test the robustness of the system by pressing the buttons in an 
 arbitrary location and orientation. The control panel has also 3 different lights, one for each button,
 that indicate whenever a button is pressed. The control panel is connected to the power supply that 
@@ -117,7 +126,12 @@ allows the system to detect the buttons' orientation in a more precise way that 
 The markers are placed around the buttons in a way that the plane estimation algorithm can compute
 the plane of the markers effectively, relying on a greater number of points to estimate the plane.
 
-TODO: insert picture of buttons box
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.7\textwidth]{c5_05.jpg}
+    \caption{Control panel with 3 buttons and Aruco markers.}
+    \label{fig:buttonsbox}
+\end{figure}
 
 \subsection{End Effector Positioning and Linear Trajectories}
 
@@ -179,7 +193,7 @@ than the number of DoF of the robotic arm, resulting in a system of equations wi
 This is mostly due to a limitation of the MoveIt2 library and the trajectory planners used since they
 work well with 7-DoF robotic arms, such as the Franka Emika Panda.
 
-Due to this limitation, the cartesian linear motion planning method was used to generate linear trajectories
+Due to this limitation, only the cartesian linear motion planning method was used to generate linear trajectories
 following a sequence of waypoints. The end effector's jump was set to zero to make the end effector follow
 the waypoints exactly, to avoid random jumps in the cobot's configuration. The linear trajectories were
 generated successfully and executed correctly most of the time. Sometimes the trajectory planner failed
@@ -211,6 +225,7 @@ The \textbf{complete demo} consists of the following steps:
     environment.
     \item The mobile robot parks in front of the control panel at a fixed distance, facing the opposite side of the control panel,
     so that the robotic arm can move freely without colliding with the mobile base and reach the buttons.
+    Figure \ref{fig:buttonpresser1} shows this stage of execution of the demo.
     \item The robotic arm moves around the camera mounted on the end effector to search for the Aruco markers
     on the control panel, indicating the locations of the buttons to be pressed.
     \item Once the camera detects the Aruco markers, the computer computes the position and orientation
@@ -218,6 +233,7 @@ The \textbf{complete demo} consists of the following steps:
     \item For each button, it computes the end effector target poses in the cartesian space required to press the buttons.
     It also computes the linear paths for the end effector necessary to press and release the buttons.
     \item The robotic arm executes the computed trajectories, and the end effector presses the buttons in the predefined sequence.
+    Figure \ref{fig:buttonpresser2} shows the end effector pressing one of the buttons, at this stage of execution of the demo.
     \item The control panel lights up the corresponding light for each pressed button.
 \end{enumerate}
 
@@ -242,7 +258,20 @@ and the robotic arm. The client node sends the goal to three different action se
     The server terminates its execution once all the buttons have been pressed.
 \end{itemize}
 
-TODO: add pictures of the demo execution
+% Add pictures of the demo execution
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c5_10.jpg}
+    \caption{Mobile Button Presser Demo in execution}
+    \label{fig:buttonpresser1}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c5_12.jpg}
+    \caption{Cobot pressing buttons on the control panel using the \textit{MountV1} end effector}
+    \label{fig:buttonpresser2}
+\end{figure}
 
 \subsection{Experimental Challenges and Solutions}
 
@@ -279,7 +308,7 @@ multiple software components and the orchestration of the robotic arm and mobile
 different shapes and sizes, using a soft robotic hand gripper.
 The soft gripper enables the robotic arm to grasp fragile objects without damaging them, and it is also able to
 grasp objects of different shapes and sizes, thanks to the flexibility and adaptability of the silicone fingers.
-For this demo, only MountV2 is used, since it is the only one that supports the soft gripper.
+For this demo, only \textit{MountV2} is used, since it is the only one that supports the soft gripper.
 
 The colored balls used in the demo are small plastic balls of different colors. The balls are used as a simple
 test ground for the grasping capabilities of the soft gripper, in fact, the balls are small enough to be easy to grasp
@@ -300,12 +329,16 @@ simplified version of the second one because it is not a pick and place task wit
 locations, but a picking task where the placing location is on the robot itself.
 
 
-\subsection{Plants, Colored Balls, and Fruits Setup}
+\subsection{Plants, Colored Balls, and Apples Setup}
 
-The first setup for testing and demonstrating the demo uses a small fake plant tree with colored balls attached to it.
+The first setup for testing and demonstrating the demo uses a small fake plant tree with colored balls attached to it,
+as shown in figure \ref{fig:sim_plant}.
 The second more realistic setup uses a big flat surface with fake apples placed on it, simulating a more realistic
-espalier apple tree. This sort of tree is used in agriculture to grow apples flatly and vertically, to save space,
-and to make the apples more accessible for picking. The apples are placed on the tree at different heights and distances
+espalier apple tree, as shown in figure \ref{fig:sim_espalier}.
+This sort of tree is used in agriculture to grow apples flatly and vertically, to save space,
+and to make the apples more accessible for picking. Figure \ref{fig:real_espalier} shows an espalier apple tree,
+grown in a yard.
+The apples are placed on the tree at different heights and distances
 from each other, to simulate a more realistic scenario where the apples are not all at the same height and distance
 from the robot. The apples are also placed in a way that the robot must move around the tree to reach all the apples,
 and this is meant to test the robot's navigation and obstacle avoidance capabilities.
@@ -314,18 +347,46 @@ The colored balls and apples are attached to the plant with a nylon string. At t
 magnet that is attached to the string with hot glue. In the case of the apples, the magnet is attracted to another magnet
 placed on a screw that is screwed into the plastic apple. In the case of the colored balls, the magnet is attracted
 to another magnet glued onto the ball. To make this solution more robust, the balls have two magnets: one inside it,
-and one glued onto the external surface.
+and one glued onto the external surface. Figure \ref{fig:magnetic} shows the magnetic attachment of an apple to the nylon string.
 This solution is effective in attaching the objects to the plant and making them detachable, 
 without the need to exert too much force to detach them so that the robotic arm can easily detach them
 without stressing the motors at all. The magnets are small and lightweight, and they do not affect the object's weight and shape.
 The nylon string is thin and transparent, and it is not visible in the camera's field of view, 
 so it does not affect the object's appearance.
 
-TODO: add picture of real plant tree and simulated apple tree
+% Add a picture of the real plant tree and the simulated apple tree
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=1\textwidth]{c5_01.jpg}
+        \caption{Simulated espalier apple tree}
+        \label{fig:sim_espalier}
+    \end{subfigure}
+    \hfill % Optional: Adds space between images
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{c5_06.jpg}
+        \caption{Real espalier apple tree}
+        \label{fig:real_espalier}
+    \end{subfigure}
+    \caption{Espalier apple trees}
+    \label{fig:plants}
+\end{figure}
 
-TODO: add picture of colored balls on fake plant tree
+% Add a picture of colored balls on a fake plant tree
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.5\textwidth]{c5_03.jpg}
+    \caption{Magnetic attachment of an apple to the nylon string}
+    \label{fig:magnetic}
+\end{figure}
 
-TODO: add picture of magnet attachment to apples and balls
+% Add a picture of the magnetic attachment to apples and balls
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.6\textwidth]{c5_04.jpg}
+    \caption{Simulated plant tree with colored balls}
+    \label{fig:sim_plant}
+\end{figure}
 
 \subsection{Algorithm for Grasp Pose Estimation}
 
@@ -354,7 +415,7 @@ due to the kinematic constraints of the robotic arm placed on the mobile robot b
 If no feasible grasping poses are computed, the algorithm returns an error message, and the robot does not attempt
 to grasp the object. Otherwise, the robot moves to the selected grasping pose and attempts to grasp the object.
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
     \caption{\textbf{Grasp Pose Estimation from Object's Barycenter}}
     \label{alg:grasping}
     \begin{algorithmic}[1]
@@ -416,11 +477,11 @@ with a soft gripper without simulating the complex behavior of the fingers.
 
 An important note is that the algorithm \ref{alg:grasping} does not guarantee finding a feasible grasping
 pose for a certain object, even if it exists. 
-The algorithm is based on a simplified model of the object and the end effector and
+The algorithm is based on a simplified model of the object and of the end effector and it
 restricts the range of search for a grasping pose to the vertical plane passing through the object's barycenter
-and the robotic arm's base. This simplification is necessary to make the algorithm fast and reliable, but it
+and the robotic arm's base. This simplification is necessary to make the algorithm fast and robust, but it
 also results in the impossibility of guaranteeing the successful computation of a feasible grasping pose
-for any object. 
+for any object, so it comes at the expense of less reliability.
 
 \subsection{DemoV1 with Manual User Input}
 
@@ -435,7 +496,7 @@ the objects. Instead, it relies on the user's input to select the pixel on the i
 to the center of the object to be picked.
 
 When starting the demo, an image window appears on the screen, showing the camera's RGB image feed.
-The user can click on the image and the coordinates of the mouse click are recorded, and broadcast on a ROS2
+The user can \textbf{click on the image} and the coordinates of the mouse click are recorded, and broadcast on a ROS2
 topic. The algorithm for object position estimation computes the object's position in the camera frame
 using the pixel coordinates, the camera's intrinsic parameters, and the depth image from the infrared camera.
 The result is a $(x, y, z)$ position vector of the visible point in the camera frame. 
@@ -448,7 +509,17 @@ for the end effector required to position the robot where the object can be gras
 Once the grasping pose is computed, the robot moves to the target pose and the end effector grasps the object.
 The robot then moves to a standard pre-defined position and drops the object, assuming that a basket
 is placed exactly underneath the robot's end effector in the dropping position. The robot then returns to the
-starting position and waits for the user to select the next object to be picked.
+starting position and waits for the user to select the next object to be picked. Figure \ref{fig:bp1}
+shows this demo during its execution, using colored balls as objects to be grasped. The demo worked well
+both with the balls attached to the simulated tree and with the ball in the hands of human volunteers, as
+in \ref{fig:bp1}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c5_13.png}
+    \caption{Cobot grasping a colored ball from the hand of a volunteer}
+    \label{fig:bp1}
+\end{figure}
 
 \subsection{DemoV2 with Object Detection Neural Network}
 
@@ -465,9 +536,20 @@ even from a small portion of the object's surface, and this is a strong point of
 it does not require the entire object to be visible in the camera's field of view.
 
 The algorithm for the object's barycenter estimation from the surface pointcloud is the one described
-in \ref{alg:sphere}. The algorithm uses a random sample consensus (\textit{RANSAC}) algorithm to estimate the sphere's center:
+in \ref{alg:sphere}. This algorithm uses a random sample consensus (\textit{RANSAC}) algorithm to estimate 
+the sphere's center.
 
-\begin{algorithm}[h]
+The algorithm uses \textit{MLESAC} (Maximum Likelihood Estimation Sample Consensus) to estimate the sphere's center
+from the segmented pointcloud. The function used for sphere fitting to a pointcloud is provided by
+\textit{SACSegmentation} package from \textit{Pointcloud Library}. This package provides a robust and fast
+implementation of the RANSAC algorithm for fitting geometric shapes to pointcloud data. 
+
+The assumption that the algorithm \ref{alg:sphere} makes is that the barycenter (center of mass) of the object
+is the same as the object's center. This is not always true, especially for irregularly shaped objects, but
+it is a good approximation for objects that are not too irregular. The algorithm computes the object's center
+and uses it as the barycenter, which is then used to compute the grasping pose.
+
+\begin{algorithm}[H]
     \caption{\textbf{Sphere Barycenter Estimation from Object Detection}}
     \label{alg:sphere}
     \begin{algorithmic}[1]
@@ -509,22 +591,34 @@ in \ref{alg:sphere}. The algorithm uses a random sample consensus (\textit{RANSA
     \end{algorithmic}
 \end{algorithm}
 
-The algorithm uses \textit{MLESAC} (Maximum Likelihood Estimation Sample Consensus) to estimate the sphere's center
-from the segmented pointcloud. The function used for sphere fitting to a pointcloud is provided by
-\textit{SACSegmentation} package from \textit{Pointcloud Library}. This package provides a robust and fast
-implementation of the RANSAC algorithm for fitting geometric shapes to pointcloud data. 
-
-The assumption that the algorithm \ref{alg:sphere} makes is that the barycenter (center of mass) of the object
-is the same as the object's center. This is not always true, especially for irregularly shaped objects, but
-it is a good approximation for objects that are not too irregular. The algorithm computes the object's center
-and uses it as the barycenter, which is then used to compute the grasping pose.
 
 \subsection{Mobile Fruit Picking Demos}
 
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=0.9\textwidth]{c5_14.jpg} % Replace with your image file
+        \caption{The cobot opens the gripper in the proximity of the apple (at the computed grasping pose) to grasp it}
+        \label{fig:mfp1}
+    \end{subfigure}
+    
+    \vspace{1em} % Add some vertical space between images (adjust as needed)
+
+    \begin{subfigure}{\textwidth}
+        \includegraphics[width=0.9\textwidth]{c5_17.jpg} % Replace with your image file
+        \caption{The cobot grasps the apple from the plant}
+        \label{fig:mfp2}
+    \end{subfigure}
+
+    \caption{Mobile Fruit Picking demo during execution}
+    \label{fig:mfp_}
+\end{figure}
+
 The \textbf{complete demo} is based on DemoV2 and extended to include the mobile base's navigation and obstacle avoidance
 capabilities. The demo consists of the mobile manipulation robot navigating to the apple tree's location, detecting the apples
-using the neural network, and picking the apples in a predefined sequence. The robot then drops the apples into a basket.
-There are two versions of the complete demo:
+using the neural network, and picking the apples in a predefined sequence.
+Figure \ref{fig:mfp_} shows different stages of the execution of this demo, where the robot is picking an apple from the tree.
+The robot then drops the apples into a basket. There are two versions of the complete demo:
 
 \begin{enumerate}
     \item \textbf{DemoV2 with pick and place}: the robot picks the apples from the tree and navigates to a predefined
@@ -532,15 +626,30 @@ There are two versions of the complete demo:
     must navigate to the basket's location to drop the apples. The robot must avoid obstacles in the environment
     while navigating to the basket's location. This version is more complex and challenging because the robot must
     navigate to two different locations. Once the mobile robot parks next to the basket's location, the robotic
-    arm searches with the stereo camera an Aruco marker, which signals the position of the basket. Then
+    arm searches with the stereo camera an Aruco marker, which signals the position of the basket. 
+    The basket with the Aruco signal marker is shown in \ref{fig:basket}. Then
     an algorithm finds a feasible pose for the end effector such that it gets placed immediately above the basket,
-    where it can release the grip on the grasped object and drop it.
+    where it can release the grip on the grasped object and drop it, as shown in \ref{fig:mfp3}.
     \item \textbf{DemoV2 with pick and place on robot}: the robot picks the apples from the tree and drops them on
     a basket that is positioned on the mobile robot base. The robot does not need to navigate to a separate location
     to drop the apples, but it is sufficient for the robotic arm to move to a predefined position so that
     the end effector is immediately above the basket. This version is simpler and less challenging than the first one,
     but it was implemented to have a demo that is faster to execute and more appealing to the public.
 \end{enumerate}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.5\textwidth]{c5_02.jpg}
+    \caption{Basket at the dropping location}
+    \label{fig:basket}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c5_18.jpg}
+    \caption{Cobot dropping the apple in the basket, at the dropping location, during the mobile fruit picking demo}
+    \label{fig:mfp3}
+\end{figure}
 
 The \textbf{object picking routine}, explained in algorithm \ref{alg:picking} is the routine that the robot follows
 to pick up objects from a plant tree. This algorithm is suitable for both apples and colored balls since they are
@@ -553,7 +662,7 @@ the dropping pose and drops the object, as explained in the algorithm \ref{alg:p
 must pick and place in separate locations, the robotic arm moves to its parking position and doesn't release the object
 until the mobile base has not reached the dropping location and the camera recognizes the basket using the Aruco marker.
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
     \caption{\textbf{Object Picking Routine}}
     \label{alg:picking}
     \begin{algorithmic}[1]
@@ -601,19 +710,71 @@ that is closest to the robot and has the highest confidence score. The algorithm
 and the grasping pose, and it executes the trajectory to grasp the object. The robot then moves to the dropping pose
 and drops the object into the basket. 
 
-This complete demo requires the integration of multiple software components, such as the neural network for object detection,
+This complete demo requires the \textbf{integration of multiple software components},
+such as the neural network for object detection,
 the perception algorithms for computing the object's barycenter, the grasping pose estimation algorithm, the trajectory
 planning algorithms, and the navigation and obstacle avoidance algorithms. The demo is a complex orchestration of
 multiple algorithms wrapped in ROS2 action servers. The action servers are responsible for executing the actions
 and the algorithms required to pick the objects. The action client node is responsible for orchestrating the actions
 of the mobile base and the robotic arm, and for sending the goals to the action servers. The action client node
 also handles the sequence of actions in case of any failure of any software component and logs the feedback data
-received from the action servers.
+received from the action servers. The ROS2 action servers used in the demo are:
+
+\begin{itemize}
+    \item \textbf{Parking Action Server}: this server is the same as the one used for the other complete demo.
+    The only difference with the other demo is that the location from which the robot must compute
+    the parking position is not given by the result of another action, but is read from a configuration file.
+    Both poses where to pick objects and the dropping location are hardcoded in a configuration file for
+    simplicity and ease of use.
+    \item \textbf{Picking Action Server}: this server is responsible for executing the first part of the
+    object-picking routine. It is responsible for searching for objects to pick and checking whether there
+    exists a feasible grasping pose for the objects in the camera frame. If it finds a feasible grasping pose
+    for an object, it plans and executes the trajectories to grasp the object. The server returns the result
+    of the planning and execution of the trajectories. It also provides logging feedback about the objects
+    detected and the grasping poses computed.
+    \item \textbf{Dropping Action Server}: this server is responsible for executing the second part of the
+    object-picking routine. It is responsible for moving the robot to the dropping location and dropping the object
+    into the basket. This server is called only if the dropping location is separate from the picking location.
+    It searches for an Aruco marker signaling the dropping location and computes a feasible pose for the end effector
+    to drop the object. Then it moves to that pose and drops the object.
+    The server returns the result of the execution of the trajectories and the dropping action.
+    It also provides logging feedback about finding the Aruco signaling the dropping location. 
+\end{itemize}
 
 \subsection{Experimental Challenges}
 
-grasping is difficult
-infrared reflectivity
-object detection false positive and negative
-object detection slow on cpu
+One of the issues faced during the development of the DemoV1 for ball picking was the \textbf{reflectivity} of the balls
+in the \textbf{infrared spectrum} in the presence of strong sunlight. The balls were reflecting the sunlight and the infrared
+camera was not able to compute the depth in the spots of the balls' surface with the highest reflectivity. This resulted
+in the balls' surface appearing as holes in the depth image. So if the user clicks exactly in the spot where
+the ball is very reflective, the depth value computed would be either wrong or infinite and would result in the
+algorithm crashing or computing an infeasible grasping pose. This effect was more pronounced with yellow balls.
+The immediate solution is to click in the least reflective spots, but this is a temporary workaround and 
+not a definitive solution to the problem. This problem was first encountered during the presentation of the project
+at the Open Day of Politecnico di Milano, where the robot was tested outside, with direct sunlight, as shown in \ref{fig:bp1}.
+On this occasion, some balls were not picked correctly due to the strong sunlight affecting the infrared sensors.
 
+DemoV2 solved this problem because it relies on the entire pointcloud of the object's surface, and not just
+on a single point. This means that even if there is a hole in the pointcloud, the algorithm is still able
+to compute the object's barycenter correctly (even though likely less precisely).
+In the cases where the pointcloud presents points with wrong depth values, the algorithm \ref{alg:sphere}
+is still able to find the correct solution, as RANSAC is robust to outliers and noise in the data.
+
+One problem faced during the development of the DemoV2 was the \textbf{high false positive rate} of the object
+detection neural network. The neural network was trained on a relatively small dataset of images, and it was not able
+to generalize well enough to new images. The neural network was detecting objects that were not present in the image,
+and this resulted in the algorithm computing grasping poses for objects that were not balls or apples.
+The obvious solution to the problem is to retrain the neural network on a larger dataset of images,
+but this is a time-consuming process and due to the time constraints of the project, there was not enough
+time to collect a larger dataset of images and manually label all of them. 
+
+Another problem faced during the development of the DemoV2 was the \textbf{slow performance of the neural network}
+on the CPU. The neural network was running on the CPU, and it was not able to process the images fast enough
+to provide real-time object detection. The neural network takes around 0.5 seconds to process a single image
+on the Intel NUC onboard computer, when other algorithms and ROS2 nodes are running in parallel,
+especially during the execution of the complete demos. This issue can be resolved by running the inference
+on the GPU, but it is currently not available on the robot. So the only feasible solution is to write code
+with multiple parallel threads that can handle and synchronize the data flow between the neural network
+and the other algorithms. This does not solve the problem but makes sure the software uses the
+predictions from the neural network as soon as they are available, coupled with the depth and RGB
+images taken at the moment of the prediction.
