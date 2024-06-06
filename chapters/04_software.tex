@@ -1,33 +1,49 @@
 
 \chapter{Software Architecture and Simulation Environments}
 
-This chapter discusses the software architecture of the mobile manipulation robotic system and the simulation 
+This chapter discusses the software architecture of the mobile manipulation system and the simulation 
 environments used for testing and development. The software architecture is based on the Robot Operating System 2 (ROS2)
 middleware, which provides a flexible and modular framework for developing robotic applications. 
 The simulation environments are based on Rviz2 and Ignition Gazebo, which provide realistic simulation environments
-for testing the algorithms before deployment on the real robots.
+for testing algorithms before deployment.
 
 \section{ROS2 Control Interface for Igus Rebel Arm}
 
-The first step in developing the software architecture for the mobile manipulation robotic system is to interface the
+The first step in developing the software architecture for the mobile manipulator is to interface the
 Igus Rebel Arm with ROS2. The Igus Rebel Arm is a 6-DOF robotic arm that can be controlled by either the CAN binary bus
 or the Ethernet interface (proprietary CRI protocol). The CAN bus interface is used for low-level access to the arm's
 joints, while the Ethernet interface is used for high-level control and monitoring of the arm's state. 
-The ROS2 control interface for the CAN bus was already implemented by the manufacturer \textit{Commonplace Robotics},
-but the requirement was the development of a ROS2 control interface for the Ethernet interface since the CAN bus interface
-requires a proprietary cable, which is not available to me. Using the Ethernet interface makes it easier to 
-plug it into the switch and control the arm from any computer on the local network.
+The ROS2 control interface for the CAN bus was already implemented by the control software provider \textit{Commonplace Robotics}.
+However, this type of connection requires a proprietary cable. Moreover, an Ethernet connection is more flexible, since the manipulator can be connected to the switch and controlled by any computer on the local network.
 
-Developing the \textbf{ROS2 control interface} for the Ethernet interface required understanding the CRI protocol, which
-is a protocol based on string messages. The CRI protocol is used to send commands to the arm in the form of
-joint positions or velocities (jogs) and to receive feedback from the arm in the form of joint positions.
+Developing the \textbf{ROS2 control interface} for the Ethernet interface required understanding the \textbf{CRI protocol},
+which is a protocol based on plain text messages. The CRI protocol is used to send commands to the arm in the form of
+joint positions (i.e. rotation of the motors in radians) or velocities (i.e. jogs) 
+and to receive feedback from the arm in the form of joint positions (values provided by the motors' encoders).
+The Igus Rebel cobot provides a \textit{Raspberry Pi} embedded computer that runs the control software for the arm's motors
+and acts as the CRI server, which listens for commands on the Ethernet interface and sends feedback to the client.
+The CRI client is the ROS2 control interface, while the CRI server acts as a bridge between the arm's motors embedded
+closed loop motor driver controllers and the control software (either the software provided by the manufacturer or
+the ROS2 control interface).
+
 Controlling the cobot using ROS2 requires a hardware interface, used to command and control the robot by interfacing
-with the hardware via the \textbf{CRI protocol}. The hardware interface is implemented as a ROS2 lifecycle node that
+with the CRI communication protocol. ROS2-Control is the framework provided with ROS2 that makes it possible to develop such
+hardware and control interfaces. The hardware interface is implemented as a ROS2 lifecycle node that
 is interfaced directly with the Joint Trajectory Controller, which is a ROS2 controller that can be used to
-control the arm using joint trajectory messages. This controller is then handled by MoveIt2, which is a ROS2
-motion planning framework that can be used to plan and execute trajectories for the arm \cite{moveit2}.
+control the arm using joint trajectory messages, containing the desired joint positions or velocities.
+While the Joint Trajectory Controller is a standard robot controller provided within ROS2-Control that can work
+with any robot arm and configuration, the hardware interface was developed and implemented specifically for the Igus Rebel Arm
+and its CRI communication protocol. The implementation of the hardware interface is based on the \textit{System Interface}
+provided by ROS2-Control, which is a type of interface that supports joints and actuators. The System Interface
+accesses the hardware via the CRI protocol and is managed by the Controller Manager and the Resource Manager.
 
-%Add a figure of the control architecture
+The Joint Trajectory Controller is then handled by MoveIt2, which is a ROS2
+motion planning framework that can be used to plan and execute trajectories for the arm \cite{moveit2}.
+\textbf{MoveIt2} generates motion plans for the robot using the robot's kinematic model and the obstacles in the environment.
+The Joint Trajectory Controller receives the computed trajectories from MoveIt2 and sends them to the arm 
+using the hardware interface.
+
+%TODO: Add a figure of the control architecture
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.6\textwidth]{c4_04.png}
@@ -35,12 +51,22 @@ motion planning framework that can be used to plan and execute trajectories for 
     \label{fig:ros2control}
 \end{figure}
 
-The diagram in figure \ref{fig:ros2control} shows an overview of how \textit{ROS2-Control} works.
-The hardware interface implemented for controlling the Igus ReBel arm is a ROS2 lifecycle \textit{System Interface},
-which is a type of interface that supports joints and actuators. The system interface accesses the hardware
-via the CRI protocol and is managed by the \textit{Controller Manager} and the \textit{Resource Manager}. The
-controller manager employed is provided by MoveIt2, in order to handle the cooperation between the hardware
-interface and the joint trajectory controller, which receives the computed trajectories from MoveIt2.
+The diagram in Figure \ref{fig:ros2control} shows an overview of how the implemented ROS2 hardware interface works,
+and how it is connected to the ROS2 Controller and MoveIt2 motion planners.
+
+TODO: improve this description
+
+Integrating the MoveIt2 libraries with the ROS2 framework requires MoveIt2 controller managers, 
+a set of controllers that can be used to control the robot's motion.
+MoveIt2 controller managers act as the bridge between high-level motion planning in MoveIt2
+and the low-level control of robot hardware. They are responsible for managing the execution of trajectories
+generated by MoveIt2's planners, sending commands to the appropriate ROS2 controllers based on the desired robot motion.
+These ROS2 controllers such as the Joint Trajectory Controller, in turn, interact with the hardware interfaces 
+to translate the control commands into actions that the robot can execute. This \textbf{layered architecture}
+allows for modularity and flexibility in the robot control system, enabling the integration of various controllers
+and hardware interfaces without affecting the high-level motion planning capabilities of MoveIt2.
+\textit{MoveItSimpleControllerManager} is the controller manager used with MoveIt2 to control the robotic arm
+using the Joint Trajectory Controller and the \textit{FollowJointTrajectory} action for sending motion execution goals.
 
 \subsection{Joint Trajectory Controller}
 
@@ -48,24 +74,29 @@ The Joint Trajectory Controller is a ROS2 controller that can be used to control
 These messages are joint-space trajectories on a group of joints.
 The controller interpolates in time between the points so that their distance can be arbitrary. 
 Trajectories are specified as a set of waypoints to be reached at specific time instants, which the controller 
-attempts to execute as well as the mechanism allows. Waypoints consist of positions, and optionally velocities and accelerations.
+attempts to execute as well as the underlying hardware allows.
+Waypoints consist of either positions or velocities, accelerations are optional.
 
-It can be operated either in position, velocity, or acceleration mode, depending on the type of trajectory message
-that it handles.
+The Joint Trajectory Controller can be operated either in position, velocity, or acceleration mode, 
+depending on the type of trajectory message that the hardware interface can handle.
 The position mode is used to send joint positions to the arm, while the velocity mode is used to send joint velocities
-in the form of jog values (velocities in percentage of the maximum velocity). The Joint Trajectory Controller can
-be operated either in closed-loop or open-loop mode, depending on the type of feedback that is used to control the arm.
+in the form of jog values (i.e. velocities in percentage of the maximum velocity). The Joint Trajectory Controller can
+be operated either in closed-loop or open-loop mode, depending on the presence of the feedback that is used to control the arm.
 In closed-loop mode, the controller uses the joint positions received from the arm as feedback to adjust the trajectory
 to the desired position, by controlling the arm via velocity commands. In open-loop mode, the controller sends the
 trajectory to the arm without any feedback, which can be useful for testing the arm's performance without any feedback
-control. The closed-loop velocity control requires a PID controller to adjust the velocity commands based on the
-difference between the desired and actual joint positions. The PID controller requires tuning the gains to
-achieve the desired performance of the arm. I did not manage to find the best gains for the PID controller,
-for a stable and smooth trajectory execution, so I used the open-loop mode for controlling the arm.
+control.
 
-MoveIt controller managers, somewhat a misnomer, are the interfaces to your custom low-level controllers. 
-A better way to think of them is controller interfaces. The included \textit{MoveItSimpleControllerManager} is sufficient
-for the robot controllers that provide ROS2 actions for \textit{FollowJointTrajectory}.
+The closed-loop velocity control requires a \textbf{PID controller} to adjust the velocity commands based on the
+difference between the desired and actual joint positions. The PID controller requires tuning the gains to
+achieve a stable and smooth trajectory execution. Tuning the gains is a challenging task that requires
+either the system's model or a realistic simulated robot model that mimics the real robot's behavior and dynamics.
+Moreover, this is a time-consuming task that requires extensive testing with many trials and errors to find the best gains 
+for the PID controller. Insufficiently tuned gains can lead to strong oscillations in the joint positions and the arm
+not reaching the desired pose stably. In the worst case, the arm can collide with obstacles in the environment
+or even damage itself. In the case of the Igus Rebel Arm, it was not possible to carry out the PID gains tuning
+due to the lack of a realistic simulated robot model and the impossibility of testing the dynamics and impulse responses
+of the robotic arm in a safe environment. Therefore, the open loop controller was used throughout the project.
 
 \section{MoveIt2 and RViz2 Simulation Environment}
 
@@ -86,18 +117,18 @@ for the robot controllers that provide ROS2 actions for \textit{FollowJointTraje
 \end{figure}
 
 
-MoveIt2 is a ROS2 framework that provides a set of tools for motion planning, kinematics, control, perception, and
-manipulation. It is a powerful tool for controlling robotic arms and mobile bases, and it can be used to plan and
-execute trajectories for the arm. MoveIt2 is based on the ROS2 middleware and provides a flexible and modular
+\textbf{MoveIt2} is a framework based on ROS2 that provides a set of tools for motion planning, kinematics, control, 
+perception, and manipulation. It is a powerful tool for controlling robotic arms and mobile bases, and it can be used to plan and
+execute arm trajectories. MoveIt2 is based on the ROS2 middleware and provides a flexible and modular
 framework for developing robotic applications.
 
-The figure \ref{fig:moveit2} shows the general \textbf{architecture of MoveIt2}. The MoveIt2 framework consists of several
+Figure \ref{fig:moveit2} shows the general \textbf{architecture of MoveIt2}. The MoveIt2 framework consists of several
 components, including the Planning Scene, the Planning Pipeline libraries, the Kinematics Solver, the Collision
 Checker, the Trajectory Execution Manager, and the Occupancy Mapping tools.
 The Planning Scene is a representation of the robot's environment, including the robot's state, the obstacles in the
-environment, and the robot's kinematic model. The diagram in figure \ref{fig:planninscence} shows the architecture
-of the Planning Scene and the modules with which it interacts.
-The Planning Pipeline libraries are used to generate motion plans
+environment, and the robot's kinematic model. The diagram in Figure \ref{fig:planninscence} shows how the Planning Scene
+interacts with the MoveGroup interface, providing the robot's state and kinematic model, and the Occupancy Map,
+providing the obstacles in the environment. The Planning Pipeline libraries are used to generate motion plans
 for the robot, using the robot's kinematic model and the obstacles in the environment. The Kinematics Solver is
 used to compute the robot's joint positions for a given end-effector pose, using the inverse kinematics
 computations based on the robot's kinematic model. The Collision Checker is used to check for collisions between
@@ -114,8 +145,8 @@ of the obstacles in the environment.
     \label{fig:move_group}
 \end{figure}
 
-MoveIt2 provides the \textit{MoveGroupInterface} class, which is a high-level interface to the MoveGroup node, which is the
-class that provides a set of methods for controlling the robot's motion planning and execution. 
+MoveIt2 provides the \textit{MoveGroupInterface} class, a high-level interface to the MoveGroup node. The node
+provides a set of methods for controlling the robot's motion planning and execution. 
 Figure \ref{fig:move_group} shows the architecture and the modules with which it interacts.
 The \textit{MoveGroupInterface} provides also methods for interacting with the robot's planning scene, 
 including adding and removing obstacles, setting the robot's state, and setting the robot's end-effector pose. 
@@ -132,7 +163,7 @@ and pose goals for the robot's end-effector, which is used to compute the joint 
 \end{figure}
 
 
-MoveIt2 can be used along with RViz2, which is a 3D visualization tool for ROS2 that can be used to visualize the
+MoveIt2 can be used along with RViz2, a 3D visualization tool for ROS2 to visualize the
 robot's motion in both simulated and real environments. RViz2 provides a set of tools for visualizing the robot's
 kinematic model, the robot's state, the obstacles in the environment, and the robot's motion plans.
 Figure \ref{fig:rviz2} shows a screenshot of the RViz2 interface with the control panels dedicated to the MoveIt2
@@ -142,12 +173,17 @@ With this interface, it is possible to send joint space goals to the robot
 and control it via the underlying hardware interface. There is also an interactive marker that allows the user
 to set the robot's end-effector pose by dragging it around in the RViz2 interface.
 
-I developed a custom library that incorporates the \textit{MoveGroupInterface}, providing high-level functions
+To ease the development of motion planning and execution for the Igus Rebel arm, a custom ROS2 library was developed.
+The library incorporates the \textit{MoveGroupInterface}, providing high-level functions
 in C++ that allow to plan and execute different types of motion, as well as computing the end-effector position
-and orientation quaternion from sensor input data. This library makes use of different planners to obtain
-the highest probability of generating a valid motion trajectory given the planning scene, and current and target
-joint positions. The planner \textit{Pilz Industrial Motion Planner} is used for linear cartesian trajectories 
-since it outperforms the other planners for this task. The \textit{OMPL} (Open Motion Planning Library) and
+and orientation quaternion from sensor input data. This library is based on the MoveGroup lower-level functionalities 
+and makes use of different planners to generate a valid motion trajectory given the planning scene, and current and target
+joint positions. The planning and execution functions choose the most suitable planner based on the type of motion
+to be executed. They also switch planners in the cases of failed motion planning generation.
+
+The planner \textit{Pilz Industrial Motion Planner} is used for linear cartesian trajectories 
+since it is more likely to generate feasible plans for this task, compared to the other planners.
+The \textit{OMPL} (Open Motion Planning Library) and
 \textit{STOMP} (Stochastic Trajectory Optimization) motion planners
 are instead used for generating trajectories with joint-space or cartesian-space targets.
 The kinematic solver used throughout the project is \textit{KDL} (Kinematics and Dynamics Library), which is a C++ library
@@ -158,16 +194,18 @@ Its advantage is the integration with Octomap for 3D collision checking, which i
 
 \section{Robotic Arm Visual Servoing}
 
-The MoveIt2 library provides also a framework for visual servo-ing, which is a technique used to control the robot's
+The MoveIt2 library provides also a framework for visual servo-ing, a technique used to control the robot's
 end-effector pose using visual feedback from a camera. The visual servo-ing framework in MoveIt2 is based on the
 \textit{MoveItServo} package, which provides a set of tools for controlling the robot's end-effector pose using
 servo-ing algorithms. The servo-ing algorithms are used to compute the robot's joint positions for a given end-effector
-pose. I developed the code to integrate these tools with the camera visual feedback, in order to perform visual servo-ing
-experiments with the Igus Rebel Arm. 
+pose. A test was set up for the integration of the servo-ing techniques with visual input from the camera.
+The test was developed to perform visual servo-ing with the Igus Rebel arm, where the visual input
+is provided by the estimation of an ArUco marker's pose in the camera's field of view, and the servo-ing algorithm
+is used to track the marker's pose and move the arm's end-effector as close as possible orthogonally to the marker's pose.
 
-The servo-ing algorithms provided by MoveIt2 allow also for \textbf{real-time control and teleoperation} of the robot arm's
+The servo-ing algorithms provided by MoveIt2 enable \textbf{real-time control and teleoperation} of the robot arm's
 end-effector pose. The teleoperation allows the user to control the robot's end-effector pose using a joystick controller.
-The real-time control allows the user to control the robot's end-effector pose using camera visual feedback
+The real-time control consists of controlling the robot's end-effector pose using camera visual feedback
 in real-time without pre-computing the joint trajectories. Realtime control is useful for controlling the robot's
 end-effector pose in dynamic environments, where the obstacles are moving and the robot needs to adapt to the changes
 in the environment.
@@ -179,36 +217,53 @@ in the environment.
     \label{fig:teleop}
 \end{figure}
 
+Visual servo-ing functionality was implemented and achieved partial success, operating reliably with input 
+Cartesian poses near the arm's initial configuration. The servo-ing algorithm's reliance on accurate initial
+end-effector pose estimates presented challenges in achieving convergence to desired poses under varying conditions.
+The servo-ing algorithm was tested with dynamically generated input cartesian poses, and the algorithm performance
+evaluation is based on the arm's ability to reach the desired poses consistently. 
+\textit{PlotJuggler} is the software used to plot the trajectory of each joint in time, which is necessary 
+for monitoring and measuring the degree of the oscillations and overshooting of the arm's joints during the servo-ing process
+until convergence to the input pose is achieved.
 
-After many trials and errors, I managed to get the \textbf{visual servo-ing} working
-only with input cartesian poses close to the initial pose of the arm. The servoing algorithm requires
-a good initial guess of the end-effector pose, in order to converge to the desired pose.
-Since I tested the visual servo-ing with the arm in the open-loop mode, the servo-ing algorithm was not able to
-compensate for the errors in the joint positions, which led to the arm not reaching the desired pose.
-Then I switched to the closed-loop mode, but the PID controller gains were not tuned properly, which led to strong
-oscillations in the joint positions and the arm not reaching the desired pose stably. I did not manage to find the
-best gains for the PID controller, so I had to abandon the visual servo-ing experiments with the arm.
-The package is still available in the repository, but it is not used in the final implementation
-of the mobile manipulation robotic system. Furthermore, the servo-ing algorithms using cartesian input poses
-rely exclusively on ROS2-Iron distribution.
+Open-loop control tests highlighted the algorithm's sensitivity to joint position errors, hindering its ability
+to reach desired poses consistently. While switching to closed-loop mode offered the potential for error compensation, 
+it requires a PID controller to operate. Since the PID controller's performance was hampered by the need for 
+further gain tuning to mitigate strong oscillations, the tests were conducted only in the simulated environment,
+where a PID controller was easier to tune. The effort required to identify the optimal gains for the PID controller
+was beyond the gain obtained using this approach.
+Despite these challenges, the implemented visual servo-ing package remains available within the repository as a foundation
+for future development. However, due to the limitations encountered in achieving stable and reliable performance,
+it was not incorporated into the final mobile manipulation system implementation.
+
+% After many trials and errors, I managed to get the \textbf{visual servo-ing} working
+% only with input cartesian poses close to the initial pose of the arm. The servoing algorithm requires
+% a good initial guess of the end-effector pose, in order to converge to the desired pose.
+% Since I tested the visual servo-ing with the arm in the open-loop mode, the servo-ing algorithm was not able to
+% compensate for the errors in the joint positions, which led to the arm not reaching the desired pose.
+% Then I switched to the closed-loop mode, but the PID controller gains were not tuned properly, which led to strong
+% oscillations in the joint positions and the arm not reaching the desired pose stably. I did not manage to find the
+% best gains for the PID controller, so I had to abandon the visual servo-ing experiments with the arm.
+% The package is still available in the repository, but it is not used in the final implementation
+% of the mobile manipulation robotic system.
 
 \section{Collision Avoidance with Octomap}
 
-The MoveIt2 library provides a framework for collision avoidance using the \textbf{Octomap} library, which is a library for
+The MoveIt2 library provides a framework for collision avoidance using \textbf{Octomap}, a library for
 generating volumetric 3D occupancy maps of the surrounding environment \cite{hornung13octomap}.
 Octomap is a 3D probabilistic occupancy grid representation of the robot's environment. It divides the space into voxels
-(3D cubes) and assigns probabilities to each voxel, indicating whether it's occupied (by an obstacle) or free.
-MoveIt2 integrates data from various sensors, such as the depth camera to update the Octomap in real time.
+(3D cubes) and assigns probabilities to each voxel, indicating whether it's occupied or free.
+MoveIt2 integrates data from depth sensors, such as a depth camera or a LiDAR, to update the Octomap in real time.
 Figure \ref{fig:octomap} shows the integration of Octomap inside MoveIt2, where the voxels defining the occupancy
-mapping are inside the Planning Scene, so the motion planning algorithms can use the voxels to plan a trajectory
+mapping are inside the Planning Scene. The motion planning algorithms can use the voxels to plan a trajectory
 that avoids them.
 
-MoveIt2's collision checker uses the Octomap to efficiently check for collisions between the robot's planned trajectory
+MoveIt2's collision checker uses Octomap to efficiently check for collisions between the robot's planned trajectory
 and the environment. By checking if the voxels along the path are occupied, it can determine if the robot will collide 
 with any obstacles. The probabilistic nature of Octomap helps deal with sensor noise and uncertainty. 
 If a voxel has a high probability of being occupied, it's treated as an obstacle.
 
-MoveIt2's motion planners, such as \textit{OMPL} (Open Motion Planning Library), use the Octomap
+MoveIt2's motion planners, such as \textit{OMPL} (Open Motion Planning Library), use Octomap
 to generate collision-free paths. The planners avoid occupied voxels to ensure the robot's motion doesn't lead to collisions.
 If the environment changes during execution (e.g., an obstacle moves), MoveIt2 can use the updated Octomap 
 to quickly replan a new collision-free path, allowing for dynamic obstacle avoidance.
@@ -222,13 +277,15 @@ This allows for a dynamic representation of the environment, even if obstacles m
     \label{fig:octomap}
 \end{figure}
 
-However, the reality is far from the ideal scenario. The Octomap library is not yet fully integrated with the MoveIt2
-interfaces, resulting in a \textbf{poorly optimized} Octomap probabilistic representation of the environment.
-In fact, the library takes track of the free space as well as the occupied space, resulting in a memory and computationally
-intensive update process, meaning that the time taken for each Octomap update is very high. The Octomap
-library for ROS2 is a porting of its ROS1 counterpart, which is fully functional but still lacks some features.
-One of the features that are missing is the ability to update the Octomap in realtime when part of the
-environment changes. In the current version of the software, Octomap will only update a few voxels around the
+However, the reality is far from the ideal scenario. The Octomap library is not yet fully integrated with MoveIt2,
+resulting in a \textbf{poorly optimized} Octomap probabilistic representation of the environment.
+In fact, the library tracks the free space as well as the occupied space, meaning that the entire workspace volume
+of Octomap is indexed within the data structure for volumetric representation, resulting in a memory and computationally
+intensive update process. This results in low-frequency updates of the voxels. Octomap
+library for ROS2 is a yet incomplete porting of its ROS1 counterpart.
+
+The ability to update the Octomap in realtime when part of the environment changes is still a missing feature.
+In the current version of the software, Octomap will only update a few voxels around the
 part of the environment that changed, without fully removing the voxels corresponding to the obstacle that moved
 and that is not present in the scene anymore. This leads to \textbf{false positives in the collision checking}, which
 prevents the robot from executing the planned trajectory. This feature is critical for dynamic obstacle avoidance
@@ -243,11 +300,11 @@ The soft gripper is actuated using a ROS2-control interface that acts as a hardw
 microcontroller that controls the pneumatic pump. The hardware interface works by providing a ROS2 service server that 
 listens for commands to open or close the gripper and sends the corresponding commands to the Arduino UNO microcontroller
 via serial communication. 
-The serial communication handles with the UART protocol, which is used to send and receive string messages.
+Serial communication uses the UART protocol to send and receive plain text messages.
 The serial data transfer is done using the \textit{thermios} library, which is a POSIX-compliant library for serial
 communication in Linux, supporting the C language.
 
-The Arduino UNO microcontroller is programmed to control the pneumatic pump by changing
+The \textbf{Arduino UNO microcontroller} is programmed to control the pneumatic pump by changing
 the state of the relays connected to its digital pins. The Arduino UNO listens in the serial port for string commands
 that it interprets as the pins to be set high or low, to open or close the gripper. The pneumatic pump is connected
 to the Arduino UNO via a relay module with 4 relays, one for each digital pin of the pump. Two of which
@@ -276,13 +333,13 @@ work in tandem to generate collision-free paths for the robot to follow, enablin
 Additionally, plugins like controllers and recovery behaviors further enhance Nav2's ability to handle unexpected
 scenarios and ensure the robot reaches its goal.
 
-Given these premises and features, I decided to use Nav2 as the primary navigation stack for the mobile manipulation
-robotic system. The Nav2 stack is used to plan and execute trajectories for the mobile base, using the robot's
-LiDAR sensor to perceive the environment and avoid obstacles. The stack operates within a ROS2 
+Given these premises and features, Nav2 was selected as the primary navigation system for the mobile manipulator robot.
+The Nav2 framework is used to plan and execute trajectories for the mobile base, using the robot's
+LiDAR sensor to perceive the environment and avoid obstacles. The framework operates within a ROS2 
 composable node architecture, which allows for the integration of various plugins and algorithms to achieve
-efficient intra-process communication and data sharing between the various components and threads of the stack.
-I created and configured the Nav2 stack to work with the AgileX Scout robot, using the SLAM Toolbox algorithm
-for creating maps of the laboratory. Figure \ref{fig:nav2_hallway} and figure \ref{fig:nav2_airlab} show the autonomous
+efficient intra-process communication and data sharing between the various components and threads of the multiple plugins.
+The parameters for Nav2 were configured specifically to work with the AgileX Scout robot, using the SLAM Toolbox algorithm
+for mapping and localization. Figure \ref{fig:nav2_hallway} and figure \ref{fig:nav2_airlab} show the autonomous
 navigation of the robot in the hallways and AIRlab in building 7 of Politecnico di Milano, respectively.
 
 % Add screenshots of the map and costmap in RViz2
@@ -302,25 +359,26 @@ navigation of the robot in the hallways and AIRlab in building 7 of Politecnico 
 
 \subsection{Nav2 Parameters Tuning}
 
-Finding the right parameters for the Nav2 stack was a challenging task, as the stack has many parameters that need
-to be tuned to achieve optimal performance. The parameters to be set are related to all the plugins that are part
-of the Nav2 stack. Many tests in different and complex environments were performed to find the best parameters
-suitable for the AgileX Scout robot. The parameters were set based on many days of intense testing in both simulated
+Finding the right parameters for the Nav2 framework required tuning hundreds of parameters to achieve optimal performance.
+The parameters to be set are related to all the plugins that are included within Nav2. 
+Many tests in different and complex environments were performed to find the best parameters
+suitable for the AgileX Scout robot. The parameters were tuned in both simulated
 and real environments, to ensure that the robot can navigate safely and efficiently in different scenarios.
 
 \textbf{Localization Algorithms}:
-I tested and applied both AMCL and SLAM Toolbox algorithms for localization, and I found that the AMCL algorithm
-performed worse in terms of scan matching when the robot rotates in place. Therefore, I decided to use the SLAM Toolbox
-algorithm for localization, which provided better performance and improved reliability in terms of localization accuracy,
-even in maps with dynamic obstacles and changing environments. The pose graph generated by the SLAM Toolbox algorithm
-is displayed in the maps, as shown in figure \ref{fig:nav2_hallway} and figure \ref{fig:nav2_airlab}, where the
+The algorithms under test were Adaptive Monte Carlo Localization (AMCL) and SLAM Toolbox.
+The results of the tests showed that AMCL has a worse performance for in-place rotations.
+SLAM Toolbox algorithm has better performance and improved reliability in terms of localization accuracy,
+even in changing environments with dynamic obstacles. Therefore it was selected as the primary localization algorithm.
+The pose graph generated by the SLAM Toolbox algorithm
+is displayed in the maps, as shown in Figure \ref{fig:nav2_hallway} and Figure \ref{fig:nav2_airlab}, where the
 blue lines represent the pose graph created during map creation, and the cyan lines represent the robot's
 the path traversed during navigation, estimated by the algorithm and connected to one of the nodes in the pose graph.
 
 \textbf{Global Planner}:
-I tested and used the SMAC planners \cite{macenski2024smac}, in particular the Hybrid A* global planner.
-I found that it performed well in generating optimal paths
-for the robot to follow, even in cases where an unknown obstacle appears in the environment. The Hybrid A*
+SMAC planners \cite{macenski2024smac} are used as global path planners, in particular the Hybrid A* global planner.
+Hybrid A* performs well in generating optimal paths for the robot to follow, 
+even in cases where an unknown obstacle appears in the environment. The Hybrid A*
 global planner uses an A* search algorithm to generate optimal paths for the robot to follow, which allows the robot
 to compute efficient paths and adjust quickly to changes in the environment. The Hybrid A* global planner is based on
 the motion generation algorithm, which generates kinematically feasible paths for the robot to follow, and the path selection
@@ -328,25 +386,29 @@ algorithm, which selects the best path from the sample paths based on the cost f
 The motion generation algorithms available are the \textit{Dubin} and \textit{Reeds-Shepp} algorithms, which both generate
 kinematically feasible motion trajectories. After many tests, I found that the Reeds-Shepp algorithm enabled
 to generate paths also in the reverse direction, which is useful for navigating in reverse, especially for
-a skid-steering drive robot such as the Scout. However, for some reason still unknown to mankind and Steve Macenski,
-the Reeds-Shepp algorithm works only in the real environment, and not in the simulated environment in Ignition Gazebo.
+a skid-steering drive robot such as the Scout. However, probably due to some bugs within Ignition Gazebo,
+the Reeds-Shepp algorithm works only with the real Scout robot, and not with the simulated one in the Gazebo environment.
 
 \textbf{Local Planner (Controller)}:
-I tested and applied the DWB and MPPI local planners, and I found that the MPPI local planner performed better
-in tracking the global plan and avoiding tight obstacles. The MPPI (Model Predictive Path Integral Controller) 
-\cite{mppicontroller} local planner uses a \textbf{model predictive control approach}
+Two local planners were tested: DWB and MPPI.
+The MPPI (Model Predictive Path Integral Controller) \cite{mppicontroller}
+local planner uses a \textbf{model predictive control approach}
 to generate collision-free paths for the robot to follow, which allows the robot to navigate efficiently in complex
 environments with tight spaces and obstacles. The MPPI local planner also provides better performance in terms of
-trajectory tracking, compared to the DWB local planner. The DWB local planner uses a dynamic window approach to generate
+trajectory tracking and collision avoidance, compared to the DWB local planner. 
+The DWB local planner uses a dynamic window approach to generate
 collision-free paths for the robot to follow, which can be less effective in tight spaces and complex environments.
-The sampled trajectories of the local planner are visualized in \ref{fig:nav2_hallway} and \ref{fig:nav2_airlab},
+The sampled trajectories of the local planner are visualized in Figure \ref{fig:nav2_hallway} and Figure \ref{fig:nav2_airlab},
 in front of the robot's footprint, showing the robot's sampled trajectories to follow the global path.
 
 \textbf{Recovery Behaviors}:
-I tested the default recovery behaviors provided by the Nav2 stack, and I found that the default recovery behaviors
-performed well in recovering the robot from unexpected scenarios, such as getting stuck or colliding with obstacles.
-So I decided to modify slightly the default recovery behaviors to improve the robot's performance in recovering
-from the scenarios where the robot would be stuck near an obstacle and unable to move. The modified recovery behaviors
+The default recovery behaviors provided by the recovery behavior tree plugin of Nav2
+perform well in recovering the robot from unexpected scenarios, such as getting stuck or colliding with obstacles.
+However, in the most difficult scenarios, using the default recovery behaviors, the robot was not able to recover quickly
+from the situations where it was stuck near an obstacle, and it was unable to move for long periods.
+Therefore some slight modifications to the default recovery behaviors were applied to improve the robot's response
+in recovering from the scenarios where the robot would be unable to move, making it faster to recover and continue
+navigating towards the goal. The modified recovery behaviors
 include a combination of back-up and rotate behaviors, which allow the robot to back up and rotate in place to position
 itself in a different configuration, enabling it to generate a new path and continue navigating towards the goal.
 
@@ -354,8 +416,8 @@ itself in a different configuration, enabling it to generate a new path and cont
 The local costmap plugin is used to generate a local costmap of the robot's surroundings, highlighting obstacles
 and free space. The local costmap plugin uses the robot's LiDAR sensor to perceive the environment and update the costmap
 in realtime. The local costmap plugin is used by the local planner to generate collision-free paths for the robot
-to follow. The local costmap includes the unknown obstacle in the environment, which is represented as pink areas
-in the costmap, as shown in figure \ref{fig:nav2_airlab}. The unknown obstacle is detected by the LiDAR sensor
+to follow. The local costmap includes the unknown obstacles in the environment, which are represented as pink areas
+in the costmap, as shown in figure \ref{fig:nav2_airlab}. The unknown obstacles are detected by the LiDAR sensor
 and updated in the costmap, allowing the robot to avoid collisions with objects not present on the map.
 The local costmap can be configured with these plugins:
 
@@ -363,7 +425,7 @@ The local costmap can be configured with these plugins:
     \item \textbf{Inflation Layer}: The inflation layer is used to inflate the obstacles in the costmap, creating a buffer
     around the obstacles to ensure that the robot avoids collisions.
     \item \textbf{Obstacle Layer}: The obstacle layer is used to update the costmap with the obstacles detected by
-    the 2D LiDAR sensor, highlighting the obstacles in the costmap. I later substituted this layer with the voxel layer,
+    the 2D LiDAR sensor, highlighting the obstacles in the costmap. This layer was eventually substituted with the voxel layer,
     thanks to the more effective 3D LiDAR sensor perception.
     \item \textbf{Static Layer}: The static layer is used to update the costmap with the static obstacles in the map
     \item \textbf{Voxel Layer}: The voxel layer is used to update the costmap with the voxelized obstacles in the map,
@@ -375,33 +437,32 @@ The global costmap plugin is used to generate a costmap of the entire map that t
 the static obstacles and free space. The global costmap plugin is used by the global planner to generate optimal paths
 for the robot to follow. The global costmap is configured to use only the static layer inflated by the inflation layer,
 to ensure that the robot avoids collisions with the obstacles already present in the map.
-The global costmap is represented in \ref{fig:nav2_hallway} as the blue and red areas, where the blue areas are the 
+The global costmap is represented in Figure \ref{fig:nav2_hallway} as the blue and red areas, where the blue areas are the 
 \textit{lethal} space (i.e. must be avoided) and the red areas are the inflated obstacle areas with high cost.
 
 \textbf{Collision Monitor}:
 The collision monitor plugin is used to continuously assess the robot's planned path against the costmap, ensuring
-that the robot navigates safely and avoids collisions with obstacles. The collision monitor plugin is used by the
-nav2 stack to ensure that the robot avoids the obstacles in the costmap, such that they do not overlap with the robot's
+that the robot navigates safely and avoids collisions with obstacles. The collision monitor plugin is used by
+Nav2 to ensure that the robot avoids the obstacles in the costmap, such that they do not overlap with the robot's
 footprint and locally planned path.
 
 \textbf{Mapping Algorithm}:
-The algorithm of choice for mapping is the \textit{SLAM Toolbox} algorithm, which is a 2D SLAM algorithm
+The algorithm of choice for mapping is \textit{SLAM Toolbox}, a 2D SLAM algorithm
 that uses the robot's LiDAR sensor to create a 2D map of the environment \cite{Macenski2021slamtoolbox}.
-The SLAM Toolbox algorithm is used to create
-a 2D map of the environment, which is used by the global planner to generate optimal paths for the robot to follow.
+SLAM Toolbox creates a 2D map of the environment used by the global planner to generate optimal paths for the robot to follow.
 The SLAM Toolbox proved to be effective in creating accurate 2D maps of the environment, even in dynamic environments
-with moving obstacles. I managed to use it correctly in both simulated and real environments, and it provided
-good performance in terms of mapping accuracy and reliability.
+with moving obstacles. This algorithm demonstrated good performance in terms of mapping accuracy and reliability,
+both in the simulated and real environments.
 
 \textbf{Velocity Smoother}:
 The velocity smoother plugin is used to smooth the robot's velocity commands, ensuring that the robot moves smoothly
-and efficiently in the environment. The velocity smoother plugin is used by the local planner to obtain smooth
-trajectories from the computed paths, which allows the robot to navigate efficiently and avoid jerky movements.
-The velocity smoother is configured also to avoid unnecessary stops and starts, which can wear out the robot's transmission
-gears and reduce the robot's battery life.
+and efficiently in the environment. The velocity smoother plugin is used by the local planner to obtain
+trajectories with a smooth velocity profile, computed from the initial optimal paths, which allows
+the robot to navigate efficiently and avoid jerky movements. The velocity smoother is configured also to avoid
+unnecessary stops and starts, which can wear out the robot's transmission gears and reduce the robot's battery life.
 
 \textbf{Spatio-Temporal Voxel Costmap Layer} \cite{macenski2020stvl}:
-The dynamic obstacle avoidance algorithm is a critical component of the Nav2 stack, as it allows the robot to navigate
+The dynamic obstacle avoidance algorithm is a critical component of Nav2, as it allows the robot to navigate
 safely in dynamic environments with moving obstacles. The dynamic obstacle avoidance algorithm uses the robot's LiDAR sensor
 to perceive the environment and detect the moving obstacles in realtime. Dynamic obstacles update the local costmap
 following different plugins, such as the voxel layer, which is used to update the costmap with the voxelized obstacles
@@ -409,15 +470,15 @@ in the environment. The voxel layer uses the 3D LiDAR sensor to perceive the env
 However, one of the shortcomings of the voxel layer is that it doesn't remove old voxels that correspond to obstacles
 that are no longer present in the environment. This leads to false positives in the collision checking, which prevents
 the robot from executing the planned trajectory, especially in highly dynamic environments with fast-moving obstacles.
-The spatio-temporal voxel costmap layer is an open-source plugin that addresses this issue by updating the costmap
+The spatio-temporal voxel costmap layer (STVL) is an open-source plugin that addresses this issue by updating the costmap
 efficiently and accurately. It replaces the traditional voxel grid approach with a \textbf{sparse voxel grid} implemented
 using OpenVDB, a \textbf{high-performance C++ library}. This allows STVL to handle large, dynamic environments with ease,
-such as the one shown in figure \ref{fig:stvl}, 
+such as the one shown in Figure \ref{fig:stvl}, 
 reducing computational overhead. By leveraging temporal information and applying a voxel grid filter to sensor data,
 STVL can better handle noisy and dense sensor readings, especially in proximity to objects. 
 This results in smoother, more reliable navigation and improved robot performance in continuously evolving scenarios.
 STVL's adaptability, efficiency, and ability to integrate with various sensor types made it the ideal substitute
-for the voxel layer in the Nav2 stack. Figure \ref{fig:nav2_airlab} shows the effectiveness of the STVL in a dynamic
+for the voxel layer in Nav2. Figure \ref{fig:nav2_airlab} shows the effectiveness of the STVL in a dynamic
 and cluttered environment, such as the AIRLab, where the robot is navigating despite many unknown obstacles 
 and moving objects in a tight space.
 
@@ -429,13 +490,13 @@ and moving objects in a tight space.
 \end{figure}
 
 
-\subsection{Issues with 3D LiDAR for autonomous navigation}
+\subsection{Optimal DDS configuration}
 
-Throughout the development of the project, I encountered several issues with the NAV2 stack.
+Throughout the development of the project, I encountered several issues with the NAV2 framework.
 Sometimes the software crashed at random times, unpredictably, and without any apparent reason.
 Some other times the dynamic obstacle avoidance algorithm did not work as expected, causing the robot to collide
 with obstacles that were not perceived by the LiDAR sensor in the surrounding environment.
-Overall, the robot's navigation stack was not reliable and robust, which was a significant issue for the project's development,
+Overall, the robot's navigation was not reliable and robust, which was a significant issue for the project's development,
 especially for the autonomous navigation tasks in the laboratory's environment (cluttered and dynamic).
 Figure \ref{fig:3dlidar} shows the pointcloud generated from a cluttered environment and the expected view 
 from a correctly functioning sensors.
@@ -482,14 +543,14 @@ heavy-weight data packets at high frequencies, ensuring that the LiDAR sensor's 
 in its entirety, without any losses or delays in the transmission.
 
 After this configuration, the LiDAR sensor was able to provide a stable scan rate of $10$Hz,
-and the software stack was working correctly, without any crashes or malfunctions.
+and the software was working correctly, without any crashes or malfunctions.
 Furthermore, I was also able to test the LiDAR sensor at a higher frequency of $20$Hz, 
 with lower resolution, and it was working fine and stable.
 This solution was essential also for the correct operation of the IMU sensor for the SLAM algorithm, which required
-a stable and continuous data stream of the LiDAR at the moment of startup of the sensor in the software stack. Before the 
+a stable and continuous data stream of the LiDAR at the moment of startup of the sensor in the software. Before the 
 fix of the LiDAR sensor's frequency, the IMU sensor was not able to start correctly, due to the lack of data
 from the LiDAR sensor, and the computed odometry data was drifting too much to be useful.
-Many other algorithms and software benefitted from this fix. The robot's navigation stack was now reliable and robust,
+Many other algorithms and software benefitted from this fix. The robot's navigation was now reliable and robust,
 and the autonomous navigation tasks were working correctly and smoothly.
 
 
@@ -502,9 +563,9 @@ robots and sensors for perception systems. \textbf{Ignition Gazebo} is the simul
 as it proved to be very useful in testing the mobile robot base in simulated environments before deploying the algorithms
 on the real robot. Simulating the robot in a virtual environment allows for testing the algorithms in 
 a controlled and repeatable environment, without the risk of damaging the real robot or the laboratory environment.
-The simulations were essential for the development of the software stack and the navigation algorithms, 
+The simulations were essential for the development of the software and the navigation algorithms, 
 as they allowed for testing
-the robot's behavior in different scenarios and environments. It allowed me to tune the navigation stack's parameters
+the robot's behavior in different scenarios and environments. It allowed me to tune Nav2's parameters
 thoroughly and ensure the robot would avoid obstacles and navigate safely.
 
 % add a screenshot of the simulation environment in Ignition Gazebo
@@ -550,11 +611,11 @@ faces the opposite direction of the target object because the robotic arm is mou
 
 The parking algorithm considers both the robot's footprint and the robotic arm's workspace to ensure that the
 robot can park in a position where the robotic arm can reach the target object. 
-The algorithm also considers the costmap generated by the navigation stack to compute the optimal parking
+The algorithm also considers the costmap generated by Nav2 to compute the optimal parking
 pose that minimizes the cost of the footprint, meaning that the robot will be the furthest possible from
 the obstacles in its vicinity. 
 
-The parking algorithm is then used by the NAV2 commander APIs to send the parking pose to the robot's navigation stack,
+The parking algorithm is then used by the NAV2 commander APIs to send the parking pose to Nav2,
 which generates a collision-free path for the robot to follow to reach the parking pose. The robot then executes
 the planned trajectory and parks near the computed parking pose. While the mobile robot navigates
 autonomously to the parking pose, it publishes feedback data containing its current position and its distance 
@@ -622,9 +683,9 @@ target pose that the cobot will have to reach, as it depends on the object's pos
 in the environment. The parking algorithm is a good starting point for further development and improvement
 to address these limitations and ensure that the robot can park in a useful position also for the robotic arm.
 
-\section{Aruco Marker Detection and Pose Estimation}
+\section{ArUco Marker Detection and Pose Estimation}
 
-Aruco markers are synthetic square markers with unique black-and-white patterns that can be easily detected
+ArUco markers are synthetic square markers with unique black-and-white patterns that can be easily detected
 and identified by computer vision algorithms.
 
 Detecting and estimating the pose of an ArUco marker from an image involves a two-step process.
@@ -645,32 +706,32 @@ we can compensate for the camera's inherent distortions and obtain a more accura
 in the real world. I had also to calibrate the camera's intrinsic parameters using a calibration pattern and the
 automatic calibration software tool provided by the RealSense SDK.
 
-\subsection{Multi-Aruco Plane Estimation Algorithm}
+\subsection{Multi-ArUco Plane Estimation Algorithm}
 
-One of the challenges I faced was estimating the orientation of small Aruco markers from the camera feed.
+One of the challenges I faced was estimating the orientation of small ArUco markers from the camera feed.
 The pose estimation algorithm works well for markers that appear large in the image, but it struggles with
 the ones that appear smaller due to the size and distance from the camera. The estimation of the orientation
 was the most challenging part, as the pose estimation algorithm often returns orientation values that
 oscillate between different values, making it difficult to determine the correct orientation of the marker.
 This is especially true for small markers that appear far away from the camera. To address this issue,
-I developed a multi-Aruco plane estimation algorithm that estimates the orientation of a plane over which
-multiple Aruco markers are placed. Figure \ref{fig:multi_aruco} shows the algorithm in action.
+I developed a multi-ArUco plane estimation algorithm that estimates the orientation of a plane over which
+multiple ArUco markers are placed. Figure \ref{fig:multi_aruco} shows the algorithm in action.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=1.0\textwidth]{c4_17.png}
-    \caption{Multi-Aruco Plane Estimation algorithm in action. The screenshot shows RViz2 displaying
+    \caption{Multi-ArUco Plane Estimation algorithm in action. The screenshot shows RViz2 displaying
     on the top left corner the input image, the bottom left the image with the detected markers drawn on top of it,
     and in the center the colored pointcloud captured by the depth sensor.}
     \label{fig:multi_aruco}
 \end{figure}
 
-The algorithm works by detecting multiple Aruco markers in the image and estimating their poses using the pose
-estimation algorithm. The poses of the Aruco markers are then used to estimate the orientation of the plane
-on which the markers are placed. The algorithm assumes that the Aruco markers are \textbf{coplanar}, meaning that 
+The algorithm works by detecting multiple ArUco markers in the image and estimating their poses using the pose
+estimation algorithm. The poses of the ArUco markers are then used to estimate the orientation of the plane
+on which the markers are placed. The algorithm assumes that the ArUco markers are \textbf{coplanar}, meaning that 
 they have different positions but the same orientation. By estimating the orientation of the plane that passes
 through the markers, we can determine the correct orientation of the markers from the vector normal
-to the plane. The algorithm processes a list of Aruco markers poses and returns the poses with their
+to the plane. The algorithm processes a list of ArUco markers poses and returns the poses with their
 estimated orientation, meaning that all processed poses share the same orientation value.
 
 The algorithm that I implemented makes use of the following statistical data analysis techniques:
@@ -681,10 +742,10 @@ The algorithm that I implemented makes use of the following statistical data ana
     RANSAC works by randomly selecting a subset of data points and fitting a model to them. The model is then
     evaluated against the remaining data points, and the points that are consistent with the model are considered
     inliers. The process is repeated multiple times to find the best-fitting model with the maximum number of inliers.
-    RANSAC is used to discard the outlier data points observed in the Aruco markers' poses.
+    RANSAC is used to discard the outlier data points observed in the ArUco markers' poses.
     \item \textbf{Least Squares Estimation (LSE)}: LSE is a mathematical method used to find the best-fitting curve
     that minimizes the sum of the squared differences between the observed data points and the model's predictions.
-    LSE is used by the RANSAC model to fit the plane that passes through the Aruco markers' poses.
+    LSE is used by the RANSAC model to fit the plane that passes through the ArUco markers' poses.
     \item \textbf{Principal Component Analysis (PCA)}: PCA is a statistical method that identifies patterns
     in data by transforming it into a new coordinate system, where the data points are uncorrelated.
     PCA is used to find the principal components of the data, which are the directions of maximum variance.
@@ -700,7 +761,7 @@ The algorithm that I implemented makes use of the following statistical data ana
 The perception algorithm works as illustrated in \ref{alg:multi_aruco}:
 
 \begin{algorithm}[H]
-    \caption{\textbf{Multi-Aruco Plane Estimation Algorithm}}
+    \caption{\textbf{Multi-ArUco Plane Estimation Algorithm}}
     \label{alg:multi_aruco}
     \begin{algorithmic}[1]
     
