@@ -43,7 +43,7 @@ motion planning framework that can be used to plan and execute trajectories for 
 The Joint Trajectory Controller receives the computed trajectories from MoveIt2 and sends them to the arm 
 using the hardware interface.
 
-%TODO: Add a figure of the control architecture
+%TODO: Add a Figure of the control architecture
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.6\textwidth]{c4_04.png}
@@ -100,7 +100,7 @@ of the robotic arm in a safe environment. Therefore, the open loop controller wa
 
 \section{MoveIt2 and RViz2 Simulation Environment}
 
-% Add a figure of the MoveIt2
+% Add a Figure of the MoveIt2
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.8\textwidth]{c4_01.png}
@@ -108,7 +108,7 @@ of the robotic arm in a safe environment. Therefore, the open loop controller wa
     \label{fig:moveit2}
 \end{figure}
 
-%Add a figure of the control architecture
+%Add a Figure of the control architecture
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.8\textwidth]{c4_03.png}
@@ -154,7 +154,7 @@ The \textit{MoveGroupInterface} can be used to plan and execute trajectories for
 It allows to define and compute joint-space goals, Cartesian-space goals,
 and pose goals for the robot's end-effector, which is used to compute the joint space trajectories.
 
-% Add a figure of the rviz2 interface with moveit2
+% Add a Figure of the rviz2 interface with moveit2
 \begin{figure}[t]
     \centering
     \includegraphics[width=1.0\textwidth]{c4_11.png}
@@ -167,7 +167,7 @@ MoveIt2 can be used along with RViz2, a 3D visualization tool for ROS2 to visual
 robot's motion in both simulated and real environments. RViz2 provides a set of tools for visualizing the robot's
 kinematic model, the robot's state, the obstacles in the environment, and the robot's motion plans.
 Figure \ref{fig:rviz2} shows a screenshot of the RViz2 interface with the control panels dedicated to the MoveIt2
-planning and execution tools. The figure shows the Igus Rebel cobot mounted on the Scout mobile robot,
+planning and execution tools. The Figure shows the Igus Rebel cobot mounted on the Scout mobile robot,
 with blue collision boxes to prevent the arm from colliding with the sensors mounted on top.
 With this interface, it is possible to send joint space goals to the robot
 and control it via the underlying hardware interface. There is also an interactive marker that allows the user
@@ -191,6 +191,21 @@ that provides a set of tools for computing the forward and inverse kinematics of
 For collision detection, the \textit{FCL} (Flexible Collision Library) is used, which is a C++ library that provides
 a set of tools for detecting collisions between the robot and the obstacles in the environment.
 Its advantage is the integration with Octomap for 3D collision checking, which is used in the MoveIt2 framework.
+
+One important issue encountered when executing a planned trajectory was the
+\textbf{imprecision of the robotic arm's motors' encoders}, which caused the end effector
+to not reach the target pose with the desired precision. This problem was partially overcome by adding a function
+that artificially compensates for the error in the end effector's position, by adding a small offset 
+to the target pose. The formula used for the compensation is based on empirical measurements of the error.
+The measurements were taken by commanding the end effector to reach a target pose and then measuring the distance
+on the z-axis (vertical axis) between the end effector's final position and the target pose.
+The measurements were taken for poses at different heights and distances from the robot's base.
+The function is based on the equation 
+$z' = z + \frac{1 - z}{25}$, where $z$ is the target position on the z-axis (height) and $z'$ is the corrected target height.
+The values used in the formula are expressed in meters.
+This function does not provide an accurate compensation for the error, but it is effective in increasing the precision
+of the end effector's position.
+
 
 \section{Robotic Arm Visual Servoing}
 
@@ -235,17 +250,6 @@ was beyond the gain obtained using this approach.
 Despite these challenges, the implemented visual servo-ing package remains available within the repository as a foundation
 for future development. However, due to the limitations encountered in achieving stable and reliable performance,
 it was not incorporated into the final mobile manipulation system implementation.
-
-% After many trials and errors, I managed to get the \textbf{visual servo-ing} working
-% only with input cartesian poses close to the initial pose of the arm. The servoing algorithm requires
-% a good initial guess of the end-effector pose, in order to converge to the desired pose.
-% Since I tested the visual servo-ing with the arm in the open-loop mode, the servo-ing algorithm was not able to
-% compensate for the errors in the joint positions, which led to the arm not reaching the desired pose.
-% Then I switched to the closed-loop mode, but the PID controller gains were not tuned properly, which led to strong
-% oscillations in the joint positions and the arm not reaching the desired pose stably. I did not manage to find the
-% best gains for the PID controller, so I had to abandon the visual servo-ing experiments with the arm.
-% The package is still available in the repository, but it is not used in the final implementation
-% of the mobile manipulation robotic system.
 
 \section{Collision Avoidance with Octomap}
 
@@ -311,6 +315,51 @@ to the Arduino UNO via a relay module with 4 relays, one for each digital pin of
 are the VCC and GND pins, and the other two are the GRIP and RELEASE pins. The GRIP pin is used to close the gripper,
 while the RELEASE pin is used to open the gripper.
 
+
+\section{Ignition Gazebo Simulation Environment}
+
+Ignition Gazebo is a useful open-source simulation environment for robotics and autonomous systems.
+It provides a realistic and customizable 3D environment for testing and developing robotic algorithms and applications.
+\textbf{Ignition Gazebo} is the simulation environment of choice for the project,
+as it proved to be very useful in testing the mobile robot base in simulated environments before deploying the algorithms
+on the real robot. Simulating the robot in a virtual environment allows for testing the algorithms in 
+a controlled and repeatable environment, without the risk of damaging the real robot or the laboratory environment.
+The simulations were essential for the development of the software and the navigation algorithms, 
+as they allowed for testing
+the robot's behavior in different scenarios and environments. It allowed me to tune Nav2's parameters
+thoroughly and ensure the robot would avoid obstacles and navigate safely.
+
+% add a screenshot of the simulation environment in Ignition Gazebo
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_12.png}
+    \caption{Ignition Gazebo Simulation Environment}
+    \label{fig:ignition}
+\end{figure}
+
+% Add the created map of the warehouse
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_14.png}
+    \caption{Mobile robot navigating in the simulated warehouse environment}
+    \label{fig:warehousenav2}
+\end{figure}
+
+The simulated environment in Ignition Gazebo used for the project is a \textbf{warehouse}
+with various obstacles such as walls, shelves, and boxes, which the robot had to navigate around to reach its goal.
+Figure \ref{fig:ignition} shows a screenshot of the simulated warehouse environment in Ignition Gazebo.
+The warehouse environment was designed to be challenging
+for the robot, with narrow passages and tight spaces, to test the robot's ability to navigate in complex environments.
+Ignition Gazebo also provides the possibility to add dynamic obstacles, i.e. objects not present in the map
+already loaded in the simulation environment. This feature was useful for testing the robot's dynamic obstacle avoidance
+algorithm, which allows the robot to navigate safely in environments with unknown obstacles.
+
+The simulation also includes the sensors mounted on the robot, such as a 2D LiDAR and a 3D LiDAR sensor, which were used
+for perception and obstacle avoidance. The localization algorithms, such as AMCL and SLAM Toolbox,
+were tested using the simulated odometry data created by the robot's wheels' motion in the simulated environment. Figure 
+\ref{fig:warehousenav2} shows the simulated mobile robot navigating in the warehouse environment
+while avoiding the boxes and shelves in its path.
+
 \section{Autonomous Navigation with NAV2}
 
 Nav2 is a powerful open-source software framework used for autonomous navigation within the ROS2 ecosystem
@@ -339,7 +388,7 @@ LiDAR sensor to perceive the environment and avoid obstacles. The framework oper
 composable node architecture, which allows for the integration of various plugins and algorithms to achieve
 efficient intra-process communication and data sharing between the various components and threads of the multiple plugins.
 The parameters for Nav2 were configured specifically to work with the AgileX Scout robot, using the SLAM Toolbox algorithm
-for mapping and localization. Figure \ref{fig:nav2_hallway} and figure \ref{fig:nav2_airlab} show the autonomous
+for mapping and localization. Figure \ref{fig:nav2_hallway} and Figure \ref{fig:nav2_airlab} show the autonomous
 navigation of the robot in the hallways and AIRlab in building 7 of Politecnico di Milano, respectively.
 
 % Add screenshots of the map and costmap in RViz2
@@ -384,8 +433,8 @@ to compute efficient paths and adjust quickly to changes in the environment. The
 the motion generation algorithm, which generates kinematically feasible paths for the robot to follow, and the path selection
 algorithm, which selects the best path from the sample paths based on the cost function.
 The motion generation algorithms available are the \textit{Dubin} and \textit{Reeds-Shepp} algorithms, which both generate
-kinematically feasible motion trajectories. After many tests, I found that the Reeds-Shepp algorithm enabled
-to generate paths also in the reverse direction, which is useful for navigating in reverse, especially for
+kinematically feasible motion trajectories. The Reeds-Shepp algorithm enables
+the generation of paths also in the reverse direction, which is useful for navigating in reverse, especially for
 a skid-steering drive robot such as the Scout. However, probably due to some bugs within Ignition Gazebo,
 the Reeds-Shepp algorithm works only with the real Scout robot, and not with the simulated one in the Gazebo environment.
 
@@ -417,7 +466,7 @@ The local costmap plugin is used to generate a local costmap of the robot's surr
 and free space. The local costmap plugin uses the robot's LiDAR sensor to perceive the environment and update the costmap
 in realtime. The local costmap plugin is used by the local planner to generate collision-free paths for the robot
 to follow. The local costmap includes the unknown obstacles in the environment, which are represented as pink areas
-in the costmap, as shown in figure \ref{fig:nav2_airlab}. The unknown obstacles are detected by the LiDAR sensor
+in the costmap, as shown in Figure \ref{fig:nav2_airlab}. The unknown obstacles are detected by the LiDAR sensor
 and updated in the costmap, allowing the robot to avoid collisions with objects not present on the map.
 The local costmap can be configured with these plugins:
 
@@ -492,14 +541,14 @@ and moving objects in a tight space.
 
 \subsection{Optimal DDS configuration}
 
-Throughout the development of the project, I encountered several issues with the NAV2 framework.
-Sometimes the software crashed at random times, unpredictably, and without any apparent reason.
-Some other times the dynamic obstacle avoidance algorithm did not work as expected, causing the robot to collide
-with obstacles that were not perceived by the LiDAR sensor in the surrounding environment.
-Overall, the robot's navigation was not reliable and robust, which was a significant issue for the project's development,
-especially for the autonomous navigation tasks in the laboratory's environment (cluttered and dynamic).
-Figure \ref{fig:3dlidar} shows the pointcloud generated from a cluttered environment and the expected view 
-from a correctly functioning sensors.
+In the initial stages of the experimental activities, we encountered various issues related to the LiDAR. 
+Such as low message frequency, significant gaps in measurement production, and crashes in the applications.
+This would lead the robot not to navigate correctly, and often not perceiving the obstacles in the immediate vicinity.
+Overall Nav2 was not reliable and robust, especially in dynamic and cluttered environments.
+Figure \ref{fig:3dlidar} shows the pointcloud generated from the 3D LiDAR sensor in a cluttered environment.
+When the sensor is working correctly, it can provide a detailed and accurate representation of the environment,
+at a constant and stable frequency. However, the LiDAR sensor was not working correctly, so the pointcloud data
+was received with gaps and delays.
 
 \begin{figure}[t]
     \centering
@@ -508,121 +557,88 @@ from a correctly functioning sensors.
     \label{fig:3dlidar}
 \end{figure}
 
-After many trials and tests, my supervisor and I discovered that the LiDAR pointcloud data's low and unreliable frequency
-was the main cause of all these problems. The LiDAR sensor works at a nominal frequency of $10$Hz. 
-The LiDAR sensor was not providing a stable scan rate of $10$Hz, but it was fluctuating between $3$Hz and $8$Hz, 
-and only in a few cases, it was able to provide the nominal $10$Hz scan rate.
-Once we discovered the source of the problem and ensured that the LiDAR sensor was working correctly
-(meaning that the sensor was not malfunctioning or working at a lower but valid data rate), 
-we tried to find the culprit of the low and unreliable frequency of the LiDAR sensor.
+The LiDAR sensor, integral to localization and obstacle avoidance algorithms, exhibited low and unreliable frequency,
+ranging from 3Hz to 8Hz, instead of its nominal 10Hz.  This variability, primarily attributed to the combined 
+effects of the router connecting the robot to the network and the default Data Distribution Service (DDS) middleware 
+configuration within ROS2, caused significant disruptions to the software's operation.
 
-After many attempts, I found out the cause of the problem: the culprit was the \textbf{router}
-used to connect the robot's computer
-to the laboratory's network and the internet and the DDS (\textit{Data Distribution Service}) middleware used 
-internally by ROS2 for the communication between the nodes in a local network. Basically, the DDS middleware
-was configured to broadcast all ROS2 packets and data streams to the laboratory's network, causing delays in the transmission
-and packet loss, as the network was not able to handle the high-frequency and heavy-weight data streams of the LiDAR sensor.
-In fact, by just unplugging the router from the robot's computer, the LiDAR sensor was able to provide a stable scan rate
-of $10$Hz, without any fluctuations or drops in the frequency, since no broadcast packets were sent to the network.
-Since the router was necessary for the remote control and monitoring, it was simply just not an option
-to unplug it from the robot's computer.
+The DDS middleware, configured to broadcast all ROS2 packets to the laboratory network, introduced delays and packet loss
+due to the network's inability to handle the high-frequency, heavy-weight LiDAR data streams.  
+This unreliability in data transmission not only affected the LiDAR sensor but also tampered with the proper 
+initialization and function of the IMU sensor used in SLAM algorithms.
 
-For the correct operation of the localization and obstacle 
-avoidance algorithms, it is fundamental that the LiDAR sensor works at a \textbf{stable frequency}, 
-without any fluctuations or drops in the scan rate. This requirement is essential because these algorithms rely on the
-coherent and continuous data stream for time interpolation and filtering of the pointcloud data.
-This is why the LiDAR sensor's low and unreliable frequency was causing the software to crash and malfunction.
+To resolve these issues, the DDS middleware was meticulously reconfigured to ensure that all ROS-related nodes
+and data streams remained local to the robot's computer, preventing them from traversing the router and laboratory network.
+This change effectively eliminated the broadcast-induced delays and packet loss.  Additionally, ROS2 was configured
+to utilize the Cyclone DDS middleware, a lightweight and fast implementation particularly suited for real-time, 
+high-frequency heavy-data transmission. Cyclone DDS proved capable of reliably handling the heavy LiDAR data packets
+at high frequencies, ensuring their complete and timely transmission.
 
-The solution was to configure properly the \textbf{DDS middleware} to ensure that all ROS-related nodes and data streams
-were handled inside the robot's computer only, and not going through the router and the laboratory's network.
-Having the data streams in the local machine only, ensured that the LiDAR sensor's data was not distributed 
-among the network, causing delays in the transmission and packet loss, which were the main causes of the low and unreliable
-frequency of the LiDAR sensor. Furthermore, we configured ROS2 to use the \textit{Cyclone DDS} middleware, which is a lightweight
-and fast DDS implementation, suitable for real-time and high-frequency data streams. This DDS implementation was able to handle
-heavy-weight data packets at high frequencies, ensuring that the LiDAR sensor's data was transmitted and received correctly
-in its entirety, without any losses or delays in the transmission.
+Following these configuration changes, the LiDAR sensor consistently delivered a stable scan rate of 10Hz,
+resolving the software crashes and malfunctions previously observed. The system was further tested with the
+LiDAR operating at a higher frequency of 20Hz with lower resolution, and stability was maintained.
 
-After this configuration, the LiDAR sensor was able to provide a stable scan rate of $10$Hz,
-and the software was working correctly, without any crashes or malfunctions.
-Furthermore, I was also able to test the LiDAR sensor at a higher frequency of $20$Hz, 
-with lower resolution, and it was working fine and stable.
-This solution was essential also for the correct operation of the IMU sensor for the SLAM algorithm, which required
-a stable and continuous data stream of the LiDAR at the moment of startup of the sensor in the software. Before the 
-fix of the LiDAR sensor's frequency, the IMU sensor was not able to start correctly, due to the lack of data
-from the LiDAR sensor, and the computed odometry data was drifting too much to be useful.
-Many other algorithms and software benefitted from this fix. The robot's navigation was now reliable and robust,
-and the autonomous navigation tasks were working correctly and smoothly.
+This solution not only fixed the immediate LiDAR frequency issue but also had cascading positive effects on other
+system components. The IMU sensor, crucial for the SLAM algorithm, was now able to initialize correctly with a stable
+LiDAR data stream, eliminating odometry drift. Numerous other algorithms and software components benefited from the 
+improved data reliability, resulting in robust and reliable navigation performance for autonomous tasks.
 
+The Cyclone DDS configuration file, shown in \ref{lst:cyclone}, establishes settings for a domain with ID "any,"
+indicating it can participate in any DDS domain. It restricts communication to the local loopback interface ("lo") 
+and explicitly disables multicast for both discovery and data transmission. This configuration also allows
+Cyclone to automatically assign unique identifiers to participants within the domain. 
+For peer discovery, it targets only the local machine ("localhost").
+This configuration prioritizes local, unicast communication and controlled participant identification.
 
-\section{Ignition Gazebo Simulation Environment}
-
-Ignition Gazebo is a useful open-source simulation environment for robotics and autonomous systems.
-It provides a realistic and customizable 3D environment for testing and developing robotic algorithms and applications.
-Ignition Gazebo is the new version of the Gazebo simulator, which is widely used in the robotics community for simulating
-robots and sensors for perception systems. \textbf{Ignition Gazebo} is the simulation environment of choice for the project,
-as it proved to be very useful in testing the mobile robot base in simulated environments before deploying the algorithms
-on the real robot. Simulating the robot in a virtual environment allows for testing the algorithms in 
-a controlled and repeatable environment, without the risk of damaging the real robot or the laboratory environment.
-The simulations were essential for the development of the software and the navigation algorithms, 
-as they allowed for testing
-the robot's behavior in different scenarios and environments. It allowed me to tune Nav2's parameters
-thoroughly and ensure the robot would avoid obstacles and navigate safely.
-
-% add a screenshot of the simulation environment in Ignition Gazebo
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=1.0\textwidth]{c4_12.png}
-    \caption{Ignition Gazebo Simulation Environment}
-    \label{fig:ignition}
-\end{figure}
-
-% Add the created map of the warehouse
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=1.0\textwidth]{c4_14.png}
-    \caption{Mobile robot navigating in the simulated warehouse environment}
-    \label{fig:warehousenav2}
-\end{figure}
-
-The simulated environment in Ignition Gazebo was a \textbf{warehouse} \ref{fig:ignition} 
-with various obstacles such as walls, shelves, and boxes,
-which the robot had to navigate around to reach its goal. The warehouse environment was designed to be challenging
-for the robot, with narrow passages and tight spaces, to test the robot's ability to navigate in complex environments.
-Ignition Gazebo also provides the possibility to add dynamic obstacles, i.e. objects not present in the map
-already loaded in the simulation environment. This feature was useful for testing the robot's dynamic obstacle avoidance
-algorithm, which allows the robot to navigate safely in environments with unknown obstacles.
-
-I was able to simulate also the sensors mounted on the robot, such as a 2D LiDAR and a 3D LiDAR sensor, which were used
-for perception and obstacle avoidance. I also tested the robot's localization algorithms, such as AMCL and SLAM Toolbox,
-using the simulated odometry data created by the robot's wheels' motion in the simulated environment. Figure 
-\ref{fig:warehousenav2} shows the simulated mobile robot navigating in the warehouse environment
-while avoiding the boxes and shelves in its path.
+\begin{lstlisting}[language=XML, caption=Cyclone DDS configuration file, label=lst:cyclone]
+    <CycloneDDS xmlns="https://cdds.io/config" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <Domain id="any">
+            <General>
+                <Interfaces>
+                    <NetworkInterface name="lo"/>
+                </Interfaces>
+                <AllowMulticast>false</AllowMulticast>
+            </General>
+            <Discovery>
+                <ParticipantIndex>auto</ParticipantIndex>
+                <Peers>
+                    <Peer Address="localhost"/>
+                </Peers>
+                <MaxAutoParticipantIndex>120</MaxAutoParticipantIndex>
+            </Discovery>
+        </Domain>
+    </CycloneDDS>
+\end{lstlisting}
 
 
 \section{Parking Algorithm for Mobile Robot}
 
-I designed a \textbf{parking algorithm} for the mobile robot to autonomously park near a target spot in the laboratory.
+A \textbf{parking algorithm} was designed for the mobile robot to autonomously approach the target location
+to better perform manipulation activities.
 The parking algorithm takes as input the location in the map of the target spot that the robotic arm must reach,
-and it outputs the parking pose next to the target pose where the mobile robot must park to give the robotic arm
-enough space to reach the target. I had to structure and design the algorithm to ensure that the mobile robot
-could park in a position where the robotic arm could interact with the target object, without colliding with 
+and it outputs the optimal parking pose to give the robotic arm
+enough space to reach the target. The algorithm is designed and structured to ensure that the mobile robot
+can park in a position where the robotic arm can interact with the target object, without colliding with 
 the obstacles in the environment nor with the target object itself. The mobile robot must park so that it 
 faces the opposite direction of the target object because the robotic arm is mounted on the back of the robot.
 
-The parking algorithm considers both the robot's footprint and the robotic arm's workspace to ensure that the
-robot can park in a position where the robotic arm can reach the target object. 
+The parking algorithm considers both the robot's footprint and uses a heuristic to approximate the robotic arm's
+reachability constraints to ensure that the robot can park in a position where the robotic arm should be able 
+to reach the target object. This heuristic does not guarantee that the robotic arm can always reach the target object,
+but it works as a good approximation of the robotic arm's workspace.
 The algorithm also considers the costmap generated by Nav2 to compute the optimal parking
 pose that minimizes the cost of the footprint, meaning that the robot will be the furthest possible from
 the obstacles in its vicinity. 
 
-The parking algorithm is then used by the NAV2 commander APIs to send the parking pose to Nav2,
+The parking algorithm is then used by the Nav2 commander APIs to send the parking pose as a ROS2 action goal,
 which generates a collision-free path for the robot to follow to reach the parking pose. The robot then executes
 the planned trajectory and parks near the computed parking pose. While the mobile robot navigates
 autonomously to the parking pose, it publishes feedback data containing its current position and its distance 
 from the parking pose. 
 
 The parking algorithm is non-deterministic, meaning that it can compute different parking poses for the same target
-pose, depending on the obstacles in the environment. The algorithm is explained in \ref{alg:parking}.
+pose, depending on the obstacles in the environment. The algorithm's pseudocode is displayed in \ref{alg:parking}.
 
 \begin{algorithm}[H]
     \caption{\textbf{Parking Pose Computation Algorithm}}
@@ -672,29 +688,81 @@ pose, depending on the obstacles in the environment. The algorithm is explained 
     \end{algorithmic}
 \end{algorithm}
 
+The algorithm \ref{alg:parking} prioritizes poses that are closer to the target, have lower costs in the costmap, 
+and are aligned with the target orientation. The use of random sampling allows for exploring a variety of potential parking spots.
+It also ensures that the chosen parking pose is reachable by checking for a traversable path.
+The algorithm uses the following inputs and parameters:
+\begin{itemize}
+    \item $t$: the target pose (final position and orientation): $(x_t, y_t, \theta_t)$.
+    \item $C$: the costmap: grid-based representation of the environment, where each cell has a cost associated with it.
+    \item $F$: the robot's footprint: shape and size of the robot, which is used to check for collisions with obstacles.
+    \item $n$: the number of parking pose candidates to generate (default: $50$)
+    \item $r$: the parking radius around the target position (default: $0.4$ meters)
+\end{itemize}
+
+The algorithm \ref{alg:parking} consists of the following steps:
+
+\begin{enumerate}
+    \item \textbf{Rank Function} definition: A function that evaluates the quality of a candidate pose 
+    based on cost, distance, and orientation. It calculates a weighted sum of these factors: 
+    cost (based on the costmap), distance (from the current position), and orientation 
+    (difference from the target pose). The weights determine the relative importance of each factor.
+    \item \textbf{Candidate Generation and Filtering}: The algorithm iterates $n$ times to generate candidate poses:
+        \begin{enumerate}
+            \item A random angle ($\phi$) is chosen within specified limits.
+            \item The candidate pose's $x$ and $y$ coordinates ($x_c, y_c$) are calculated based on the target position,
+            parking radius, and random angle.
+            \item A random orientation ($\psi$) is chosen within limits.
+            \item The candidate orientation ($\theta_c$) is calculated.
+            \item The candidate pose ($p_c$) is formed using ($x_c, y_c, \theta_c$).
+            \item The cost of the robot's footprint at $p_c$ is checked. If it's not lethal 
+            (i.e., not colliding with an obstacle), $p_c$ is added to the list of valid candidates ($V_c$).
+        \end{enumerate}
+    \item \textbf{Ranking and Sorting}: The rank function is applied to each valid candidate pose in $V_c$. 
+    The list of candidates ($V_c$) is sorted in ascending order based on their ranks (lower rank is better).
+    \item  \textbf{Path Planning and Navigation}: The algorithm repeatedly picks the highest-ranked candidate pose from $V_c$.
+    It checks if a traversable path exists from the current position ($P_{current}$) to the candidate pose. 
+    If a path is found, the candidate pose is saved as the parking pose ($P_{parking}$). 
+    This process continues until a traversable path is found or all candidates are exhausted.
+    \item \textbf{Navigation (if applicable)}: If a suitable parking pose ($P_{parking}$) is found, 
+    the robot navigates towards it using the computed traversable path.
+\end{enumerate}
+
 Experimental tests were performed to evaluate the accuracy and reliability of the parking algorithm.
 The tests were conducted in both simulated and real environments, with different configurations of obstacles
 and target poses. The parking algorithm was able to compute effective parking poses in most cases,
 but it struggled with tight spaces and narrow passages, where the robot had limited space to park.
-The biggest limitation of this algorithm is that it cannot consider the feasible workspace of the robotic arm
+The biggest limitation of this algorithm is that it \textbf{does not consider the exact feasible workspace} of the robotic arm
 when computing the parking pose, which can lead to the robot parking in a position where the robotic arm
-cannot reach the target object. This limitation is due to the impossibility of predicting the cartesian
+cannot reach the target object. It instead uses a heuristic to approximate the robotic arm's workspace,
+which is not always accurate, leading to suboptimal parking poses in some cases.
+This limitation is due to the impossibility of predicting the cartesian
 target pose that the cobot will have to reach, as it depends on the object's position and orientation
 in the environment. The parking algorithm is a good starting point for further development and improvement
 to address these limitations and ensure that the robot can park in a useful position also for the robotic arm.
 
+Despite the parking algorithm being effective in most cases, there were some cases where the robot parked too close
+or too far from the object where the robotic arm would interact. This was mainly due to the
+\textbf{imprecision of the localization algorithm} and the local planner's inability to reach the exact parking pose,
+especially in tight spaces. This problem resulted in a precision error 
+in the final position of the robot, in the range of $\pm 15$cm from the desired parking pose. This problem was
+critical because an error of just a few centimeters could result in the robot being too close to the object
+to find it or interact with it, or too far. Since no ideal solution exists that
+can compensate for the localization and navigation errors, a workaround was implemented. When the robot cannot interact 
+with the object because of the distance to it, the robot chooses and navigates to a different parking pose,
+and tries to interact with the object from the new position. 
+
 \section{ArUco Marker Detection and Pose Estimation}
 
-ArUco markers are synthetic square markers with unique black-and-white patterns that can be easily detected
+ArUco markers are square markers with unique black-and-white patterns that can be easily detected
 and identified by computer vision algorithms.
-
 Detecting and estimating the pose of an ArUco marker from an image involves a two-step process.
 First, the ArUco marker is detected in the image using the ArUco library available in OpenCV. 
 This library provides functions to detect various ArUco dictionaries and families. 
 Once detected, the marker's corners are extracted, and its unique ID is identified. 
 The second step involves estimating the pose of the ArUco marker, which refers to its position 
-(translation) and orientation (rotation) with respect to the camera. The function for pose estimation 
-takes the detected marker corners, the marker size, and the camera's intrinsic parameters (focal length,
+(translation vector) and orientation (rotation vector) with respect to the camera. The function for pose estimation 
+takes the detected marker corners, the marker size, and the camera's intrinsic parameters (i.e. focal length,
 principal point, and distortion coefficients) as input and returns the pose of the marker in the form of a rotation
 vector and a translation vector.
 
@@ -703,18 +771,22 @@ internal characteristics, such as the focal length, which determines the field o
 which is the center of the image. The distortion coefficients model the lens distortion, which can cause straight
 lines to appear curved in the image. By incorporating these parameters into the pose estimation process,
 we can compensate for the camera's inherent distortions and obtain a more accurate estimate of the ArUco marker's pose
-in the real world. I had also to calibrate the camera's intrinsic parameters using a calibration pattern and the
-automatic calibration software tool provided by the RealSense SDK.
+in the real world. It was also necessary to calibrate the camera's intrinsic parameters using a checkerboard
+calibration pattern and the automatic calibration software tool provided by the RealSense SDK.
+
+The dictionary for the ArUcos used throughout the project is the 4x4. It is useful for locating the marker signaling
+the control panel from a distance, instead of the 7x7 dictionary markers initially used.
+The 4x4 markers require fewer pixels to be represented, therefore the minimum area of pixels required
+for detection is smaller. This implies that the 4x4 markers can be detected from a greater distance than the 7x7 markers.
 
 \subsection{Multi-ArUco Plane Estimation Algorithm}
 
-One of the challenges I faced was estimating the orientation of small ArUco markers from the camera feed.
+One of the challenges faced was estimating with precision the orientation of small ArUco markers from the camera feed.
 The pose estimation algorithm works well for markers that appear large in the image, but it struggles with
 the ones that appear smaller due to the size and distance from the camera. The estimation of the orientation
 was the most challenging part, as the pose estimation algorithm often returns orientation values that
 oscillate between different values, making it difficult to determine the correct orientation of the marker.
-This is especially true for small markers that appear far away from the camera. To address this issue,
-I developed a multi-ArUco plane estimation algorithm that estimates the orientation of a plane over which
+To address this issue, a multi-ArUco plane estimation algorithm was designed for estimating the orientation of a plane over which
 multiple ArUco markers are placed. Figure \ref{fig:multi_aruco} shows the algorithm in action.
 
 \begin{figure}[t]
@@ -734,7 +806,7 @@ through the markers, we can determine the correct orientation of the markers fro
 to the plane. The algorithm processes a list of ArUco markers poses and returns the poses with their
 estimated orientation, meaning that all processed poses share the same orientation value.
 
-The algorithm that I implemented makes use of the following statistical data analysis techniques:
+The algorithm makes use of the following statistical data analysis techniques:
 
 \begin{itemize}
     \item \textbf{RANSAC (Random Sample Consensus)}: RANSAC is an iterative algorithm used to estimate
@@ -758,7 +830,8 @@ The algorithm that I implemented makes use of the following statistical data ana
     and irrelevant data points.
 \end{itemize}
 
-The perception algorithm works as illustrated in \ref{alg:multi_aruco}:
+The perception algorithm works as illustrated in \ref{alg:multi_aruco}. The points used as input for the algorithm
+are the 3D coordinates of the ArUco markers detected in the image. 
 
 \begin{algorithm}[H]
     \caption{\textbf{Multi-ArUco Plane Estimation Algorithm}}
@@ -797,15 +870,92 @@ The perception algorithm works as illustrated in \ref{alg:multi_aruco}:
     \end{algorithmic}
 \end{algorithm}
 
-\section{Object Detection with YOLOv8}
+The algorithm \ref{alg:multi_aruco} requires the following inputs:
+\begin{itemize}
+    \item $P$: A set of 3D points ($x, y, z$ coordinates) from the list of detected ArUco markers estimated poses,
+    assumed to be all on the same plane (coplanar).
+    \item $T$: A subset of points from $P$ that are known to be collinear.
+\end{itemize}
 
-For the project, it was also necessary to detect objects in the environment, such as colored balls, which the robot
-had to grasp and move to a different location. For this task, I used the YOLOv8 object detection algorithm, trained
-on a custom dataset that I collected and annotated. Figure \ref{fig:balls} shows the YOLOv8 model in inference
+The algorithm consists of the following steps:
+
+\begin{enumerate}
+    \item \textbf{RANSAC Plane Fitting}: The RANSAC function is applied to the full set of points ($P$) 
+    to obtain the normal vector ($n$) of the plane.
+        \begin{enumerate}
+            \item Initialization: A distance threshold ($\tau$) is set to determine how close points need to be to a plane
+            to be considered inliers.
+            \item Iteration: The algorithm iteratively performs the following:
+                \begin{enumerate}
+                    \item A random subset of points ($S$) is selected from $P$.
+                    \item The centroid ($c$) of $S$ is calculated.
+                    \item Singular Value Decomposition (\textbf{SVD}) is applied to $S$ after centering it around the origin. 
+                    This yields a normal vector ($n$) representing the best-fitting plane to $S$.
+                    \item The number of inliers is counted. Inliers are points from $S$ whose distance to the plane 
+                    defined by $n$ is less than $\tau$.
+                \end{enumerate}
+            \item Termination: The loop continues until the maximum number of inliers is found.
+            \item Output: The normal vector ($n$) of the best-fitting plane is returned.
+        \end{enumerate}
+
+    \item \textbf{Plane Orientation Refinement}:
+        \begin{enumerate}
+            \item Normal Calculation: The RANSAC function is applied to the full set of points ($P$) to obtain
+            the normal vector ($n$) of the plane.
+            \item Centroid Calculation: The centroid ($c$) of the collinear points ($T$) is calculated. 
+            The centroid is removed from the points to ensure that the plane passes through the origin.
+            \item Direction Vector: Principal Component Analysis (PCA) is performed on $T$, and the eigenvector corresponding
+            to the highest eigenvalue is selected as the direction vector ($d$). This vector lies within the plane
+            and represents the direction of greatest variance among the collinear points.
+            \item Coordinate Frame Construction: An orthonormal basis is constructed:
+                \begin{itemize}
+                    \item $V_x$: The direction vector ($d$).
+                    \item $V_z$: The plane's normal vector ($n$).
+                    \item $V_y$: The cross product of $V_z$ and $V_x$.
+                \end{itemize}
+            \item Rotation Matrix and Quaternion: The basis vectors are used to create a rotation matrix 
+            ($Rot$), which is then converted to a quaternion ($q$). This quaternion represents the orientation of the plane.
+        \end{enumerate}
+
+    \item \textbf{ArUco Markers Poses Update}: The points in $P$ are updated by applying the rotation quaternion ($q$) 
+    to align them with the estimated plane orientation.
+    \item \textbf{Output}: The algorithm produces a quaternion ($q$) that describes the orientation of the plane in 3D space.
+    All ArUco markers' poses are updated with this orientation, ensuring that they share the same orientation.
+\end{enumerate}
+
+
+\section{Object Detection with YOLOv8}
+\label{sec:yolov8}
+
+% Add the architecture diagram
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{c4_10.jpg}
+    \caption{Architecture overview in detail of the YOLOv8 architecture}
+    \label{fig:yolov8}
+\end{figure}
+
+For the project, it was also necessary to detect objects in the environment, such as colored balls and apples, which the robot
+had to grasp and move to a different location. For this task, YOLOv8 object detection is employed, trained
+on a custom dataset. Figure \ref{fig:balls} shows the YOLOv8 model in inference
 in realtime, predicting the colors of the balls in the field of view of the camera.
 
+\textbf{YOLO (You Only Look Once)} is a cutting-edge, real-time object detection algorithm 
+that has revolutionized computer vision \cite{redmon2015yolo}.
+Unlike traditional methods that require multiple passes over an image, YOLO analyzes the entire image in a single pass,
+making it fast and efficient. It divides the image into a grid and predicts bounding boxes and class probabilities
+for each grid cell simultaneously, achieving high accuracy while maintaining speed. 
+YOLO has evolved through several versions (YOLOv2, YOLOv3, etc.), each improving upon the previous iteration in terms of speed, 
+accuracy, and ability to detect small objects. Its versatility and effectiveness have led to widespread adoption in various
+applications, including autonomous driving, robotics, and image analysis tools. This was the object detection neural
+network of choice for the project, as it provided the speed and accuracy needed for detecting objects in real-time
+from the camera feed. It is also lightweight, making it ideal to run on CPUs without the need for a GPU.
+The inference time for a single image on an Intel i7 12th gen CPU was around $0.15$ seconds, which is fast enough
+for the time requirements of the application. However, when running along other ROS2 nodes using other CPU-intensive
+algorithms, the inference time increased to $0.4$ seconds, which was still acceptable for the demos and tests.
+
 %Add a picture of the detected balls
-\begin{figure}[t]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{c4_16.png}
     \caption{YOLOv8 detecting colored balls in realtime from the RGB camera feed. The screenshot displays the image
@@ -814,64 +964,42 @@ in realtime, predicting the colors of the balls in the field of view of the came
     \label{fig:balls}
 \end{figure}
 
-\textbf{YOLO (You Only Look Once)} is a cutting-edge, real-time object detection algorithm 
-that has revolutionized computer vision \cite{redmon2015yolo}.
-Unlike traditional methods that require multiple passes over an image, YOLO analyzes the entire image in a single pass,
-making it incredibly fast and efficient. It divides the image into a grid and predicts bounding boxes and class probabilities
-for each grid cell simultaneously, achieving impressive accuracy while maintaining speed. 
-YOLO has evolved through several versions (YOLOv2, YOLOv3, etc.), each improving upon the previous iteration in terms of speed, 
-accuracy, and ability to detect small objects. Its versatility and effectiveness have led to widespread adoption in various
-applications, including autonomous driving, robotics, and image analysis tools. This was the object detection neural
-network of choice for the project, as it provided the speed and accuracy needed for detecting objects in real-time
-from the camera feed. It is also lightweight, making it ideal to run on CPUs without the need for a GPU.
-The inference time for a single image on an Intel i7 12th gen CPU was around $0.15$ seconds, which is fast enough
-for the time requirements of my applications. However, when running along other ROS2 nodes using other CPU-intensive
-algorithms, the inference time increased to $0.4$ seconds, which was still acceptable for the demos and tests.
-
 The \textbf{YOLOv8} neural network model is a state-of-the-art object detection model \cite{reis2023realtimeyolov8}
-that combines the best features of previous YOLO versions
-to achieve superior performance. I used this model for my object detection task, such as detecting colored balls
-from the camera feed. The YOLOV8 architecture is shown in figure \ref{fig:yolov8}. It shows the backbone architecture
+that combines the best features of previous YOLO versions to achieve superior performance. 
+This model is used for the object detection task, such as detecting colored balls or apples
+from the camera feed. The YOLOV8 architecture is shown in Figure \ref{fig:yolov8}. It shows the backbone architecture
 of the YOLOv8 model, which consists of a series of convolutional layers that extract features from the input image
 and pass them to the detection head, which predicts the bounding boxes and class probabilities for the objects in the image.
-The backbone architecture used in the training is the default one (CSPDarknet), which is a state-of-the-art backbone.
+The backbone architecture used in the training is CSPDarknet, which is a state-of-the-art backbone.
 The neck is a feature pyramid network (FPN) that combines features from different scales to improve the model's
 performance in detecting objects of different sizes.
 
-I trained the YOLOv8 model on a custom dataset of colored balls, which included images of the balls
-from different angles, distances, and lighting conditions. I collected the dataset using the RealSense camera mounted
-on a tripod, which allowed me to capture images of the balls from different perspectives and distances. The dataset
-was annotated manually with the bounding boxes and class labels of the balls, which were used to train the YOLOv8 model.
-I used the YOLOv8 model provided by \textbf{Keras}, which is a high-level deep-learning library that provides a user-friendly
-API for building and training neural networks. Since the training dataset I collected is of small size,
-I used data augmentation techniques to increase the dataset's size and diversity, which helped improve the model's
+The YOLOv8 model is trained on a \textbf{custom dataset of colored balls and apples}, which includes images of balls and apples
+from different angles, distances, and lighting conditions. The dataset was collected using the RealSense camera mounted
+on a tripod, which allowed me to capture images of the objects from different perspectives and distances. The dataset
+was annotated manually with the bounding boxes and class labels, which were used to train the YOLOv8 model.
+The YOLOv8 model is provided by \textbf{Keras}, a high-level deep-learning library that provides user-friendly
+APIs for building and training neural networks. Since the custom training dataset collected is of small size,
+data augmentation techniques were employed to increase the dataset's size and diversity, which helped improve the model's
 generalization and robustness. The \textbf{data augmentation techniques} included random rotations, translations, and flips
 of the images, which created variations of the original images and helped the model learn to detect the balls
-from different perspectives and orientations. I included also other types of image augmentation techniques, such as
+from different perspectives and orientations. Many types of image augmentation techniques were included, such as
 brightness and contrast adjustments, and Gaussian noise addition, which further increased the dataset's
 size and variability. The image augmentation algorithms were implemented using the \textit{Albumentations} library,
-which is a powerful image augmentation library for computer vision tasks, specially designed for 
-object detection tasks. It is essential to adjust properly the bounding boxes after each image
+a powerful image augmentation library for computer vision tasks, designed for 
+object detection tasks. It is essential to properly adjust the bounding boxes after each image
 is augmented, to ensure that the bounding boxes are still correctly positioned around the objects of interest.
 
-% Add the architecture diagram
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=1.0\textwidth]{c4_10.jpg}
-    \caption{Architecture overview in detail of the YOLOv8 architecture}
-    \label{fig:yolov8}
-\end{figure}
-
-As training hyperparameters, I used a batch size of $16$, which is enough for a small dataset such as the one
-that I created, a learning rate scheduler with exponential decay, and the early stopping callback to stop the training
-when the validation loss stops decreasing. The model is compiled with the Adam optimizer, which is a popular optimizer
+As training hyperparameters, the batch size is $32$, which is enough for a small dataset,
+a learning rate scheduler with exponential decay, and the early stopping callback to stop the training
+when the validation loss stops decreasing. The model is compiled with the \textit{Adam} optimizer, which is a popular optimizer
 for training deep neural networks, and with the YOLOv8 Backbone, which is a state-of-the-art backbone architecture
 that provides the best candidate features for object detection tasks. The metrics used to evaluate the model's performance
 are the \textbf{mean Average Precision (mAP)} and the \textbf{Intersection over Union (IoU)},
 which are standard metrics for object detection tasks. These metrics are incorporated within the \textit{COCO} evaluation metrics,
 which are the standard evaluation metrics provided by the \textbf{KerasCV} library \cite{wood2022kerascv}.
 
-The model is trained with the combination of 2 loss functions:
+The model is trained with the combination of two loss functions:
 
 \begin{itemize}
     \item \textbf{Box Loss}: The box loss function is used to penalize the model for incorrect predictions of the bounding
@@ -882,12 +1010,24 @@ The model is trained with the combination of 2 loss functions:
     object classes. The class loss function computes the difference between the predicted class probabilities and the
     ground-truth class labels, using the \textit{Binary Cross-Entropy} loss function, which is the loss function of
     choice for multi-class classification tasks that use multi-hot encoded labels instead of one-hot encoded labels.
-    After some tests, I switched to the \textit{Binary Penalty Reduced Focal CrossEntropy} loss function, which is a variant
-    of the focal loss function that reduces the penalty for misclassifications, and focuses more on the correct
-    classification of the objects \cite{law2019cornernet}. This loss function helped improve the model's accuracy.
+    After some tests, the class loss was switched to the \textit{Binary Penalty Reduced Focal CrossEntropy} 
+    loss function, a variant of the focal loss function that reduces the penalty for misclassifications, 
+    and focuses more on the correct classification of the objects \cite{law2019cornernet}. 
+    This loss function helped improve the model's accuracy.
 \end{itemize}
 
-\section{Pose Estimation with Object Detection and Depth Sensing}
+\TODO{results and performance of the network}
+
+One problem faced with this network was the \textbf{high false positive rate} of the trained YOLOv8.
+The neural network was trained on a relatively small dataset of images, and it was not able
+to generalize well enough to new images. The neural network was detecting objects that were not present in the image,
+and this resulted in the algorithm computing grasping poses for objects that were not balls or apples.
+This problem was addressed by increasing the threshold for the class confidence score, which is the minimum
+confidence score required for the object to be considered a valid detection. By increasing the threshold,
+the number of false positives was reduced, and the algorithm became more accurate in detecting the objects
+of interest. The threshold is set to $0.7$, which is a good trade-off between accuracy and false positives.
+
+\section{Pose Estimation with Object Detection and \\ Depth Sensing}
 
 The object's pose estimation task involves estimating the position of an object in 3D space using the depth-sensing
 camera and the object detection neural network. The object detection algorithm detects the object 
@@ -895,41 +1035,229 @@ in the RGB image and provides the bounding box coordinates, class label, and con
 The depth-sensing camera provides the depth map of the scene, which contains the distance of each pixel from the camera.
 By combining the object detection results with the depth map, we can estimate the object's position in 3D space
 relative to the camera, which is essential for the robot to interact with the object effectively.
+The perception algorithm is described in detail in the following section.
 
-This perception algorithm works by creating a \textbf{segmented pointcloud} of the object from the depth map, using the
-bounding box coordinates provided by the object detection algorithm, and the projected depth values
+This perception algorithm works by creating a \textbf{segmented pointcloud} of the object from the depth map,
+using the bounding box coordinates provided by the object detection algorithm, and the projected depth values
 from the depth image. This perception algorithm is implemented to estimate the center position
-of detected colored balls. 
+of detected colored balls or apples.
 The segmented pointcloud contains only the points that belong to the object, which are used
 to estimate the object's position in 3D space. The segmentation process involves extracting the points within
 the bounding box and filtering out the points that are not part of the object using a color mask corresponding
 to the predicted class label. The segmented pointcloud is then used to estimate the object's center position
-by fitting an ideal sphere of known radius to the segmented points. This center position is then
-used to compute the optimal grasping pose for the robot to interact with the object.
+by fitting an ideal sphere of known radius to the segmented points, as described in algorithm \ref{alg:sphere}.
+This center position is then used to compute the optimal grasping pose for the robot to interact with the object,
+as described in algorithm \ref{alg:grasping}.
 
 This perception algorithm is used to estimate the optimal grasping pose for the robot's end-effector to grasp
-the object. The algorithm was first designed to work only with colored balls (of spherical shape),
-but I extended it to work with apples too, which are more complex objects with a more irregular shape.
+the object. The algorithm \ref{alg:grasping} works with both colored apples, that have a spherical shape 
+with measurable radius, and with apples, that have a more irregular shape. The apples are approximated as spheres
+for the grasping pose estimation, and their radius is approximately 5 cm. This value corresponds to half of the
+width of the upper part of the apple, which is the part that the robot's end-effector will grasp.
 
+\subsection{Algorithm for Object's Center Estimation}
+
+The algorithm for the object's center estimation from the surface pointcloud is the one described
+in \ref{alg:sphere}. This algorithm uses a random sample consensus (\textit{RANSAC}) algorithm to estimate 
+the object's center, assuming that the object can be approximated as a sphere of known radius.
+The algorithm uses \textit{MLESAC} (Maximum Likelihood Estimation Sample Consensus) to estimate the sphere's center
+from the segmented pointcloud. The function used for sphere fitting to a pointcloud is provided by
+\textit{SACSegmentation} package from \textit{Pointcloud Library}. This package provides a robust and fast
+implementation of the RANSAC algorithm for fitting geometric shapes to pointcloud data. 
+
+\begin{algorithm}[h]
+    \caption{\textbf{Sphere Barycenter Estimation from Object Detection}}
+    \label{alg:sphere}
+    \begin{algorithmic}[1]
+    \Require RGB image $I$, Depth image $D$
+    \Require predicted bounding box $B = (x, y, w, h)$, predicted class label $\hat{y}$
+    \State sphere radius range $r_{min}, r_{max}$, tolerance $\epsilon$
+    \State $d_{max} \gets 1.5$ \Comment maximum depth of useful points in meters
+
+    \State $I_{crop} \gets I[y:y+h, x:x+w]$ \Comment Crop the image to the bounding box
+    \State $D_{crop} \gets D[y:y+h, x:x+w]$ \Comment Crop the depth image to the bounding box
+
+    \State $P \gets \textit{get\_pointcloud}(D_{crop})$ \Comment Get the pointcloud from the depth image
+    \State filter pointcloud $P$ by removing points with $z \geq d_{max}$
+    \State $colormask \gets \textit{get\_colormask}(\hat{y})$ \Comment Get the color mask based on predicted class label
+    \State $P_{s} \gets \emptyset$ \Comment Object's surface segmented pointcloud
+    \For {each pixel $p \in I$}
+        \If {color of $p$ is within $colormask$}
+            \State $P_{s} \gets P_{s} \cup P(p)$ \Comment Apply color mask filter and add point to surface pointcloud
+        \EndIf
+    \EndFor
+
+    \State $n_{min} \gets 4$ \Comment minimum number of points passing through a unique sphere
+    \For{a fixed number of iterations} \Comment Random sample consensus algorithm
+        \State $S \gets$ random subset of $n_{min}$ points from $P_s$  
+        \State $c, r \gets$ center and radius of sphere fit to subset $S$
+        \If{$r_{min} \leq r \leq r_{max}$}  
+            \State Calculate $inliers$: points within a distance threshold $\epsilon$ of the sphere's surface
+            \State Calculate \textit{MLESAC} score based on the number of inliers and the residual error
+            \If{$score >$ \textit{best\_score}}
+                \State Update \textit{best\_model} $\gets (c, r)$, \textit{best\_score} $\gets$ $score$
+            \EndIf
+        \EndIf
+    \EndFor
+
+    \State Refine \textit{best\_model} by fitting the $inliers$ using least squares method
+
+    \State \textbf{return} \textit{best\_model}
+
+    \end{algorithmic}
+\end{algorithm}
+
+The algorithm \ref{alg:sphere} works as follows:
+
+\begin{enumerate}
+    \item \textbf{Input}: RGB image $I$, Depth image $D$, 
+    predicted bounding box $B = (x, y, w, h)$, predicted class label $\hat{y}$
+    \item \textbf{Parameters}: Sphere radius range $(r_{min}, r_{max})$, tolerance threshold $\epsilon$,
+    maximum depth threshold $d_{max}$.
+    \item \textbf{Preprocessing}: Crop RGB and depth images based on object detection bounding box.
+    \item \textbf{Pointcloud Generation}: Create a 3D point cloud from the cropped depth image,
+    filtering out points beyond a maximum depth threshold.
+    \item \textbf{Pointcloud Object Segmentation}: Apply a color mask based on the predicted class label to isolate points
+    belonging to the object's surface. The color mask is expressed as a range of HSV values (hue, saturation, value).
+    The color used in the mask is equal to the color of the colored ball, or a mix of red and yellow for the apples.
+    \item \textbf{RANSAC Sphere Fitting}: Iteratively fit spheres to random subsets of points, evaluating their fit
+    based on inlier count and residual error using an \textit{MLESAC} scoring metric. The best-fitting sphere model
+    is updated based on the highest score.
+    \item \textbf{Model Refinement}: Refine the best-fitting sphere model using least squares optimization on the inliers.
+    It will provide a more accurate estimate of the sphere's center and radius.
+    \item \textbf{Output}: Return the refined sphere model, representing the estimated center coordinates 
+    and estimated radius of the object, within the specified range.
+\end{enumerate}
+
+
+\subsection{Algorithm for Grasp Pose Estimation}
+
+Picking objects requires the software to know where the object is located in the environment and how to grasp it.
+Since explicit programming of how to grasp objects is quite difficult and not extensible to different objects,
+the algorithm neglects the grasping strategy (meaning the positioning of the fingers on the object)
+and focuses on the object's position estimation. The algorithm for
+computing the optimal grasping pose focuses solely on the object's center, which is computed from the object's
+perceived pointcloud data. This simplification allows the software to be fast in computing the grasping pose,
+even though the generated grasping poses are not optimal for all objects. The algorithm is based on the assumption
+that the object can be approximated as a sphere and that getting the end effector sufficiently close to the
+object's surface is good enough to grasp it.
+This simplified approach is acceptable because of the mechanical characteristics of the gripper. 
+The silicone fingers are compliant with the shape of the object and account for small variations in shape.
+
+The algorithm used for computing the grasping pose from the object's center is described
+in algorithm \ref{alg:grasping}. The object's center is estimated using algorithm \ref{alg:sphere},
+using the depth and RGB images. The algorithm generates a list of possible candidate grasping poses
+based on the object's center and the object's known radius. For each candidate, it checks whether 
+an inverse kinematic solution exists for the end effector at the candidate grasping pose. 
+If a solution exists, the candidate grasping pose is added to the list of feasible grasping poses.
+The algorithm then uses a heuristic to choose which candidate grasping pose to use, based on the list
+of feasible grasping poses. It selects the candidate at one fourth of the list's size. The first candidate in the 
+list will correspond to grasping poses of the object from the top, while the last candidate will correspond
+to grasping poses from the bottom. This heuristic is used to choose a grasping pose from a position closer to 
+the top because it is usually easier for the robotic arm to reach it, compared to the ones closer to the bottom,
+due to the kinematic constraints of the robotic arm placed on the mobile robot base.
+
+If no feasible grasping poses are computed, the algorithm returns an error message, and the robot does not attempt
+to grasp the object. Otherwise, the robot moves to the selected grasping pose and attempts to grasp the object.
+
+\begin{algorithm}[h]
+    \caption{\textbf{Grasp Pose Estimation from Object's Barycenter}}
+    \label{alg:grasping}
+    \begin{algorithmic}[1]
+    \Require $p = (x, y, z)$ estimated object's center in the camera frame
+
+    \State $C \gets \emptyset$ \Comment Set of candidate grasping poses
+    \State $n_{candidates} \gets 50$ \Comment Number of candidate grasping poses
+    \State $\theta_{min}, \theta_{max} \gets -\pi, \pi/3$ \Comment Range of angles for the orientation of the end effector
+    \State $g \gets 0.05$ \Comment Grasping distance from the object's center in meters
+
+    \State \textbf{transform} $p$ into the robot's base frame
+
+    \For {$\theta$ in linspace($\theta_{min}, \theta_{max}, n_{candidates}$)}
+        \State $v_{c} = \frac{(x,y,z)}{||(x,y,z)||}$ \Comment Vector from the base to the object's center
+        \State $v_{l} = -v_{c} \cdot g \cdot \cos(\theta)$ \Comment Longitudinal component $v_l$
+        \State $p_v = \frac{(x, y, 0)}{||(x,y)||}$ 
+
+        \State $v_v = (v_c \times p_v) \times v_c$ \Comment Vertical component $v_v$
+        \State $v_v = v_v \cdot g \cdot \sin(\theta)$
+        
+        \State $v_{grasp} = v_v + v_l + v_c$ \Comment Grasping vector $v_{grasp}$
+        
+        \State $v_{grasp, x} = \frac{-v_{grasp}}{||v_{grasp}||}$ 
+        \State $plane_{xy} = (0, 0, 1)$ 
+        \State $v_{grasp, y} = plane_{xy} \times v_{grasp, x}$
+        \State $v_{grasp, z} = v_{grasp, x} \times v_{grasp, y}$
+        \State $rot_{grasp} \gets$ Rotation matrix $\left[v_{grasp, x}, v_{grasp, y}, v_{grasp, z}\right]$
+        \State $q_{grasp} \gets$ Quaternion representation of $rot_{grasp}$
+        \State $q_{grasp} = \frac{q_{grasp}}{||q_{grasp}||} $   \Comment normalize quaternion
+        
+        \State \textbf{grasping candidate} position $\gets v_{grasp}$
+        \State \textbf{grasping candidate} orientation $\gets q_{grasp}$
+
+        \If {$\exists$ I-K solution for $(v_{grasp}, q_{grasp})$}
+            \State $C \gets C \cup (v_{grasp}, q_{grasp})$ \Comment add the candidate grasping pose to the list
+        \EndIf
+    \EndFor
+
+    \State $size \gets |C|$ \Comment get the size of the list of candidate grasping poses
+    \If {$size \geq 1$}
+        \State $i = size \cdot 1/4$ \Comment get the candidate in position $1/4$ of the list
+    \Else 
+        \State \textbf{return} \textit{No feasible grasping poses found}
+    \EndIf 
+
+    \State \textbf{return} $C[i]$ \Comment return the selected candidate grasping pose
+
+    \end{algorithmic}
+\end{algorithm}
+
+Compared to traditional rigid mechanical grippers, pneumatic grippers offer a unique advantage due to their 
+flexible and deformable fingers. While the complexity of simulating the grasping process accurately increases,
+the necessity for such simulation is diminished. The inherent adaptability of soft gripper fingers allows them 
+to conform to the object's shape and size without the need for precise control over finger deformation.
+This inherent compliance eliminates the risk of damaging objects during grasping, even without detailed simulation.
+The pneumatic gripper's ability to apply pressure and let the fingers adapt to the object simplifies 
+the control process and enhances the gripper's versatility.
+
+An important note is that the algorithm \ref{alg:grasping} does not guarantee finding a feasible grasping
+pose for a certain object, even if it exists. 
+The algorithm is based on a simplified model of the object and of the end effector and it
+restricts the range of search for a grasping pose to the vertical plane passing through the object's center
+and the robotic arm's base. This simplification is necessary to make the algorithm fast and robust, but it
+also results in the impossibility of guaranteeing the successful computation of a feasible grasping pose
+for any object, so it comes at the expense of less reliability.
 
 \section{ROS2 Actions Client-Server Architecture for High-Level Tasks}
 
-I leveraged the ROS2 Actions client-server architecture to implement high-level tasks for the mobile manipulation
-robotic system. The Action architecture is a powerful and flexible way to define and execute complex tasks
-in a distributed system, such as a robotic system. It allows for asynchronous communication between nodes,
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{c4_07.png}
+    \caption{ROS2 Actions Client-Server Architecture}
+    \label{fig:actions_architecture}
+\end{figure}
+
+Leveraging the ROS2 Actions client-server architecture made it possible to implement high-level tasks for the mobile manipulator
+robot. The \textbf{Actions architecture} is a powerful and flexible way to define and execute complex tasks
+in a distributed system, such as a robotic system composed of many nodes that need to coordinate and communicate
+to perform high-level behaviors. The Actions architecture is built on top of the ROS2 middleware, which provides
+a robust and reliable communication system. It allows for asynchronous communication between nodes,
 enabling the robot to perform multiple tasks concurrently and efficiently. The Actions architecture is based on
 the concept of goals, which represent the desired outcome of a task, and results, which represent the task's outcome.
-The client sends a goal to the server, which executes the task and returns the result to the client. The client
-can monitor the task's progress with the feedback messages and cancel it if necessary, providing a robust 
-and reliable way to manage high-level behaviors. The advantage of using the Actions architecture is that it decouples
-the task's definition from its execution, allowing for easy reusability and extensibility of the tasks
+
+The goal request is a non-blocking call sent by the client to the server, which executes the task asynchronously,
+generating feedback messages to inform the client about the task's progress. The server sends a result message
+to the client once the task is completed or aborted, indicating the outcome of the task.
+The client can monitor the task's progress with the feedback messages and cancel it if necessary, providing a robust 
+and reliable way to manage high-level behaviors. The advantage of using the Actions architecture is the on-demand
+asynchronous execution of tasks, allowing for multiple tasks to be executed concurrently without blocking the system.
+This architecture decouples the task's definition from its execution, allowing for easy code reusability and extensibility
 across different applications. 
 
-The architecture diagram of the ROS2 Actions client-server is shown in figure \ref{fig:actions_architecture}.
+The architecture diagram of the ROS2 Actions client-server is shown in Figure \ref{fig:actions_architecture}.
 The client sends a goal message to the server, which processes the goal and generates feedback messages
 to inform the client about the task's progress. The server then sends a result message to the client
 once the task is completed. The client can also send a cancel message to the server to stop the task
-prematurely. I used this architecture to implement high-level tasks:
+prematurely.
 
 \begin{itemize}
     \item \textbf{ROS2 Action Server}: the servers are nodes that handle the task execution, and they are responsible
@@ -942,9 +1270,6 @@ prematurely. I used this architecture to implement high-level tasks:
     and instructions that perform the tasks.
 \end{itemize}
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{c4_07.png}
-    \caption{ROS2 Actions Client-Server Architecture}
-    \label{fig:actions_architecture}
-\end{figure}
+
+
+\TODO{refer to the ones in the next chapters}

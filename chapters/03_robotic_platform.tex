@@ -157,25 +157,6 @@ across the workspace. This characteristic of the robotic arm implies that an art
 positioning error is necessary, to ensure that the arm's end effector reaches the desired position with higher precision,
 even though the error cannot be completely eliminated.
 
-% Throughout the development of the project, I encountered several issues with the Igus ReBeL cobot.
-% The issues arose when the arm's motors' encoders were not providing accurate position data to the control software.
-% This caused the arm not to move to the defined joint positions with an accuracy of the end effector of $\pm 0.1mm$,
-% as specified by the manufacturer in the technical documentation.
-% This was mainly due to both the calibration of the motors' encoders and the plastic gear components' backlash and play.
-% The backlash and play in the gear components caused the arm's joints to have a certain amount of free movement before the motor
-% started to move the joint. This free movement caused the arm's joints to be in an incorrect position, which was not detected
-% by the motor's encoders. This resulted in the arm jiggling and vibrating when moving to a new joint position, and not reaching
-% the desired position with a smooth velocity profile.
-
-% Furthermore, the main issue encountered was the \textbf{calibration of the motors' encoders}.
-% This problem slowed down the development
-% of the project since the software solutions for the calibration of the encoders and the digital zeroing of the joints were not
-% successful in providing a working solution for the arm's accurate positioning. The calibration of the encoders was necessary
-% to provide accurate position data to the control software, allowing the arm to move to the desired joint positions with high
-% precision. The problem encountered was that the software for the automatic calibration of the motor controllers did not work
-% as expected, resulting in errors and faulty calibration of the encoders. The only solution was to replace the entire robot
-% arm with a new one, correctly calibrated by the manufacturer.
-
 \section{Sensors and Perception}
 
 The mobile robot platform is equipped with several sensors, which are essential for the project's
@@ -251,15 +232,6 @@ by using the correctly calibrated camera's intrinsic parameters. A test was cond
 depth sensor before and after the calibration process, and the results showed a significant improvement in the depth
 estimations after the calibration process.
 
-% The camera provided by the laboratory was not calibrated correctly, especially the depth estimations were not accurate.
-% In fact, the depth images provided depth estimations that were not consistent with the real-world distances of the objects
-% in the environment. I was able to discover such issues when I started using the camera's depth sensor for the perception
-% tasks of the project. I realized that the estimated distance from the camera and the ArUco markers (the distance estimated
-% using geometrical calculations and the camera's intrinsic parameters) was \textbf{not consistent} with the estimated distance
-% to the marker provided by the camera's depth sensor. This inconsistency was due to the camera's depth sensor not being
-% calibrated correctly.
-% This issue was critical for the project, as the depth sensor was used for many perception algorithms.
-
 % Add the image of the calibration pattern
 \begin{figure}[t]
     \centering
@@ -270,7 +242,7 @@ estimations after the calibration process.
 \end{figure}
 
 
-I managed to perform the calibration processes for the depth and image sensors using the proprietary software provided by Intel:
+The calibration processes for the depth and image sensors was performed using the proprietary software provided by Intel:
 \textit{Interl Realsense Self-Calibration Tool}, an application for \textbf{automatic on-chip calibration}.
 This software allows to write the parameters for the sensors directly on the camera's EEPROM, ensuring that the calibration
 parameters are stored on the camera and are not lost when the camera is disconnected from the computer.
@@ -367,7 +339,7 @@ Furthermore, the soft gripper is very lightweight and compact, making it suitabl
 
 
 The pump provides four digital pins for controlling its operation, which are used to open and close the fingers.
-I created a simple system capable of controlling the pump's operation using an \textbf{Arduino UNO microcontroller}.
+A simple system capable of controlling the pump's operation was created using an \textbf{Arduino UNO microcontroller}.
 The Arduino UNO is connected to the robot's computer via USB, allowing the computer to send commands to the Arduino
 via the serial port. The Arduino UNO is then connected to the pneumatic pump via a relay module,
 composed of four different relays, each controlling a different digital pin of the pump. The relays were necessary
@@ -401,7 +373,7 @@ for the 3D prints was \textit{PETG} (Polyethylene Terephthalate Glycol), which i
 suitable for mechanical parts and mounts. The PETG material is also resistant to mechanical stress and heat,
 making it the ideal material for the mounts for these kinds of applications.
 
-I designed and printed two versions of the mount for the cobot's flange:
+Two versions of the mount were designed and printed for the cobot's flange:
 
 \begin{itemize}
     \item \textit{Mount V1} \ref{fig:mountv1}: a mount for the Realsense camera and a digital button on top of a cylinder used
@@ -523,7 +495,7 @@ is shown in \ref{fig:c3_img17}.
 
 \subsection{GPS Antenna Support}
 
-I designed and created the \textbf{mount for the GPS antenna}, which was used for outdoor localization
+Another mount was designed and created: the \textbf{mount for the GPS antenna}, which was used for outdoor localization
 and navigation tasks. The GPS antenna mount was designed to be placed on top of the LiDAR sensor, ensuring
 that the antenna had a clear view of the sky and the satellites. The mount was also designed to be lightweight
 and quick to install, without affecting the LiDAR sensor's field of view, and without using any screws or bolts.
