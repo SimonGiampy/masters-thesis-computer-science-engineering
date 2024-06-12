@@ -1,55 +1,45 @@
 \chapter{Conclusions and Future Work}
 
-This thesis has presented the development of a mobile manipulator robot capable of performing complex tasks in 
-dynamic and unstructured environments. The primary objective of this work is to develop a system that can
-autonomously navigate and manipulate objects with different end effector configurations in unstructured environments.
-The goal is not to develop a system that works better and faster than humans but to show that an autonomous robotic
-system can perform complex tasks that are usually handled by humans. The system is designed to be the working
-ground for future research and more complex projects in the field of mobile manipulation.
+This thesis has explored the challenges and potential solutions for developing a mobile manipulator robot
+capable of operating in dynamic, unstructured environments. The primary goal is to demonstrate the feasibility 
+of autonomous navigation and object manipulation using various end-effector configurations, not to surpass human capabilities, 
+but to establish a foundation for future research and more complex robotic systems. This work has addressed the
+need for adaptable and intelligent robots that can perform a wide range of tasks in real-world scenarios,
+such as in agriculture, and industries, using affordable and accessible hardware and software tools.
 
-The agricultural and industrial environments are the main targets for the developed system. Environments such as these
-ones are usually dynamic and unstructured, and the tasks that need to be performed are usually repetitive.
-This makes them ideal for automation, even though their complexity poses a challenge to the development of autonomous
-systems, because the reliability and robustness of the system are crucial for their success.
-The demonstrations presented and illustrated in the project, are 
+Key contributions of this work include the implementation of a modular software framework using ROS2, enabling seamless 
+integration of diverse functionalities such as perception, planning, and control. A novel approach to visual 
+end effector servo-ing, though not complete, showcases the potential for enhancing object manipulation capabilities. 
+The successful integration of a pneumatic soft gripper, while highlighting the complexities of modeling its deformable nature,
+demonstrated the value of such grippers in handling delicate objects. This feature is particularly relevant for
+applications in agriculture, where the ability to grasp and manipulate fragile produce is essential.
 
-The entire mobile manipulation system developed throughout the project is a proof of concept for the automation of
-tasks that are very easy for humans to perform, and common in agricultural and industrial environments,
-where the system finds its main applications and use cases. Automating tasks in the agricultural field can lead to significant
-increases in productivity and efficiency, especially in environments where the tasks are repetitive and where
-there is room for improvement in terms of resource management. Automating tasks in industrial plants instead
-can be useful for increasing the safety of the workers, by removing them from dangerous environments, and for
-increasing the efficiency of the production lines by diagnosing problems with the sensors mounted on the robot.
+The experience gained in developing this system has emphasized the critical importance of robust perception and localization 
+in dynamic environments, particularly concerning sensor data fusion and data processing. The project also underscores 
+the challenges of integrating different hardware components and the need for meticulous calibration and configuration.
+It also highlights the importance of developing a comprehensive simulation environment to test and validate the system
+before deployment in the real world, which can help to identify potential issues in a safer environment 
+and improve the system's performance and reliability. The most valuable lesson learned from this project is the importance
+of a systematic and iterative approach to robot development, starting from simple tasks in a simulated scenario
+and gradually increasing complexity to ensure the system's adaptability and scalability to real-world applications.
 
-The project has been developed with the idea of being a working ground for future research and more complex projects
-in the field of mobile manipulation. The code has been written with modularity in mind so that it can be easily
-extended and modified to fit the needs of future projects. Several ROS2 packages have been developed as 
-a library of tools and functionalities that can be easily integrated into other projects. 
+The mobile manipulator system presented in this thesis serves as a proof of concept 
+for automating tasks commonly found in agricultural and industrial settings. The modular software design and comprehensive
+documentation provide a valuable starting point for future researchers to extend and refine the system's capabilities.
+The current implementation shows the limitations of the system in terms of reliability, particularly in the grasping
+and manipulation of objects, which can be improved through more sophisticated grasping strategies and control algorithms.
 
-The legacy of this project is thus the codebase and the extensive documentation that has been written throughout
-the development of the project. The codebase is a collection of ROS2 packages that can be used as a starting point
-for future projects and as a reference for the development of new functionalities. The documentation is a collection
-of notes and explanations that can be used to replicate the demonstrations and to understand the codebase,
-and how to extend it to create new functionalities. The ROS2 controller for the robotic arm is also a legacy of
-this project, as it is the first controller for the robotic arm that has been developed in ROS2 and that can be
-operated via ethernet. The hardware setup used for the soft gripper and the pneumatic system is also a legacy of
-this project, as it is a working setup that can be integrated into other projects with ease and minimal effort.
+The legacy of this project lies in its potential to inspire further research and development in the field of mobile
+manipulation. Future work could focus on enhancing more advanced perception algorithms
+and exploring deep learning techniques to improve object recognition and grasping strategies.
+A key area for improvement is the integration of ROS2 behavior trees for more complex task planning and execution,
+enabling more articulated and adaptive behaviors in the robots.
 
-% Future work section
-
-Future developments of the project are mainly focused on the improvement of the system in terms of robustness and
-reliability, especially in the perception and manipulation software modules. The perception module can be improved by
-using more advanced algorithms for object detection and tracking, for example by training the neural network
-on a larger dataset and by using more advanced architectures using a GPU for inference. The manipulation module
-can be improved by taking into consideration the mechanics and dynamics of the end effector so that the grasping
-and manipulation of objects can be more reliable and robust to objects with irregular shapes and different sizes.
-
-The greatest possibilities for improvement are in the autonomous control of the robot arm and the end effector.
-The current implementation of the controller is very basic and based on traditional methods with open-source
-libraries for trajectory planning and control. The controller can be improved by using more advanced methods
-such as deep reinforcement learning or imitation learning techniques, which can be used to learn the control
-policy of the entire mobile manipulation system for more complex tasks. The autonomous control with the
-methods used throughout the project is limited to tasks that are can be explicitly programmed, and it is not
-suitable for tasks that require a high level of dexterity and precision. Instead, future work can focus on
-developing a more advanced controller for more complex tasks that are difficult or impossible to be
-programmed explicitly. 
+Ultimately, this research aims to contribute to the broader goal of creating adaptable and intelligent robotic systems 
+capable of performing complex tasks in real-world environments, using low-cost robotic platforms and open-source software.
+The project showcases the potential of mobile manipulators to revolutionize industries such as agriculture, industrial automation,
+and logistics, by providing flexible and cost-effective solutions to a wide range of applications. By addressing the challenges
+and limitations of the current system, future research can build upon this work to develop more sophisticated and capable
+robotic systems with the use of imitation learning and deep reinforcement learning techniques to learn complex manipulation tasks.
+These advancements will pave the way for a new generation of robots that can operate autonomously in dynamic and unstructured
+environments, transforming the way we work and live in the future.

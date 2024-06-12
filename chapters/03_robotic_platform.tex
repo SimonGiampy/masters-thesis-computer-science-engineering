@@ -346,20 +346,31 @@ composed of four different relays, each controlling a different digital pin of t
 to provide an output voltage of $24$V, while the Arduino UNO provides only 5V via its digital pinout.
 The relays are very inexpensive and fast in switching, allowing efficient
 control of the pump's operation with the microcontroller's digital pin outputs.
+
 The installation of the relays requires simple circuitry for the control system, so it can be easily positioned
 on the mobile robot platform, without occupying much volume.
-Figure \ref{fig:c3_img10} shows the Arduino UNO microcontroller and the relay module used to control the pneumatic pump.
-
-TODO: Figure \ref{} shows the circuit diagram of the connections between the microcontroller 
-and the pneumatic pump digital pinout.
+Figure \ref{fig:c3_img10} shows the Arduino UNO microcontroller and the relay module used to control the pneumatic pump,
+installed on the mobile robot platform. Figure \ref{fig:pneumatic_circuit} shows the circuit diagram of the 
+connections between the microcontroller and the pneumatic pump digital pinout. In the circuit diagram,
+the Arduino UNO digital pins are connected to the relay module and provide the input switch for the relays.
+The relays are then connected to the pneumatic pump's digital pins, which control the pump's operation.
+All relays are connected to the same ground and power supply of the Arduino UNO.
 
 % Add a picture of the Arduino UNO and the relay module
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.6\textwidth]{c3_11.jpg}
     \captionsetup{width=1\linewidth}
-    \caption{Arduino UNO microcontroller and relay module used to control the pneumatic pump}
+    \caption{Arduino UNO microcontroller and relay module used to control the pneumatic pump.}
     \label{fig:c3_img10}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pneumatic_circuit.png}
+    \captionsetup{width=1\linewidth}
+    \caption{Circtuit schematic for the pneumatic pump control system using an Arduino UNO and relay modules.}
+    \label{fig:pneumatic_circuit}
 \end{figure}
 
 \section{3D Printed Mounts Design}
