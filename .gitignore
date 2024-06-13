@@ -20,5 +20,6 @@
 *.synctex.gz
 *.bcf
 *.run.xml
+*.loa
 
 images/*.pdf

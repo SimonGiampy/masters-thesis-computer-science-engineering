@@ -158,8 +158,8 @@ Figure \ref{fig:move_group} shows the architecture and the modules with which it
 The \textit{MoveGroupInterface} provides also methods for interacting with the robot's planning scene, 
 including adding and removing obstacles, setting the robot's state, and setting the robot's end-effector pose. 
 The \textit{MoveGroupInterface} can be used to plan and execute trajectories for the robot. 
-It allows to define and compute joint-space goals, Cartesian-space goals,
-and pose goals for the robot's end-effector, which is used to compute the joint space trajectories.
+It allows the definion and computation of joint-space goals, Cartesian-space goals,
+and pose goals for the robot's end-effector, which is used to compute the joint-space trajectories.
 
 % Add a Figure of the rviz2 interface with moveit2
 \begin{figure}[t]
@@ -169,6 +169,25 @@ and pose goals for the robot's end-effector, which is used to compute the joint 
     \label{fig:rviz2}
 \end{figure}
 
+MoveIt2 requires the description files of the robot's \textbf{kinematic model} and the \textbf{self-collision map},
+which are used to compute the robot's forward and inverse kinematics and to check for collisions between the robot's
+links. The kinematic model is described in the \textbf{URDF (Unified Robot Description Format)} file, which is an XML file
+that describes the robot's kinematic structure, including the links, joints, and sensors. The self-collision map
+is described in the \textbf{SRDF (Semantic Robot Description Format} file, which is an XML file that describes which links
+of the robot can collide with each other. The SRDF file is used by the collision checker to determine if the robot's
+links are in collision with each other when planning a trajectory. A fundamental aspect of the URDF file is that
+it must be consistent with the robot's physical structure, including the links' dimensions and the joints' limits,
+with a precision of less than $0.1$ mm, to ensure that the robot's motion planning is accurate enough.
+
+Both the URDF and SRDF files are loaded using
+\textbf{XACRO macros}, which are used to include and instantiate the robot's description files in the MoveIt2 framework.
+The advantage of using XACRO macros is that they allow for the modular description of the robot's kinematic model
+and the self-collision map, making it easier to maintain and update the robot's description files. They also allow
+the switch between different versions of the end effector and the camera sensor mounted on the robot. The
+XACRO macros allow optionally loading the robotic arm on top of the mobile robot base or loading the arm alone,
+without the mobile base. This ease of use and flexibility is essential for the development and testing of the software
+in different configurations of the robot. The macros arguments are used
+directly from the launch file, without the need to modify the URDF and SRDF files.
 
 MoveIt2 can be used along with RViz2, a 3D visualization tool for ROS2 to visualize the
 robot's motion in both simulated and real environments. RViz2 provides a set of tools for visualizing the robot's
@@ -1239,7 +1258,7 @@ due to the kinematic constraints of the robotic arm placed on the mobile robot b
 If no feasible grasping poses are computed, the algorithm returns an error message, and the robot does not attempt
 to grasp the object. Otherwise, the robot moves to the selected grasping pose and attempts to grasp the object.
 
-\begin{algorithm}[t]
+\begin{algorithm}[hp]
     \caption{\textbf{Grasp Pose Estimation from Object's Barycenter}}
     \label{alg:grasping}
     \begin{algorithmic}[1]

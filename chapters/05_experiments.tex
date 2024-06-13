@@ -426,7 +426,7 @@ the hot glue method (Version 1).
 \end{figure}
 
 %add screenshot of apple hook 3d print and real apple with hook
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}{0.55\textwidth}
         \includegraphics[width=1\textwidth]{c5_20.jpg}
@@ -525,7 +525,7 @@ images taken at the moment of inference.
 
 \subsection{Mobile Fruit Picking Demos}
 
-\begin{figure}[t]
+\begin{figure}[hpt]
     \centering
     \begin{subfigure}{\textwidth}
         \includegraphics[width=0.9\textwidth]{c5_14.jpg} % Replace with your image file
@@ -572,28 +572,28 @@ The robot then drops the apples into a basket. There are two versions of the com
     The sequence of actions executed for this demo is shown in the flowchart in Figure \ref{fig:mfp_flowchart}.
 \end{enumerate}
 
-\begin{figure}[t]
+\begin{figure}[hpt]
     \centering
     \includegraphics[width=0.5\textwidth]{c5_21.jpg}
     \caption{Basket positioned on the mobile robot base}
     \label{fig:mobilebasket}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[hpt]
     \centering
     \includegraphics[width=0.5\textwidth]{c5_02.jpg}
     \caption{Basket at the dropping location}
     \label{fig:basket}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[hpt]
     \centering
     \includegraphics[width=1.0\textwidth]{c5_18.jpg}
     \caption{Cobot dropping the apple in the basket, at the dropping location, during the mobile fruit picking demo}
     \label{fig:mfp3}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[hpt]
     \centering
     \includegraphics[width=1.0\textwidth]{demo2.png}
     \caption{Flowchart for the Mobile Fruit Picking Demov2 with pick and place}
@@ -611,7 +611,7 @@ the dropping pose and drops the object, as explained in the algorithm \ref{alg:p
 must pick and place in separate locations, the robotic arm moves to its parking position and does not release the object
 until the mobile base has reached the dropping location and the camera recognizes the basket using the ArUco marker.
 
-\begin{algorithm}[H]
+\begin{algorithm}[hp]
     \caption{\textbf{Object Picking Routine}}
     \label{alg:picking}
     \begin{algorithmic}[1]
@@ -733,7 +733,7 @@ The architecture is composed of the following macro components:
 \end{itemize}
 
 % Add a Picture of the diagram
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=1.0\textwidth]{Mobile Fruit Picking Demo_updated.png}
     \caption{Architecture diagram of the Mobile Fruit Picking demo}
