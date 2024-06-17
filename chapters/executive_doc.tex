@@ -27,7 +27,8 @@ tasks, offering interpretability and predictable behavior. However, their perfor
 due to the difficulty of modeling real-world uncertainties.
 
 Data-driven approaches, on the other hand, leverage machine learning techniques, such as Deep Reinforcement Learning (DRL)
-and imitation learning, to learn control policies directly from data. This allows robots to adapt to diverse and 
+\cite{wang2022multitask} and imitation learning \cite{tony2024mobile}, to learn control policies directly from data. 
+This allows robots to adapt to diverse and 
 unpredictable environments, but at the cost of reduced interpretability and potential for unsafe behavior if not properly trained.
 
 Mobile manipulation, combining navigation and manipulation tasks, presents additional challenges. Traditional methods, 
@@ -36,8 +37,9 @@ Deep reinforcement learning shows promise in tackling these challenges, but issu
 and safety remain critical concerns.
 
 The concept of whole-body control, treating the mobile manipulator as a unified system, has gained traction for its potential
-to achieve dynamic and agile behaviors. Researchers have explored both model-based (MPC+IK) and data-driven (DRL) approaches
-for whole-body control, demonstrating successful manipulation of articulated objects and navigation in complex environments.
+to achieve dynamic and agile behaviors. Researchers have explored both model-based (MPC+IK) \cite{mittal2022articulated}
+and data-driven (DRL) approaches \cite{fu2022deeplegged} for whole-body control, 
+demonstrating successful manipulation of articulated objects and navigation in complex environments.
 
 The simulation-to-reality gap is a major obstacle in deploying DRL-based solutions. Tools like Nvidia Isaac Gym and
 Sim-to-Real pipelines are being developed to bridge this gap by creating realistic simulations and addressing domain 
@@ -56,10 +58,10 @@ to create more versatile and capable robotic systems.
 
 \section{Robotic Platform for Mobile Manipulation}
 
-The mobile manipulation platform consists of an AgileX Scout 2.0 mobile robot and an Igus ReBeL 6-DoF collaborative
-robotic arm. The Scout 2.0, designed for research and development, provides a robust mechanical base with ample 
-payload capacity, while the lightweight and cost-effective ReBeL cobot offers flexibility for mounting and operation.
-
+The mobile manipulation platform used in the project consists of an AgileX Scout 2.0 mobile robot and an Igus ReBeL
+6-DoF collaborative robotic arm. The Scout 2.0,
+provides a robust mechanical base with ample payload capacity, while the lightweight and cost-effective ReBeL
+cobot offers flexibility for mounting and operation.
 An Intel NUC 12 computer onboard the mobile robot serves as the central control unit, running software and perception 
 algorithms. A TP-Link router and Netgear switch facilitate remote control and monitoring, enhancing safety and
 troubleshooting capabilities.
@@ -67,8 +69,7 @@ troubleshooting capabilities.
 The system incorporates two primary sensors: an Ouster OS1-64 LiDAR for navigation and mapping, and an Intel 
 RealSense D435 RGB-D stereo camera mounted on the robotic arm for object detection and manipulation. 
 The LiDAR's high resolution and scan rate enable accurate localization and obstacle avoidance, while the RGB-D 
-camera facilitates visual servoing and grasping tasks.
-
+camera facilitates object detection and grasping tasks using both color and depth information.
 The soft gripper, a pneumatic actuator from Soft Gripping with silicone rubber fingers, enables delicate object
 manipulation. Controlled by a pneumatic pump and an Arduino UNO microcontroller with relays, the gripper can 
 adapt to various object shapes and sizes.
@@ -76,9 +77,23 @@ adapt to various object shapes and sizes.
 3D-printed mounts, designed using Fusion 360 and printed with PETG material, ensure secure attachment of the 
 camera and gripper to the robotic arm. These lightweight and durable mounts maintain sensor positioning despite
 vibrations during operation.
-
-The initial mount design (MountV1) was robust but limited the camera's field of view. An improved version (MountV2)
+The initial mount design (MountV1), shown in \ref{fig:mountv1}, was robust but limited the camera's field of view. 
+An improved version (MountV2), shown in \ref{fig:mountv2},
 was developed to address this issue, optimizing camera placement and incorporating the soft gripper.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c3_23.png}
+    \caption{MountV1 with cylinder presser}
+    \label{fig:mountv1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c3_24.png}
+    \caption{Mountv2 with soft gripper}
+    \label{fig:mountv2}
+\end{figure}
 
 Power management involves DC/DC converters to power the onboard computer and sensors from the mobile robot's 
 internal battery. External lead batteries power the robotic arm and pneumatic pump, with Molex connectors enabling
@@ -87,24 +102,25 @@ easy switching between battery packs and the external power supply.
 The ReBeL cobot presented challenges due to its low-cost design. The motor encoders lacked accuracy and repeatability,
 and the plastic gears exhibited backlash and deformation under load. These issues were addressed with artificial 
 error compensation and careful calibration procedures.
-
 Additionally, the Intel RealSense camera required calibration using the manufacturer's software to ensure accurate
 depth estimation and object localization.
-
-A GPS antenna mount was also designed and 3D printed to facilitate future outdoor navigation tasks. The mount 
-securely holds the antenna atop the LiDAR sensor without obstructing its field of view.
 
 Overall, this mobile manipulation platform represents a functional and adaptable solution for various applications 
 in industrial and agricultural settings. The integration of diverse hardware and software components, combined with
 rigorous testing, demonstrates the system's potential for real-world automation tasks.
+Figure \ref{fig:setup} shows a picture of the complete setup of the mobile manipulation robot.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c3_28.jpg}
+    \caption{Mobile Manipulator Robot Setup}
+    \label{fig:setup}
+\end{figure}
 
 \section{Software Architecture and Control}
 
-This chapter delves into the software architecture and simulation environments employed for the development
-and testing of the mobile manipulation robot.
-
 The system leverages the Robot Operating System 2 (ROS2) as the middleware, providing a flexible framework for
-integrating diverse software components.
+integrating diverse software components and enabling communication between nodes.
 
 A key aspect of the software development was creating a ROS2 control interface for the Igus Rebel arm, enabling 
 high-level control and monitoring through the Ethernet interface. This interface interacts with the Joint Trajectory 
@@ -119,12 +135,19 @@ MoveIt2 for the Igus Rebel arm, offering high-level functions for planning and e
 
 The RViz2 visualization tool allows for real-time visualization of the robot's motion in both simulated and real 
 environments. It aids in debugging and validating the functionality of the software components, including the 
-kinematic model, planning scene, and motion plans.
+kinematic model, planning scene, and motion plans, as shown in Figure \ref{fig:moveit2}.
 
 To address the challenges of collision avoidance in dynamic environments, the Octomap library is integrated with
 MoveIt2. Octomap generates 3D occupancy maps of the surroundings, enabling the robot to avoid obstacles. 
 However, due to the ongoing development of the Octomap library for ROS2, limitations such as slow updates and 
 false positives in collision checking were encountered.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c4_11.png}
+    \caption{RViz2 visualization of MoveIt2 planning scene}
+    \label{fig:moveit2}
+\end{figure}
 
 Actuation of the soft gripper is achieved through a ROS2-control interface that communicates with an Arduino UNO
 microcontroller. This microcontroller controls the pneumatic pump responsible for opening and closing the gripper's fingers.
@@ -133,10 +156,18 @@ gripper during manipulation tasks.
 
 The Ignition Gazebo simulation environment serves as a crucial tool for testing and refining the robot's navigation
 and manipulation capabilities. A realistic warehouse environment with various obstacles was created to validate 
-the performance of the Nav2 navigation framework and associated algorithms in a safe and controlled setting.
+the performance of the Nav2 navigation framework and associated algorithms in a safe and controlled setting,
+as shown in Figure \ref{fig:ignition}.
 
-Nav2, a comprehensive software framework for autonomous navigation, is utilized for planning and executing mobile
-base trajectories. Its modular architecture accommodates various plugins, including costmap layers, localizers,
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c4_12.png}
+    \caption{Ignition Gazebo Simulation Environment for the mobile robot base}
+    \label{fig:ignition}
+\end{figure}
+
+Nav2, a comprehensive software framework for autonomous navigation, is utilized for planning and executing the mobile
+robot's trajectories. Its modular architecture accommodates various plugins, including costmap layers, localizers,
 planners, and recovery behaviors. SLAM Toolbox is employed for mapping and localization, while the Hybrid A* 
 global planner and MPPI local planner ensure efficient and collision-free navigation.
 
@@ -150,92 +181,118 @@ This issue, stemming from a combination of network congestion and the default DD
 was resolved by reconfiguring the middleware to prioritize local communication and adopting the Cyclone DDS 
 implementation. This optimization significantly improved data transmission and overall system stability.
 
-Finally, a parking algorithm was designed to enable the mobile robot to autonomously position itself optimally
+A parking algorithm was designed to enable the mobile robot to autonomously position itself optimally
 for manipulation tasks. The algorithm considers the target location, costmap, and robot footprint to generate 
 candidate poses and select the most suitable one based on a ranking function. Despite its effectiveness in most 
 cases, the algorithm's limitations, primarily related to the robot arm's workspace approximation, highlight
 potential areas for future refinement.
 
-This chapter outlines the software architecture and simulation environments employed for the development of the mobile
-manipulation robot. The Robot Operating System 2 (ROS2) middleware serves as the backbone, providing a flexible framework
-for integrating various software components and enabling communication between nodes.
+ArUco markers are utilized for precise object localization and pose estimation. 
+Detection involves identifying the marker's corners and ID using the OpenCV ArUco library, while pose estimation
+utilizes these corners, marker size, and camera intrinsic parameters to determine the marker's position and
+orientation relative to the camera.
 
-A key aspect of this project was the development of a ROS2 control interface for the Igus Rebel arm, which allowed for 
-seamless integration with the ROS2 ecosystem and high-level control over the arm's movements through Ethernet communication.
-This interface works in conjunction with the Joint Trajectory Controller, enabling the execution of motion plans 
-generated by MoveIt2.
+To overcome challenges in estimating the orientation of small ArUco markers, a multi-ArUco plane estimation 
+algorithm was developed. This algorithm assumes the coplanarity of multiple markers and utilizes RANSAC, 
+least squares estimation, PCA, and SVD to determine the plane's orientation, thus refining the individual 
+marker poses.
 
-MoveIt2, a comprehensive motion planning framework, plays a crucial role in generating and executing arm trajectories.
-Its modular structure, encompassing the planning scene, planning pipelines, kinematics solvers, and collision checkers,
-streamlines the development of complex motion planning tasks. A custom ROS2 library further simplifies the 
-integration of MoveIt2 with the Igus Rebel arm, providing high-level functions for controlling arm movements.
+The YOLOv8 object detection model, a state-of-the-art real-time algorithm, was employed for detecting colored
+balls and apples in the environment, as demonstrated in Figure \ref{fig:yolov8}.
+Trained on a custom dataset with augmented images, YOLOv8 achieved 
+satisfactory performance in terms of mean Average Precision (mAP) and Intersection over Union (IoU).
+Challenges with high false positive rates were addressed by adjusting the confidence threshold.
 
-RViz2, a 3D visualization tool, is utilized to visualize the robot's motion in both simulated and real-world environments.
-This real-time visualization aids in debugging and validating the robot's behavior, ensuring that planned trajectories
-are safe and effective.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c4_16.png}
+    \caption{YOLOv8 Inference in action}
+    \label{fig:yolov8}
+\end{figure}
 
-Collision avoidance is achieved through the integration of the Octomap library with MoveIt2. Octomap generates 3D 
-occupancy maps of the environment, allowing the robot to plan collision-free paths. However, the current implementation
-of Octomap in ROS2 presents limitations such as slow updates and false positives in collision detection, which warrant 
-further refinement.
+The object's pose estimation process combines object detection with depth perception from the RealSense camera.
+A segmented point cloud is created by filtering the depth map based on the detected object's bounding box and color mask.
+The object's center is estimated by fitting a sphere to the segmented point cloud using RANSAC and MLESAC algorithms,
+enabling the calculation of an optimal grasping pose for the robotic arm.
 
-The actuation of the soft gripper is managed by a ROS2-control interface that communicates with an Arduino UNO microcontroller. 
-This microcontroller controls the pneumatic pump responsible for opening and closing the gripper's fingers, 
-providing precise control over grasping actions.
+Two algorithms, sphere barycenter estimation and grasp pose estimation, facilitate the manipulation of objects. The former estimates the object's center from the segmented point cloud, assuming a spherical shape, 
+while the latter generates candidate grasping poses and selects the most suitable one based on inverse kinematics 
+feasibility and a heuristic ranking. This approach is simplified due to the compliance of the soft gripper fingers, 
+allowing for some error in pose estimation.
 
-To test and refine the robot's capabilities, the Ignition Gazebo simulation environment was utilized. 
-A realistic warehouse environment with various obstacles was constructed to simulate real-world scenarios.
-This simulation allowed for thorough testing of the Nav2 navigation framework and the robot's ability to navigate 
-in complex environments.
+Collision avoidance is achieved using the Octomap library, which generates 3D occupancy maps based on sensor data. 
+However, the current ROS2 implementation of Octomap has limitations in updating and maintaining accurate 
+representations of dynamic environments, leading to potential false positives in collision detection.
 
-Nav2, a powerful navigation framework, plays a crucial role in enabling the robot's autonomous navigation capabilities.
-It employs various plugins, including costmap layers, localizers, planners, and recovery behaviors, to navigate e
-fficiently and avoid obstacles. Through extensive testing and parameter tuning in both simulated and real-world scenarios,
-the robot's navigation performance was optimized.
+To control the soft gripper, a ROS2-control interface communicates with an Arduino UNO microcontroller, 
+which in turn controls the pneumatic pump responsible for actuating the gripper's fingers. 
+This serial communication setup ensures precise control over the grasping action.
 
-A significant challenge encountered during testing was the low and unreliable frequency of the LiDAR sensor, 
-primarily caused by network congestion and the default DDS middleware configuration. This issue was resolved by 
-reconfiguring the middleware and adopting the Cyclone DDS implementation, resulting in improved data transmission
-and overall system stability.
+The experimental setups involved both simulated and real-world scenarios. A simulated warehouse environment
+in Ignition Gazebo was used to test and validate the navigation and obstacle avoidance algorithms. 
+Additionally, artificial plants with colored balls and apples served as realistic environments for testing
+the object picking capabilities of the mobile manipulator.
 
-The ROS2 Actions client-server architecture provides a structured approach for implementing high-level tasks. 
-It enables the robot to execute complex behaviors through asynchronous communication between nodes, enhancing 
-modularity and reusability of code.
+The ROS2 Actions client-server architecture provides a modular and scalable framework for implementing high-level tasks.
+It enables efficient communication and coordination between different software components, 
+ensuring robust and reliable execution of complex behaviors like autonomous navigation, object detection, grasping,
+and manipulation.
 
-Overall, this chapter has presented an overview of the software architecture and simulation environments employed 
-in the development of the mobile manipulation robot. The integration of ROS2, MoveIt2, Nav2, and other components 
+The integration of ROS2, MoveIt2, Nav2, and other components 
 has resulted in a capable and adaptable system ready for deployment in real-world scenarios. Future work could focus
 on improving the integration of Octomap with MoveIt2, refining the grasping algorithms for the soft gripper, 
 and exploring more advanced perception techniques to enhance the robot's capabilities further.
 
 \section{Experimental Setups and Demonstrations}
 
-This chapter explores the experimental setups and demonstrations designed to showcase the capabilities of the 
+Experimental setups and demonstrations were designed to showcase the capabilities of the 
 mobile manipulation robot in industrial and agricultural scenarios. Three distinct demonstrations were conducted:
 the ArUco Follower, the Button Presser, and the Object Picking demos.
 
 The ArUco Follower demo served as a preliminary test for the robotic arm's autonomous control software. 
 Utilizing the MoveIt2 motion planning framework and ArUco marker detection and pose estimation algorithms, 
-the robot arm successfully tracked and followed a moving ArUco marker with its end effector.  However, 
+the robot arm successfully tracked and followed a moving ArUco marker with its end effector. However, 
 attempts to integrate the MoveIt2 Servo node for real-time control proved challenging due to stability issues
 and the need for precise PID tuning.
 
 The Button Presser demo highlighted the robot's potential in industrial settings by demonstrating its ability 
 to autonomously press buttons on a custom-designed control panel. Two iterations of the end-effector mount were employed,
-with MountV2 incorporating a vacuum suction cap to enhance button-pressing reliability.  The demo involved a 
-sequence of steps, including navigating to the control panel, detecting ArUco markers to locate buttons, 
-and executing planned trajectories to press them in a predefined order.
+with MountV2 incorporating a vacuum suction cap to enhance button-pressing reliability. The demo involved a 
+sequence of steps, including navigating to the control panel, detecting ArUco markers with the 
+multi-ArUco plane estimation algorithm to locate the buttons, 
+and executing planned trajectories to press them in a predefined order. Figure \ref{fig:buttonpresser} shows the robot
+while interacting with the control panel.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c5_10.jpg}
+    \caption{Mobile Button Presser Demo}
+    \label{fig:buttonpresser}
+\end{figure}
 
 The Object Picking demo showcased the robot's adaptability in agricultural scenarios, specifically focusing 
-on picking colored balls and apples from artificial plants.  The demo utilized the YOLOv8 object detection model,
-trained on a custom dataset, to identify and locate objects. A multi-ArUco plane estimation algorithm was 
-developed to address challenges in accurately estimating object orientation, especially for smaller markers.
-
+on picking colored balls and apples from artificial plants. The demo utilized the YOLOv8 object detection model,
+trained on a custom dataset, to identify and locate objects.
 Two versions of the Object Picking demo were implemented. In the first version, the robot picked objects and 
-placed them in a basket mounted on the mobile base.  The second version involved navigating to a separate dropping 
+placed them in a basket mounted on the mobile base. The second version involved navigating to a separate dropping 
 location, requiring the robot to utilize its navigation and obstacle avoidance capabilities. Both versions 
 successfully demonstrated the robot's ability to autonomously pick and place objects in a simulated agricultural 
-environment.
+environment. Figure \ref{fig:demo2_1} shows the robot picking apples from an artificial plant, 
+while Figure \ref{fig:demo2_2} depicts the robot dropping a picked apple in the designated location.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c5_17.jpg}
+    \caption{Mobile Fruit Picking Demo: Object Picking Version 2 while picking apples from an artificial plant}
+    \label{fig:demo2_1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{c5_18.jpg}
+    \caption{Mobile Fruit Picking Demo: Object Picking Version 2 while dropping a picked apple}
+    \label{fig:demo2_2}
+\end{figure}
 
 The object picking routine, common to both versions, involved generating a list of waypoints for the robot to follow,
 detecting objects at each waypoint, computing priority scores for detected objects based on distance and confidence, 
@@ -244,12 +301,12 @@ executed trajectories to approach, grasp, and transport the object to the design
 
 The implementation of these demos relied heavily on the ROS2 framework, leveraging its action client-server 
 architecture for high-level task coordination. The system architecture encompassed various components, including 
-ArUco marker detection, MoveIt2 servers for planning and execution, Nav2 servers for navigation, a client 
+MoveIt2 servers for planning and execution, Nav2 servers for navigation, a client 
 node for orchestration, a neural network node for object detection, and an ArUco pose estimation node.
 
 Throughout the development and testing of these demos, several challenges were encountered. These included 
 dealing with the infrared reflectivity of objects, the slow inference speed of the object detection network, 
-and the limitations of the Octomap library for collision avoidance.  Workarounds and optimizations were 
+and the limitations of the Octomap library for collision avoidance. Workarounds and optimizations were 
 implemented to mitigate these issues, demonstrating the resilience and adaptability of the robotic system.
 
 Overall, these experimental setups and demonstrations showcase the potential of the mobile manipulation robot
@@ -280,3 +337,15 @@ enhancing perception algorithms, exploring deep learning techniques for object r
 integrating ROS2 behavior trees for more complex task planning. Ultimately, this project contributes to the 
 vision of creating adaptable and intelligent robotic systems that can revolutionize industries by automating 
 complex tasks and improving efficiency and safety.
+
+%-----------------------------------------------------------------------------
+% IMAGES names to place
+
+% c3_23 mountv1
+% c3_24 mountv2
+% c3_28 complete robot setup
+% c4_11 moveit2 RViz2
+% c4_12 gazebo 
+% c4_16 yolov8
+% c5_10 button presser demo
+% c5_17, c5_18 mobile fruit picking demo
