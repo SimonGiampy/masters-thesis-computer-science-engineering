@@ -77,18 +77,18 @@ adapt to various object shapes and sizes.
 3D-printed mounts, designed using Fusion 360 and printed with PETG material, ensure secure attachment of the 
 camera and gripper to the robotic arm. These lightweight and durable mounts maintain sensor positioning despite
 vibrations during operation.
-The initial mount design (MountV1), shown in \ref{fig:mountv1}, was robust but limited the camera's field of view. 
-An improved version (MountV2), shown in \ref{fig:mountv2},
+The initial mount design (MountV1), shown in Figure \ref{fig:mountv1}, was robust but limited the camera's field of view. 
+An improved version (MountV2), shown in Figure \ref{fig:mountv2},
 was developed to address this issue, optimizing camera placement and incorporating the soft gripper.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c3_23.png}
     \caption{MountV1 with cylinder presser}
     \label{fig:mountv1}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c3_24.png}
     \caption{Mountv2 with soft gripper}
@@ -110,7 +110,7 @@ in industrial and agricultural settings. The integration of diverse hardware and
 rigorous testing, demonstrates the system's potential for real-world automation tasks.
 Figure \ref{fig:setup} shows a picture of the complete setup of the mobile manipulation robot.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c3_28.jpg}
     \caption{Mobile Manipulator Robot Setup}
@@ -121,6 +121,8 @@ Figure \ref{fig:setup} shows a picture of the complete setup of the mobile manip
 
 The system leverages the Robot Operating System 2 (ROS2) as the middleware, providing a flexible framework for
 integrating diverse software components and enabling communication between nodes.
+
+\subsection{Robotic Arm Control}
 
 A key aspect of the software development was creating a ROS2 control interface for the Igus Rebel arm, enabling 
 high-level control and monitoring through the Ethernet interface. This interface interacts with the Joint Trajectory 
@@ -142,7 +144,7 @@ MoveIt2. Octomap generates 3D occupancy maps of the surroundings, enabling the r
 However, due to the ongoing development of the Octomap library for ROS2, limitations such as slow updates and 
 false positives in collision checking were encountered.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c4_11.png}
     \caption{RViz2 visualization of MoveIt2 planning scene}
@@ -154,12 +156,14 @@ microcontroller. This microcontroller controls the pneumatic pump responsible fo
 Serial communication over the UART protocol facilitates this control, allowing for precise actuation of the soft
 gripper during manipulation tasks.
 
+\subsection{Mobile Robot Control}
+
 The Ignition Gazebo simulation environment serves as a crucial tool for testing and refining the robot's navigation
 and manipulation capabilities. A realistic warehouse environment with various obstacles was created to validate 
 the performance of the Nav2 navigation framework and associated algorithms in a safe and controlled setting,
 as shown in Figure \ref{fig:ignition}.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c4_12.png}
     \caption{Ignition Gazebo Simulation Environment for the mobile robot base}
@@ -187,6 +191,8 @@ candidate poses and select the most suitable one based on a ranking function. De
 cases, the algorithm's limitations, primarily related to the robot arm's workspace approximation, highlight
 potential areas for future refinement.
 
+\subsection{Perception}
+
 ArUco markers are utilized for precise object localization and pose estimation. 
 Detection involves identifying the marker's corners and ID using the OpenCV ArUco library, while pose estimation
 utilizes these corners, marker size, and camera intrinsic parameters to determine the marker's position and
@@ -203,7 +209,7 @@ Trained on a custom dataset with augmented images, YOLOv8 achieved
 satisfactory performance in terms of mean Average Precision (mAP) and Intersection over Union (IoU).
 Challenges with high false positive rates were addressed by adjusting the confidence threshold.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c4_16.png}
     \caption{YOLOv8 Inference in action}
@@ -215,23 +221,12 @@ A segmented point cloud is created by filtering the depth map based on the detec
 The object's center is estimated by fitting a sphere to the segmented point cloud using RANSAC and MLESAC algorithms,
 enabling the calculation of an optimal grasping pose for the robotic arm.
 
-Two algorithms, sphere barycenter estimation and grasp pose estimation, facilitate the manipulation of objects. The former estimates the object's center from the segmented point cloud, assuming a spherical shape, 
+Two algorithms, sphere center estimation and grasp pose estimation, facilitate the manipulation of objects. The former estimates the object's center from the segmented point cloud, assuming a spherical shape, 
 while the latter generates candidate grasping poses and selects the most suitable one based on inverse kinematics 
 feasibility and a heuristic ranking. This approach is simplified due to the compliance of the soft gripper fingers, 
 allowing for some error in pose estimation.
 
-Collision avoidance is achieved using the Octomap library, which generates 3D occupancy maps based on sensor data. 
-However, the current ROS2 implementation of Octomap has limitations in updating and maintaining accurate 
-representations of dynamic environments, leading to potential false positives in collision detection.
-
-To control the soft gripper, a ROS2-control interface communicates with an Arduino UNO microcontroller, 
-which in turn controls the pneumatic pump responsible for actuating the gripper's fingers. 
-This serial communication setup ensures precise control over the grasping action.
-
-The experimental setups involved both simulated and real-world scenarios. A simulated warehouse environment
-in Ignition Gazebo was used to test and validate the navigation and obstacle avoidance algorithms. 
-Additionally, artificial plants with colored balls and apples served as realistic environments for testing
-the object picking capabilities of the mobile manipulator.
+\subsection{Actions Architecture}
 
 The ROS2 Actions client-server architecture provides a modular and scalable framework for implementing high-level tasks.
 It enables efficient communication and coordination between different software components, 
@@ -249,6 +244,11 @@ Experimental setups and demonstrations were designed to showcase the capabilitie
 mobile manipulation robot in industrial and agricultural scenarios. Three distinct demonstrations were conducted:
 the ArUco Follower, the Button Presser, and the Object Picking demos.
 
+The experimental setups involved both simulated and real-world scenarios. A simulated warehouse environment
+in Ignition Gazebo was used to test and validate the navigation and obstacle avoidance algorithms. 
+Additionally, artificial plants with colored balls and apples served as realistic environments for testing
+the object picking capabilities of the mobile manipulator.
+
 The ArUco Follower demo served as a preliminary test for the robotic arm's autonomous control software. 
 Utilizing the MoveIt2 motion planning framework and ArUco marker detection and pose estimation algorithms, 
 the robot arm successfully tracked and followed a moving ArUco marker with its end effector. However, 
@@ -263,7 +263,7 @@ multi-ArUco plane estimation algorithm to locate the buttons,
 and executing planned trajectories to press them in a predefined order. Figure \ref{fig:buttonpresser} shows the robot
 while interacting with the control panel.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c5_10.jpg}
     \caption{Mobile Button Presser Demo}
@@ -280,14 +280,14 @@ successfully demonstrated the robot's ability to autonomously pick and place obj
 environment. Figure \ref{fig:demo2_1} shows the robot picking apples from an artificial plant, 
 while Figure \ref{fig:demo2_2} depicts the robot dropping a picked apple in the designated location.
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c5_17.jpg}
     \caption{Mobile Fruit Picking Demo: Object Picking Version 2 while picking apples from an artificial plant}
     \label{fig:demo2_1}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.45\textwidth]{c5_18.jpg}
     \caption{Mobile Fruit Picking Demo: Object Picking Version 2 while dropping a picked apple}
