@@ -1,4 +1,4 @@
-# Mobile Manipulation in industrial and agricultural environments - Ongoing Development
+# Development of an Autonomous Mobile Manipulator for Industrial and Agricultural Environments
 
 ## Master's Thesis in Computer Science Engineering - Artificial Intelligence and Robotics Laboratory (AIRLab)
 
@@ -10,4 +10,4 @@ Academic Year: 2023/2024
 
 Supervisor: Prof. Matteo Matteucci
 
-Co-supervisor: PostDoc. Gianluca Bardaro
+Co-supervisor: Dr. Gianluca Bardaro
